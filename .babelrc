@@ -1,0 +1,18 @@
+{
+  "presets": [
+    "stage-2",
+    ["env", {
+      "browsers": "ie >= 11"
+    }]
+  ],
+  "plugins": [
+    [
+      "transform-runtime", {
+        "helpers": false,
+        "polyfill": false,
+        "regenerator": true,
+        "moduleName": "babel-runtime"
+      }
+    ]
+  ]
+}

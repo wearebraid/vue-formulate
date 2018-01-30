@@ -4,7 +4,10 @@
   "description": "The easiest way to build forms in Vue with validation and vuex support.",
   "main": "dist/index.js",
   "scripts": {
-    "test": "ava"
+    "dev": "webpack --hide-modules --watch",
+    "build": "NODE_ENV=production && webpack --hide-modules",
+    "test": "ava",
+    "watch": "ava --watch"
   },
   "repository": {
     "type": "git",
@@ -23,5 +26,40 @@
   "bugs": {
     "url": "https://github.com/wearebraid/vue-formulate/issues"
   },
-  "homepage": "https://github.com/wearebraid/vue-formulate#readme"
+  "homepage": "https://github.com/wearebraid/vue-formulate#readme",
+  "devDependencies": {
+    "ava": "^0.25.0",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.1",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "eslint": "^4.16.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "eslint-plugin-vue": "^4.2.0",
+    "vue-loader": "^13.7.0",
+    "vue-template-compiler": "^2.5.13",
+    "webpack": "^3.10.0"
+  },
+  "ava": {
+    "require": [
+      "babel-register",
+      "babel-polyfill"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "dependencies": {
+    "clone-deep": "^3.0.1",
+    "shortid": "^2.2.8"
+  }
 }
