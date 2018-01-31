@@ -3,7 +3,7 @@
 
 ### What is it?
 
-Vue Formulate is a (Vue)[https://vuejs.org/] plugin that exposes an elegant
+Vue Formulate is a [Vue](https://vuejs.org/) plugin that exposes an elegant
 mechanism for building and validating forms with a centralized data store.
 
 ### Installation
@@ -17,8 +17,8 @@ npm install vue-formulate
 Install `vue-formulate` like any other vue plugin:
 
 ```js
-import Vue from 'vue
-import formulate from 'vue-formulate;
+import Vue from 'vue'
+import formulate from 'vue-formulate
 
 Vue.use(formulate)
 ```
