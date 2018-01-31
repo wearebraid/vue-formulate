@@ -1,0 +1,147 @@
+import test from 'ava'
+import {formulateState, formulateGetters, formulateMutations} from '../dist'
+
+test('initial store state', async t => {
+  t.deepEqual({
+    values: {},
+    errors: {},
+    validationErrors: {}
+  }, formulateState()())
+})
+
+test('extended initial store state', async t => {
+  t.deepEqual({
+    values: {},
+    errors: {},
+    validationErrors: {},
+    additionalParam: 'test'
+  }, formulateState({
+    additionalParam: 'test'
+  })())
+})
+
+test('validationErrors getter', async t => {
+  let state = {
+    validationErrors: {
+      form: {
+        field: ['This is an error']
+      }
+    }
+  }
+  t.is(formulateGetters().formValidationErrors(state), state.validationErrors)
+})
+
+test('errors getter', async t => {
+  let state = {
+    errors: {
+      form: {
+        field: ['This is an error', 'second error']
+      }
+    }
+  }
+  t.is(formulateGetters().formErrors(state), state.errors)
+})
+
+test('values getter', async t => {
+  let state = {
+    values: {
+      form: {
+        name: 'Johan',
+        field: 'Guttenberg'
+      }
+    }
+  }
+  t.is(formulateGetters().formValues(state), state.values)
+})
+
+test('form has errors', async t => {
+  let state = {
+    errors: {
+      form: {
+        field: ['This is an error', 'second error']
+      }
+    }
+  }
+  t.is(true, formulateGetters().hasErrors(state).form)
+})
+
+test('form has empty errors', async t => {
+  let state = {
+    errors: {
+      form: {
+        field: [],
+        other: []
+      }
+    }
+  }
+  t.is(false, formulateGetters().hasErrors(state).form)
+})
+
+test('form has no errors', async t => {
+  let state = {
+    errors: {
+      form: {}
+    }
+  }
+  t.is(false, formulateGetters().hasErrors(state).form)
+})
+
+test('adds a new field value', async t => {
+  let state = {values: {}}
+  formulateMutations().setFieldValue(state, {
+    form: 'form',
+    field: 'name',
+    value: 'test name'
+  })
+  t.deepEqual(state.values, {form: {name: 'test name'}})
+})
+
+test('adds an existing field value', async t => {
+  let state = {values: {form: {name: 'old name'}}}
+  formulateMutations().setFieldValue(state, {
+    form: 'form',
+    field: 'name',
+    value: 'new name'
+  })
+  t.deepEqual(state.values, {form: {name: 'new name'}})
+})
+
+test('adds an error to new field', async t => {
+  let state = {errors: {}}
+  formulateMutations().setFieldErrors(state, {
+    form: 'form',
+    field: 'name',
+    errors: ['i dislike this field']
+  })
+  t.deepEqual(state.errors, {form: {name: ['i dislike this field']}})
+})
+
+test('adds an error to existing field', async t => {
+  let state = {errors: {form: {name: ['i like this field']}}}
+  formulateMutations().setFieldErrors(state, {
+    form: 'form',
+    field: 'name',
+    errors: ['i dislike this field']
+  })
+  t.deepEqual(state.errors, {form: {name: ['i dislike this field']}})
+})
+
+test('adds a validationError to new field', async t => {
+  let state = {validationErrors: {}}
+  formulateMutations().setFieldValidationErrors(state, {
+    form: 'form',
+    field: 'name',
+    errors: ['i dislike this field']
+  })
+  t.deepEqual(state.validationErrors, {form: {name: ['i dislike this field']}})
+})
+
+test('adds a validationError to existing field', async t => {
+  let state = {validationErrors: {form: {name: ['i like this field']}}}
+  formulateMutations().setFieldValidationErrors(state, {
+    form: 'form',
+    field: 'name',
+    errors: ['i dislike this field']
+  })
+  t.deepEqual(state.validationErrors, {form: {name: ['i dislike this field']}})
+})

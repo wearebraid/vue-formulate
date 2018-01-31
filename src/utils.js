@@ -1,5 +1,3 @@
-import cloneDeep from 'clone-deep'
-
 /**
  * Compare the equality of two arrays.
  * @param {Array} arr1
@@ -22,7 +20,7 @@ export function equals (arr1, arr2) {
  * @param {Function} callback
  */
 export function map (original, callback) {
-  let obj = cloneDeep(original)
+  let obj = Object.assign({}, original)
   for (let key in obj) {
     obj[key] = callback(key, obj[key])
   }
@@ -71,7 +69,6 @@ export const inputTypes = {
     'hidden',
     'month',
     'password',
-    'radio',
     'range',
     'search',
     'tel',
@@ -83,7 +80,11 @@ export const inputTypes = {
     'submit',
     'button'
   ],
-  list: [
+  select: [
     'select'
+  ],
+  box: [
+    'radio',
+    'checkbox'
   ]
 }

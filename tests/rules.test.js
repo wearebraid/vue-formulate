@@ -12,6 +12,11 @@ test('test required rule failure', async t => {
   t.is('namexyz', v)
 })
 
+test('test required rule empty array failure', async t => {
+  let v = await rules.required({field: 'name', value: [], error}, 'xyz')
+  t.is('namexyz', v)
+})
+
 test('test required rule passes', async t => {
   t.is(false, await rules.required({field: 'name', value: 'Justin'}))
 })

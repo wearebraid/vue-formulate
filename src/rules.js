@@ -5,7 +5,7 @@ export default {
    * @param {string} label
    */
   async required ({field, value, error}, label) {
-    return (!value) ? error(...arguments) : false
+    return (!value || (Array.isArray(value) && !value.length)) ? error(...arguments) : false
   },
 
   /**

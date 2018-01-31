@@ -25,11 +25,20 @@ export default {
     initial: {
       type: Object,
       default: () => ({})
+    },
+    behavior: {
+      type: String,
+      default: 'blur'
+    },
+    showErrors: {
+      type: [Boolean, Object],
+      default: () => ({})
     }
   },
   data () {
     return {
-      parentIdentifier: 'vue-formulate-wrapper-element'
+      parentIdentifier: 'vue-formulate-wrapper-element',
+      forceErrors: null
     }
   },
   computed: {
@@ -50,6 +59,15 @@ export default {
     },
     fields () {
       return this.$formulate.fields(this.$vnode)
+    },
+    shouldShowErrors () {
+      if (this.forceErrors === false || this.forceErrors === true) {
+        return this.forceErrors
+      }
+      if (this.showErrors === false || this.showErrors === true) {
+        return this.showErrors
+      }
+      return this.behavior === 'live'
     }
   },
   created () {
@@ -87,8 +105,8 @@ export default {
         field,
         value: this.values[field]
       }, validation, this.values)
-      if (!equals(errors, (this.validationErrors[field] || []))) {
-        this.updateFieldValidationErrors({field, errors})
+      if (!equals(errors || [], (this.validationErrors[field] || []))) {
+        this.updateFieldValidationErrors({field, errors: errors || []})
       }
       return errors
     },
@@ -99,7 +117,11 @@ export default {
       }))
     },
     submit () {
-      alert('submitting form')
+      if (this.hasErrors) {
+        this.forceErrors = true
+      } else {
+        alert('submitting form')
+      }
     }
   }
 }

@@ -41,3 +41,15 @@ test('tests multiple validation errors', async t => {
 test('tests empty validation string', async t => {
   t.is(false, await formulate.validationErrors({field: 'email', value: 'pastaparty'}, false))
 })
+
+test('can extend rules and errors', async t => {
+  formulate.install(VueMock, {
+    rules: {
+      isPizza: ({field, value, error}, label) => value === 'pizza' ? false : error({field, value})
+    },
+    errors: {
+      isPizza: ({field, value}) => `${field} is not a pizza`
+    }
+  })
+  t.deepEqual(['pepperoni is not a pizza'], await formulate.validationErrors({field: 'pepperoni', value: 'meat'}, 'isPizza'))
+})
