@@ -18,7 +18,7 @@ Install `vue-formulate` like any other vue plugin:
 
 ```js
 import Vue from 'vue'
-import formulate from 'vue-formulate
+import formulate from 'vue-formulate'
 
 Vue.use(formulate)
 ```
