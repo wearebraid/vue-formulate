@@ -130,19 +130,20 @@ simply chain your rules with pipes `|'. Additional arguments can be passed to
 validation rules by using parenthesis after the rule name:
 
 ```
-validation="required(My Label)|confirmed(Password Field, confirmation_field)"
+validation="required|confirmed(confirmation_field)"
 ```
 
-By convention the first argument is an alternate label for use in error messages.
-This is still a fresh project, so pull requests for more built-in rules are
-appreciated!
+The field label used in built in validation methods is the `validationLabel`
+attribute on your `formulate-element`. If no `validationLabel` is found then
+the `label` attribute is used, and if no `label` attribute is found it will
+fall back to the field’s `name` attribute (which is required).
 
 #### Custom Validation Rules
 
 Validation rules are easy to write! They're just simple functions that are
 always passed at least one argument, an object containing the `field` name,
-`value` of the field, `error` function to generate an error message, and all the
-`values` of the entire form.
+`value` of the field, validation `label`, `error` function to generate an error
+message, and an object containing all the `values` for the entire form.
 
 Additionally, validation rules can pass an unlimited number of extra arguments.
 These arguments are passed as the 2nd-nth arguments to the validation rule.
@@ -151,10 +152,10 @@ attribute on the `formulate-element`.
 
 ```html
 <formulate-element
-  type="checkbox"
-  name="terms"
-  label="Please agree to our terms of service"
-  validation="required(Terms of service)"
+  type="password"
+  name="password"
+  label="Password"
+  validation="confirmed(password_confirmation_field)"
 />
 ```
 
@@ -167,8 +168,8 @@ of rule functions in the plugin’s installation call:
 ```js
 Vue.use(formulate, {
   rules: {
-    isPizza ({field, value, error, values}, label) {
-      return value === 'pizza' ? false : `That is not pizza.`
+    isPizza ({field, value, error, values, label}) {
+      return value === 'pizza' ? false : `label is not pizza.`
     }
   }
 })

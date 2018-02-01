@@ -93,10 +93,10 @@ class Formulate {
    * @param {string} rulesString
    * @param {Object} values
    */
-  async validationErrors ({field, value}, rulesString, values) {
+  async validationErrors ({field, value, label}, rulesString, values) {
     return rulesString ? Promise.all(
       this.parseRules(rulesString)
-        .map(({rule, args}) => this.rules[rule]({field, value, error: this.errorFactory(rule), values}, ...args))
+        .map(({rule, args}) => this.rules[rule]({field, value, label, error: this.errorFactory(rule), values}, ...args))
     ).then(responses => responses.reduce((errors, error) => {
       return error ? (Array.isArray(errors) ? errors.concat(error) : [error]) : errors
     }, false)) : false

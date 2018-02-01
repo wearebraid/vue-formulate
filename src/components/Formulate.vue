@@ -100,10 +100,11 @@ export default {
         form: this.name
       }))
     },
-    async validateField ({field, validation}) {
+    async validateField ({field, validation, label}) {
       let errors = await this.$formulate.validationErrors({
         field,
-        value: this.values[field]
+        value: this.values[field],
+        label
       }, validation, this.values)
       if (!equals(errors || [], (this.validationErrors[field] || []))) {
         this.updateFieldValidationErrors({field, errors: errors || []})
@@ -111,9 +112,13 @@ export default {
       return errors
     },
     updateFormValidation () {
+      this.fields.map(field => {
+        console.log(field.validationLabel || field.label || field.name)
+      })
       this.fields.map(async field => this.validateField({
         field: field.name,
-        validation: field.validation
+        validation: field.validation,
+        label: field.validationLabel || field.label || field.name
       }))
     },
     submit () {
