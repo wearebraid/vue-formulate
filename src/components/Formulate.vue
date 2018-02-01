@@ -112,9 +112,7 @@ export default {
       return errors
     },
     updateFormValidation () {
-      this.fields.map(field => {
-        console.log(field.validationLabel || field.label || field.name)
-      })
+      console.log(this.fields)
       this.fields.map(async field => this.validateField({
         field: field.name,
         validation: field.validation,
@@ -125,7 +123,7 @@ export default {
       if (this.hasErrors) {
         this.forceErrors = true
       } else {
-        alert('submitting form')
+        this.$emit('submit', Object.assign({}, this.values))
       }
     }
   }

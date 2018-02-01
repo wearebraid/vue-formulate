@@ -233,7 +233,7 @@ export default {
     shouldShowErrors () {
       let show = this.form.shouldShowErrors
       if (this.form.behavior === 'blur') {
-        show = this.errorBlurState
+        show = show || this.errorBlurState
       }
       if (this.showErrors === false || this.showErrors === true) {
         show = this.showErrors
