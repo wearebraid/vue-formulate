@@ -1,5 +1,6 @@
 # Vue Formulate
 ---------------
+[![Build Status](https://travis-ci.org/wearebraid/vue-formulate.svg?branch=master)](https://travis-ci.org/wearebraid/vue-formulate)
 
 ### What is it?
 
