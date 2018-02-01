@@ -79,11 +79,13 @@ export default {
     },
     hydrate (values) {
       for (let field of this.fields) {
-        this.$store.commit(`${this.m}setFieldValue`, {
-          field: field.name,
-          value: values[field.name],
-          form: this.name
-        })
+        if (field.type !== 'submit') {
+          this.$store.commit(`${this.m}setFieldValue`, {
+            field: field.name,
+            value: values[field.name],
+            form: this.name
+          })
+        }
       }
       this.updateFormValidation()
     },
