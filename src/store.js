@@ -7,7 +7,8 @@ import {map, reduce} from './utils'
 export const formulateState = (options = {}) => () => Object.assign({
   values: {},
   errors: {},
-  validationErrors: {}
+  validationErrors: {},
+  meta: {}
 }, options)
 
 /**
@@ -24,6 +25,9 @@ export const formulateGetters = (moduleName = '', getters = {}) => Object.assign
   },
   formValidationErrors (state) {
     return state.validationErrors
+  },
+  formMeta (state) {
+    return map(state.meta, (form, fields) => Object.entries(fields).map(([key, value]) => value))
   },
   hasErrors (state) {
     return map(state.errors, (form, errors) => {
@@ -58,6 +62,11 @@ export const formulateMutations = (mutations = {}) => Object.assign({
   setFieldValidationErrors (state, {form, field, errors}) {
     state.validationErrors = Object.assign({}, state.validationErrors, {
       [form]: Object.assign({}, state.validationErrors[form] || {}, {[field]: errors})
+    })
+  },
+  setFieldMeta (state, {form, field, data}) {
+    state.meta = Object.assign({}, state.meta, {
+      [form]: Object.assign({}, state.meta[form] || {}, {[field]: data})
     })
   }
 }, mutations)

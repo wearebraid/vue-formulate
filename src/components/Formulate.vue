@@ -58,7 +58,7 @@ export default {
       return this.$store.getters[`${this.m}formValidationErrors`][this.name] || {}
     },
     fields () {
-      return this.$formulate.fields(this.$vnode)
+      return this.$store.getters[`${this.m}formMeta`][this.name] || []
     },
     shouldShowErrors () {
       if (this.forceErrors === false || this.forceErrors === true) {
@@ -74,6 +74,9 @@ export default {
     this.hydrate(this.initial)
   },
   methods: {
+    registerField (field, data) {
+      this.$store.commit(`${this.m}setFieldMeta`, {form: this.name, field, data})
+    },
     hydrate (values) {
       for (let field of this.fields) {
         this.$store.commit(`${this.m}setFieldValue`, {
@@ -112,7 +115,6 @@ export default {
       return errors
     },
     updateFormValidation () {
-      console.log(this.fields)
       this.fields.map(async field => this.validateField({
         field: field.name,
         validation: field.validation,

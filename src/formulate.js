@@ -65,28 +65,6 @@ class Formulate {
   }
 
   /**
-   * Recursively find all instance of FormulateElement inside a given vnode.
-   */
-  fields (vnode) {
-    let fields = []
-    let children = false
-    if (vnode && vnode.componentOptions && vnode.componentOptions.children && vnode.componentOptions.children.length) {
-      children = vnode.componentOptions.children
-    } else if (vnode && vnode.children && vnode.children.length) {
-      children = vnode.children
-    }
-    if (children) {
-      fields = fields.concat(children.reduce((names, child) => {
-        if (child.componentOptions && child.componentOptions.tag === this.options.tags.FormulateElement) {
-          names.push(child.componentOptions.propsData)
-        }
-        return names.concat(this.fields(child))
-      }, []))
-    }
-    return fields
-  }
-
-  /**
    * Given a particular field, value, validation rules, and form values
    * perform asynchronous field validation.
    * @param {Object} validatee
@@ -96,7 +74,12 @@ class Formulate {
   async validationErrors ({field, value, label}, rulesString, values) {
     return rulesString ? Promise.all(
       this.parseRules(rulesString)
-        .map(({rule, args}) => this.rules[rule]({field, value, label, error: this.errorFactory(rule), values}, ...args))
+        .map(({rule, args}) => {
+          if (typeof this.rules[rule] !== 'function') {
+            throw new Error(`Validation rule is invalid: ${rule}`)
+          }
+          return this.rules[rule]({field, value, label, error: this.errorFactory(rule), values}, ...args)
+        })
     ).then(responses => responses.reduce((errors, error) => {
       return error ? (Array.isArray(errors) ? errors.concat(error) : [error]) : errors
     }, false)) : false

@@ -279,6 +279,7 @@ export default {
     }
   },
   created () {
+    this.form.registerField(this.name, this.$props)
     if (this.initial !== false) {
       this.form.hydrate({[this.name]: this.initial})
     }

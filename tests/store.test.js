@@ -5,7 +5,8 @@ test('initial store state', async t => {
   t.deepEqual({
     values: {},
     errors: {},
-    validationErrors: {}
+    validationErrors: {},
+    meta: {}
   }, formulateState()())
 })
 
@@ -14,6 +15,7 @@ test('extended initial store state', async t => {
     values: {},
     errors: {},
     validationErrors: {},
+    meta: {},
     additionalParam: 'test'
   }, formulateState({
     additionalParam: 'test'
@@ -52,6 +54,23 @@ test('values getter', async t => {
     }
   }
   t.is(formulateGetters().formValues(state), state.values)
+})
+
+test('formMeta getter', async t => {
+  let state = {
+    meta: {
+      form: {
+        name: {name: 'name', label: 'Name'},
+        flail: {name: 'email', label: 'Email'}
+      }
+    }
+  }
+  t.deepEqual(formulateGetters().formMeta(state), {
+    form: [
+      {name: 'name', label: 'Name'},
+      {name: 'email', label: 'Email'}
+    ]
+  })
 })
 
 test('form has errors', async t => {
