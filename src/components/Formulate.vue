@@ -73,6 +73,9 @@ export default {
   created () {
     this.hydrate(this.initial)
   },
+  mounted () {
+    this.hydrate(this.initial)
+  },
   methods: {
     registerField (field, data) {
       this.$store.commit(`${this.m}setFieldMeta`, {form: this.name, field, data})
