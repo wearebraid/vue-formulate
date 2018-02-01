@@ -121,9 +121,9 @@ your own.
 
 Rule      |  Arguments
 ----------|---------------
-required  | label
-email     | label
-confirmed | label, confirmation field
+required  | *none*
+email     | *none*
+confirmed | confirmation field
 
 You can add as many validation rules as you want to each `formulate-element`, 
 simply chain your rules with pipes `|'. Additional arguments can be passed to
