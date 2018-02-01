@@ -1,19 +1,24 @@
 # Vue Formulate
 ---------------
 [![Build Status](https://travis-ci.org/wearebraid/vue-formulate.svg?branch=master)](https://travis-ci.org/wearebraid/vue-formulate)
+[![Current Version](https://img.shields.io/npm/v/vue-formulate.svg)](https://www.npmjs.com/package/vue-formulate)
+[![License](https://img.shields.io/github/license/wearebraid/vue-formulate.svg)](https://github.com/wearebraid/vue-formulate/blob/master/LICENSE.txt)
 
 ### What is it?
 
 Vue Formulate is a [Vue](https://vuejs.org/) plugin that exposes an elegant
 mechanism for building and validating forms with a centralized data store.
 
-### Installation
+### Get Started
 
+#### Download
 First download the `vue-formulate` package from npm:
 
 ```sh
 npm install vue-formulate
 ```
+
+#### Installation
 
 Install `vue-formulate` like any other vue plugin:
 
@@ -23,7 +28,62 @@ import formulate from 'vue-formulate'
 
 Vue.use(formulate)
 ```
-Finally `vue-formulate` needs to access your vuex store. You can choose to.
+#### Vuex
+`vue-formulate` needs to be linked to your vuex store. Vuex can be
+configured as a single root store, or as namespaced modules and `vue-formualte`
+can work with either setup.
+
+**Vuex Module**
+
+```js
+import {formulateModule} from 'vue-formulate'
+
+export default formulateModule('namespace')
+```
+
+Using a namespaced vuex module is the recommended installation method. Just be
+sure to replace `'namespace'` with the namespace of your vuex module.
+
+Additionally, when using a vuex namespace, you _must_ also pass the namespace
+in the Vue plugin installation call:
+
+```js
+Vue.use(formulate, {vuexModule: 'namespace'})
+```
+
+Alternatively, you can install `vue-formulate`'s store elements to your vuex
+root store:
+
+**Root Store**
+
+```js
+import {formulateState, formulateGetters, formulateMutation} from 'vue-formulate'
+
+const state = () => ({
+  your: 'data',
+  ...formulateState()
+})
+
+const getters = {
+  yourGetter (state) {
+    return state.your
+  },
+  ...formulateGetters()
+}
+
+const mutations = {
+  setYour (state, payload) {
+    state.your = payload
+  },
+  ...formulateMutations()
+}
+
+export default {
+  state,
+  getters,
+  mutations
+}
+```
 
 ### Usage
 
@@ -32,27 +92,27 @@ Finally `vue-formulate` needs to access your vuex store. You can choose to.
 building needs. Here's a simple example:
 
 ```html
-<template>
-  <formulate name="registration">
-    <formulate-element
-      name="name"
-      type="text"
-      label="What is your name?"
-      validation="required"
-    />
-    <formulate-element
-      name="email"
-      type="email"
-      label="What is your email address?"
-      validation="required(Email address)|email"
-    />
-    <formulate-element
-      type="submit"
-      name="Register"
-    />
-  </formulate>
-</template>
+<formulate name="registration">
+  <formulate-element
+    name="email"
+    type="email"
+  />
+  ...more formulate-elements
+</formulate>
 ```
+
+You can think of `<formulate>` elements a little bit like traditional
+`<form>` tags. You _must_ wrap your `formulate-element` components
+in a `<formulate>` component. The `formulate` component has a single
+required prop `name` which creates the form’s key in the vuex store.
+
+All `formulate-element` components nested inside a `<formulate>`
+component will automatically be commit mutations directly to the
+store. The store becomes a live representation of all your form’s
+values.
+
+The `formulate-element` component is a powerful component handles field
+generation
 
 ### Validation Rules
 
@@ -66,27 +126,65 @@ email     | label
 confirmed | label, confirmation field
 
 You can add as many validation rules as you want to each `formulate-element`, 
-simply chain your rules with pipes `|'.
+simply chain your rules with pipes `|'. Additional arguments can be passed to
+validation rules by using parenthesis after the rule name:
 
 ```
 validation="required(My Label)|confirmed(Password Field, confirmation_field)"
 ```
 
-Adding your own validation rules is simple, simply pass an additional object
-of rules in your installation:
+By convention the first argument is an alternate label for use in error messages.
+This is still a fresh project, so pull requests for more built-in rules are
+appreciated!
+
+#### Custom Validation Rules
+
+Validation rules are easy to write! They're just simple functions that are
+always passed at least one argument, an object containing the `field` name,
+`value` of the field, `error` function to generate an error message, and all the
+`values` of the entire form.
+
+Additionally, validation rules can pass an unlimited number of extra arguments.
+These arguments are passed as the 2nd-nth arguments to the validation rule.
+Their values are parsed from the optional parenthesis in the validation
+attribute on the `formulate-element`.
+
+```html
+<formulate-element
+  type="checkbox"
+  name="terms"
+  label="Please agree to our terms of service"
+  validation="required(Terms of service)"
+/>
+```
+
+Validation rules should return an error message string if they failed, or 
+`false` if the input data is valid.
+
+Adding your own validation rules is easy, just pass an additional object
+of rule functions in the plugin’s installation call:
 
 ```js
 Vue.use(formulate, {
   rules: {
-    isPizza: ({field, value, error, values}, label) => value === 'pizza' ? false : `${label || field} is not pizza.`
+    isPizza ({field, value, error, values}, label) {
+      return value === 'pizza' ? false : `That is not pizza.`
+    }
   }
 })
 ```
 
-Validation rules expect a return of `false` if there are no errors, or a error
-message string. Validation rules are all passed an object with the `field` name,
-`value` of the field, `error` function to generate an error message, and all the
-`values` of the entire form.
+### Styling
+
+Absolutely zero styles are included so feel free to write your own! The
+`form-element` components have a wrapper `div` that receives the following
+classes:
+
+```
+formulate-element
+formulate-element--has-value
+formulate-element--has-errors
+```
 
 ### Full Documentation
 

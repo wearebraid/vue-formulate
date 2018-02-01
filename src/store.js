@@ -71,5 +71,6 @@ export const formulateModule = (moduleName) => ({
   state: formulateState(),
   getters: formulateGetters(moduleName),
   actions: formulateActions(moduleName),
-  mutations: formulateMutations()
+  mutations: formulateMutations(),
+  namespaced: true
 })
