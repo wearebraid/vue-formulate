@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "webpack --hide-modules --watch",
-    "build": "NODE_ENV=production && webpack --hide-modules",
+    "build": "NODE_ENV=production && webpack -p --hide-modules",
     "test": "ava",
     "watch": "ava --watch"
   },
