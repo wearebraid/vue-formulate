@@ -27,7 +27,10 @@ export const formulateGetters = (moduleName = '', getters = {}) => Object.assign
     return state.validationErrors
   },
   formMeta (state) {
-    return map(state.meta, (form, fields) => Object.entries(fields).map(([key, value]) => value))
+    return reduce(state.meta, (forms, form, fields) => {
+      forms[form] = reduce(fields, (arr, field, data) => arr.concat(data), [])
+      return forms
+    }, {})
   },
   hasErrors (state) {
     return map(state.errors, (form, errors) => {

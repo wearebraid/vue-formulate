@@ -9,6 +9,7 @@
 
 <script>
 import {equals} from '../utils'
+import cloneDeep from 'clone-deep'
 
 export default {
   props: {
@@ -49,7 +50,7 @@ export default {
       return this.$store.getters[`${this.m}hasErrors`][this.name] || false
     },
     values () {
-      return this.$store.getters[`${this.m}formValues`][this.name] || {}
+      return cloneDeep(this.$store.getters[`${this.m}formValues`][this.name] || {})
     },
     errors () {
       return this.$store.getters[`${this.m}formErrors`][this.name] || {}
@@ -79,9 +80,10 @@ export default {
   methods: {
     registerField (field, data) {
       this.$store.commit(`${this.m}setFieldMeta`, {form: this.name, field, data})
+      this.updateFormValidation()
     },
     hydrate (values) {
-      for (let field of this.fields) {
+      for (let field in this.fields) {
         if (field.type !== 'submit') {
           this.$store.commit(`${this.m}setFieldValue`, {
             field: field.name,

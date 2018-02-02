@@ -57,14 +57,20 @@ root store:
 **Root Store**
 
 ```js
-import {formulateState, formulateGetters, formulateMutation} from 'vue-formulate'
+import Vue from 'vue'
+import Vuex from 'vuex'
+import {formulateState, formulateGetters, formulateMutations} from 'vue-formulate'
+
+Vue.use(Vuex)
 
 const state = () => ({
+  // your own state data can live next to vue-formulate's data
   your: 'data',
   ...formulateState()
 })
 
 const getters = {
+  // Your own getters can live next to vue-formulate's getters
   yourGetter (state) {
     return state.your
   },
@@ -72,17 +78,18 @@ const getters = {
 }
 
 const mutations = {
+  // Your own mutations can live next to vue-formulate's mutations
   setYour (state, payload) {
     state.your = payload
   },
   ...formulateMutations()
 }
 
-export default {
+export default new Vuex.Store({
   state,
   getters,
   mutations
-}
+})
 ```
 
 ### Usage

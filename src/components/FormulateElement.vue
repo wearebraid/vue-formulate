@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import {inputTypes, equals, reduce} from '../utils'
+import {inputTypes, equals, reduce, filter} from '../utils'
 import shortid from 'shortid'
 
 export default {
@@ -197,11 +197,10 @@ export default {
       if (value === undefined) {
         switch (this.type) {
           case 'color':
-            value = '#000000'
-            break
+            return '#000000'
           case 'checkbox':
             if (this.optionList.length > 1) {
-              value = []
+              return []
             }
             break
         }
@@ -279,7 +278,10 @@ export default {
     }
   },
   created () {
-    this.form.registerField(this.name, this.$props)
+    this.form.registerField(
+      this.name,
+      filter(this.$props, (prop, value) => ['name', 'type', 'id', 'label', 'validation'].includes(prop)),
+    )
     if (this.initial !== false) {
       this.form.hydrate({[this.name]: this.initial})
     }
