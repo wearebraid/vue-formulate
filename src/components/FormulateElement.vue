@@ -280,7 +280,7 @@ export default {
   created () {
     this.form.registerField(
       this.name,
-      filter(this.$props, (prop, value) => ['name', 'type', 'id', 'label', 'validation'].includes(prop)),
+      filter(this.$props, (prop, value) => ['name', 'type', 'id', 'label', 'validation', 'validationLabel'].includes(prop))
     )
     if (this.initial !== false) {
       this.form.hydrate({[this.name]: this.initial})
