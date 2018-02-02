@@ -140,8 +140,8 @@ validation rules by using parenthesis after the rule name:
 validation="required|confirmed(confirmation_field)"
 ```
 
-The field label used in built in validation methods is the `validationLabel`
-attribute on your `formulate-element`. If no `validationLabel` is found then
+The field label used in built in validation methods is the `validation-label`
+attribute on your `formulate-element`. If no `validation-label` is found then
 the `label` attribute is used, and if no `label` attribute is found it will
 fall back to the field’s `name` attribute (which is required).
 

@@ -153,6 +153,10 @@ export default {
     showErrors: {
       type: [Object, Boolean],
       default: () => ({})
+    },
+    validationLabel: {
+      type: [String, Boolean],
+      default: false
     }
   },
   data () {
