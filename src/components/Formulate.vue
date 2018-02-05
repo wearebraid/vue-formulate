@@ -71,6 +71,11 @@ export default {
       return this.behavior === 'live'
     }
   },
+  watch: {
+    initial () {
+      this.hydrate(this.initial)
+    }
+  },
   created () {
     this.hydrate(this.initial)
   },
@@ -83,7 +88,7 @@ export default {
       this.updateFormValidation()
     },
     hydrate (values) {
-      for (let field in this.fields) {
+      for (let field of this.fields) {
         if (field.type !== 'submit') {
           this.$store.commit(`${this.m}setFieldValue`, {
             field: field.name,
@@ -135,6 +140,6 @@ export default {
         this.$emit('submit', Object.assign({}, this.values))
       }
     }
-  }
+  },
 }
 </script>

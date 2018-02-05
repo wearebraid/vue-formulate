@@ -279,6 +279,9 @@ export default {
           errors: this.localAndValidationErrors
         })
       }
+    },
+    initial () {
+      this.form.update({field: this.name, value: this.initial})
     }
   },
   created () {
