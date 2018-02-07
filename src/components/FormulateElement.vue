@@ -35,6 +35,7 @@
           v-for="option in optionList"
           :value="option.value"
           :key="option.id"
+          v-bind="option.attributes || {}"
           v-text="option.label"
         />
       </select>
