@@ -112,7 +112,7 @@ export default {
       required: true
     },
     initial: {
-      type: [String, Boolean],
+      type: [String, Number, Boolean],
       default: false
     },
     validation: {
