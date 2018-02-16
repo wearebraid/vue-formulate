@@ -294,7 +294,7 @@ export default {
       filter(this.$props, (prop, value) => ['name', 'type', 'id', 'label', 'validation', 'validationLabel'].includes(prop))
     )
     if (this.initial !== false) {
-      this.form.hydrate({[this.name]: this.initial})
+      this.form.setInitial(this.name, this.initial)
     }
   }
 }

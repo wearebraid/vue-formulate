@@ -47,7 +47,8 @@ export default {
   data () {
     return {
       parentIdentifier: 'vue-formulate-wrapper-element',
-      forceErrors: null
+      forceErrors: null,
+      fieldInitials: {}
     }
   },
   computed: {
@@ -80,18 +81,21 @@ export default {
         return this.showErrors
       }
       return this.behavior === 'live'
+    },
+    mergedInitial () {
+      return Object.assign({}, Object.assign({}, this.initial), this.fieldInitials)
     }
   },
   watch: {
-    initial () {
-      this.hydrate(this.initial)
+    mergedInitial () {
+      this.hydrate(this.mergedInitial)
     }
   },
   created () {
-    this.hydrate(this.initial)
+    this.hydrate(this.mergedInitial)
   },
   mounted () {
-    this.hydrate(this.initial)
+    this.hydrate(this.mergedInitial)
   },
   methods: {
     registerField (field, data) {
@@ -109,6 +113,9 @@ export default {
         }
       }
       this.updateFormValidation()
+    },
+    setInitial (field, value) {
+      this.fieldInitials[field] = value
     },
     update (change) {
       this.$store.commit(`${this.m}setFieldValue`, Object.assign(change, {
