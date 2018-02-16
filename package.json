@@ -1,6 +1,6 @@
 {
   "name": "vue-formulate",
-  "version": "0.3.8",
+  "version": "0.4.0",
   "description": "The easiest way to build forms in Vue with validation and vuex support.",
   "main": "dist/index.js",
   "scripts": {
