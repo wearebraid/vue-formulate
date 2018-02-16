@@ -83,7 +83,7 @@ export default {
       return this.behavior === 'live'
     },
     mergedInitial () {
-      return Object.assign({}, Object.assign({}, this.initial), this.fieldInitials)
+      return Object.assign({}, this.initial, this.fieldInitials)
     }
   },
   watch: {
