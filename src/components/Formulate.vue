@@ -1,7 +1,7 @@
 <template>
   <form
     @submit.prevent="submit"
-    class="formulate-element"
+    class="formulate-form"
   >
     <slot />
   </form>
@@ -34,6 +34,14 @@ export default {
     showErrors: {
       type: [Boolean, Object],
       default: () => ({})
+    },
+    errors: {
+      type: Object,
+      default: () => ({})
+    },
+    prevent: {
+      type: String,
+      default: 'validation'
     }
   },
   data () {
@@ -49,10 +57,13 @@ export default {
     hasErrors () {
       return this.$store.getters[`${this.m}hasErrors`][this.name] || false
     },
+    hasValidationErrors () {
+      return this.$store.getters[`${this.m}hasValidationErrors`][this.name] || false
+    },
     values () {
       return cloneDeep(this.$store.getters[`${this.m}formValues`][this.name] || {})
     },
-    errors () {
+    storeErrors () {
       return this.$store.getters[`${this.m}formErrors`][this.name] || {}
     },
     validationErrors () {
@@ -134,12 +145,12 @@ export default {
       }))
     },
     submit () {
-      if (this.hasErrors) {
+      if ((this.prevent === 'validation' && this.hasValidationErrors) || (this.prevent === 'any' && this.hasErrors)) {
         this.forceErrors = true
       } else {
         this.$emit('submit', Object.assign({}, this.values))
       }
     }
-  },
+  }
 }
 </script>

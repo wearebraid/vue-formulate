@@ -36,6 +36,11 @@ export const formulateGetters = (moduleName = '', getters = {}) => Object.assign
     return map(state.errors, (form, errors) => {
       return reduce(errors, (hasErrors, field, errors) => hasErrors || !!errors.length, false)
     })
+  },
+  hasValidationErrors (state) {
+    return map(state.validationErrors, (form, errors) => {
+      return reduce(errors, (hasErrors, field, errors) => hasErrors || !!errors.length, false)
+    })
   }
 }, getters)
 

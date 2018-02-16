@@ -229,10 +229,13 @@ export default {
       return this.form.validationErrors[this.name] || []
     },
     storeErrors () {
+      return this.form.storeErrors[this.name] || []
+    },
+    formErrors () {
       return this.form.errors[this.name] || []
     },
     localAndValidationErrors () {
-      return this.errors.concat(this.validationErrors)
+      return this.errors.concat(this.validationErrors).concat(this.formErrors)
     },
     shouldShowErrors () {
       let show = this.form.shouldShowErrors
