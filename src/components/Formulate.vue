@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import {equals} from '../utils'
+import {equals, reduce} from '../utils'
 import cloneDeep from 'clone-deep'
 
 export default {
@@ -115,7 +115,7 @@ export default {
       this.updateFormValidation()
     },
     setInitial (field, value) {
-      this.fieldInitials[field] = value
+      this.fieldInitials = Object.assign({}, this.fieldInitials, {[field]: value})
     },
     update (change) {
       this.$store.commit(`${this.m}setFieldValue`, Object.assign(change, {
