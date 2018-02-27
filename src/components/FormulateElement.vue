@@ -88,7 +88,9 @@
         v-text="`Unsupported field type: “${type}”.`"
       />
     </div>
-    <ul
+    <transition-group
+      tag="ul"
+      name="formulate-errors"
       class="formulate-errors"
       v-if="shouldShowErrors && localAndValidationErrors.length"
     >
@@ -97,7 +99,7 @@
         v-text="error"
         :key="error"
       />
-    </ul>
+    </transition-group>
   </div>
 </template>
 
