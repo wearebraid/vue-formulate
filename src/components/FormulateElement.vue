@@ -3,7 +3,7 @@
     <div
       class="formulate-element-input-wrapper"
       :data-type="type"
-      :data-type-classification="classification"
+      :data-classification="classification"
     >
       <!-- TEXT STYLE INPUTS -->
       <label
