@@ -171,6 +171,7 @@ export default {
   },
   computed: {
     classification () {
+      if (this.isTextInput) return 'text'
       if (this.isBoxInput) return 'box'
       if (this.isButtonInput) return 'button'
       if (this.isSelectInput) return 'select'
