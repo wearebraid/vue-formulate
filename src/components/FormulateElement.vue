@@ -3,6 +3,7 @@
     <div
       class="formulate-element-input-wrapper"
       :data-type="type"
+      :data-type-classification="classification"
     >
       <!-- TEXT STYLE INPUTS -->
       <label
@@ -169,6 +170,13 @@ export default {
     }
   },
   computed: {
+    classification () {
+      if (this.isBoxInput) return 'box'
+      if (this.isButtonInput) return 'button'
+      if (this.isSelectInput) return 'select'
+      if (this.hasCustomInput) return 'custom'
+      return 'unsupported'
+    },
     hasCustomInput () {
       return (this.$slots.default && this.$slots.default.length)
     },
