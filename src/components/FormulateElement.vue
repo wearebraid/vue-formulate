@@ -1,6 +1,9 @@
 <template>
   <div :class="classes">
-    <div class="formulate-element-input-wrapper">
+    <div
+      class="formulate-element-input-wrapper"
+      :data-type="type"
+    >
       <!-- TEXT STYLE INPUTS -->
       <label
         :for="id"
@@ -221,6 +224,7 @@ export default {
     classes () {
       return {
         'formulate-element': true,
+        [`formulate-element--type--${this.type}`]: true,
         'formulate-element--has-value': !!this.value,
         'formulate-element--has-errors': this.localAndValidationErrors.length && this.shouldShowErrors
       }
