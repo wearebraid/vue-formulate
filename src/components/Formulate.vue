@@ -104,7 +104,6 @@ export default {
     },
     hydrate (values) {
       for (let field of this.fields) {
-        console.log(`${field.name}: ${typeof this.values[field]}`)
         if (field.type !== 'submit' && typeof this.values[field.name] === 'undefined') {
           this.$store.commit(`${this.m}setFieldValue`, {
             field: field.name,
