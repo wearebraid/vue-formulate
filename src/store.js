@@ -76,6 +76,13 @@ export const formulateMutations = (mutations = {}) => Object.assign({
     state.meta = Object.assign({}, state.meta, {
       [form]: Object.assign({}, state.meta[form] || {}, {[field]: data})
     })
+  },
+  resetForm (state, form) {
+    if (state.values[form]) {
+      state.values = Object.assign({}, state.values, {
+        [form]: map(state.values[form], (key, value) => undefined)
+      })
+    }
   }
 }, mutations)
 

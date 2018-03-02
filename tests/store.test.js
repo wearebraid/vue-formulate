@@ -164,3 +164,15 @@ test('adds a validationError to existing field', async t => {
   })
   t.deepEqual(state.validationErrors, {form: {name: ['i dislike this field']}})
 })
+
+test('reset a form', async t => {
+  let state = {values: {login: {username: 'testuser', password: 'secret'}}}
+  formulateMutations().resetForm(state, 'login')
+  t.deepEqual(state.values, {login: {username: undefined, password: undefined}})
+})
+
+test('wont mutate undefined form on reset', async t => {
+  let state = {values: {login: {username: 'testuser', password: 'secret'}}}
+  formulateMutations().resetForm(state, 'register')
+  t.deepEqual(state.values, {login: {username: 'testuser', password: 'secret'}})
+})
