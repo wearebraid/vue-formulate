@@ -308,12 +308,25 @@ export default {
     }
   },
   created () {
-    this.form.registerField(
-      this.name,
-      filter(this.$props, (prop, value) => ['name', 'type', 'id', 'label', 'validation', 'validationLabel'].includes(prop))
-    )
-    if (this.initial !== false) {
-      this.form.setInitial(this.name, this.initial)
+    if (typeof window === 'undefined') {
+      this.register()
+    }
+  },
+  mounted () {
+    this.register()
+  },
+  beforeDestroy () {
+    this.form.deregisterField(this.name)
+  },
+  methods: {
+    register () {
+      this.form.registerField(
+        this.name,
+        filter(this.$props, (prop, value) => ['name', 'type', 'id', 'label', 'validation', 'validationLabel'].includes(prop))
+      )
+      if (this.initial !== false) {
+        this.form.setInitial(this.name, this.initial)
+      }
     }
   }
 }

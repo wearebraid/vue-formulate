@@ -1,4 +1,4 @@
-import {map, reduce} from './utils'
+import {map, reduce, filter} from './utils'
 
 /**
  * Curried function for creating the formState
@@ -82,6 +82,13 @@ export const formulateMutations = (mutations = {}) => Object.assign({
       state.values = Object.assign({}, state.values, {
         [form]: map(state.values[form], (key, value) => undefined)
       })
+    }
+  },
+  removeField (state, {form, field}) {
+    for (let group in state) {
+      if (state[group][form] && state[group][form].hasOwnProperty(field)) {
+        state[group][form] = filter(state[group][form], (key, value) => key !== field)
+      }
     }
   }
 }, mutations)

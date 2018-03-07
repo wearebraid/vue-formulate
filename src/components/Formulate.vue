@@ -102,6 +102,12 @@ export default {
       this.$store.commit(`${this.m}setFieldMeta`, {form: this.name, field, data})
       this.updateFormValidation()
     },
+    deregisterField (field) {
+      this.$store.commit(`${this.m}removeField`, {
+        form: this.name,
+        field
+      })
+    },
     hydrate (values) {
       for (let field of this.fields) {
         if (field.type !== 'submit' && typeof this.values[field.name] === 'undefined') {

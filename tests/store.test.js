@@ -176,3 +176,22 @@ test('wont mutate undefined form on reset', async t => {
   formulateMutations().resetForm(state, 'register')
   t.deepEqual(state.values, {login: {username: 'testuser', password: 'secret'}})
 })
+
+test('removeField deletes values from store', async t => {
+  let state = {
+    values: {
+      register: {
+        username: 'testuser',
+        password: 'secret'
+      }
+    }
+  }
+  formulateMutations().removeField(state, {form: 'register', field: 'password'})
+  t.deepEqual({
+    values: {
+      register: {
+        username: 'testuser'
+      }
+    }
+  }, state)
+})
