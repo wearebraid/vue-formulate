@@ -18,6 +18,25 @@ First download the `vue-formulate` package from npm:
 npm install vue-formulate
 ```
 
+You will require Babel so...
+
+```sh
+babel-preset-env
+babel-preset-stage-2
+```
+
+
+... and ensure a `.babelrc` is in the project root and includes ...
+```sh
+{
+  "presets": [
+    ["env", { "modules": false }],
+    "stage-2"
+  ]
+}
+```
+
+
 #### Installation
 
 Install `vue-formulate` like any other vue plugin:
@@ -28,6 +47,12 @@ import formulate from 'vue-formulate'
 
 Vue.use(formulate)
 ```
+
+#### Examples
+
+You'll find an easy to use example, with getting started instructions, in [the example directory](https://github.com/wearebraid/vue-formulate/tree/master/example)
+
+
 #### Vuex
 `vue-formulate` needs to be linked to your vuex store. Vuex can be
 configured as a single root store, or as namespaced modules and `vue-formualte`
@@ -65,8 +90,9 @@ Vue.use(Vuex)
 
 const state = () => ({
   // your own state data can live next to vue-formulate's data
+  // Note: formulateState is a curried function.
   your: 'data',
-  ...formulateState()
+  ...formulateState()()
 })
 
 const getters = {
@@ -114,17 +140,16 @@ in a `<formulate>` component. The `formulate` component has a single
 required prop `name` which creates the form’s key in the vuex store.
 
 All `formulate-element` components nested inside a `<formulate>`
-component will automatically be commit mutations directly to the
+component will automatically commit mutations directly to the
 store. The store becomes a live representation of all your form’s
 values.
 
-The `formulate-element` component is a powerful component handles field
-generation
+The `formulate-element` component is a powerful component which handles field
+generation.
 
 ### Validation Rules
 
-There are several built in validation methods and you are easily able to add
-your own.
+There are several built-in validation methods and you can easily add your own as well.
 
 Rule      |  Arguments
 ----------|---------------
@@ -140,7 +165,7 @@ validation rules by using parenthesis after the rule name:
 validation="required|confirmed(confirmation_field)"
 ```
 
-The field label used in built in validation methods is the `validation-label`
+The field label used in built-in validation methods is the `validation-label`
 attribute on your `formulate-element`. If no `validation-label` is found then
 the `label` attribute is used, and if no `label` attribute is found it will
 fall back to the field’s `name` attribute (which is required).
@@ -169,7 +194,7 @@ attribute on the `formulate-element`.
 Validation rules should return an error message string if they failed, or 
 `false` if the input data is valid.
 
-Adding your own validation rules is easy, just pass an additional object
+Adding your own validation rules is easy. Just pass an additional object
 of rule functions in the plugin’s installation call:
 
 ```js
