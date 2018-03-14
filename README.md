@@ -18,6 +18,25 @@ First download the `vue-formulate` package from npm:
 npm install vue-formulate
 ```
 
+You will require Babel so...
+
+```sh
+babel-preset-env
+babel-preset-stage-2
+```
+
+
+... and ensure a `.babelrc` is in the project root and includes ...
+```sh
+{
+  "presets": [
+    ["env", { "modules": false }],
+    "stage-2"
+  ]
+}
+```
+
+
 #### Installation
 
 Install `vue-formulate` like any other vue plugin:
@@ -28,6 +47,12 @@ import formulate from 'vue-formulate'
 
 Vue.use(formulate)
 ```
+
+#### Examples
+
+You'll find an easy to use example, with getting started instructions, in [the example directory](https://github.com/wearebraid/vue-formulate/tree/master/example)
+
+
 #### Vuex
 `vue-formulate` needs to be linked to your vuex store. Vuex can be
 configured as a single root store, or as namespaced modules and `vue-formualte`
@@ -65,8 +90,9 @@ Vue.use(Vuex)
 
 const state = () => ({
   // your own state data can live next to vue-formulate's data
+  // Note: formulateState is a curried function.
   your: 'data',
-  ...formulateState()
+  ...formulateState()()
 })
 
 const getters = {
