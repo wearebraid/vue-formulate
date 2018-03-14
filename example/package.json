@@ -2,7 +2,8 @@
   "version": "1.0.0",
   "author": "Justin Schroeder <justin@wearebraid.com>",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development webpack-dev-server --hot"
+    "dev": "cross-env NODE_ENV=development webpack-dev-server --hot",
+    "build": "cross-env NODE_ENV=production webpack -p"
   },
   "dependencies": {
     "vue": "^2.3.3",

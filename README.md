@@ -9,6 +9,11 @@
 Vue Formulate is a [Vue](https://vuejs.org/) plugin that exposes an elegant
 mechanism for building and validating forms with a centralized data store.
 
+### Show and tell
+
+You'll find an easy to use example, in [the example directory](https://github.com/wearebraid/vue-formulate/tree/master/example) 
+as well as a live demo available at: [demo.vueformulate.com](https://demo.vueformulate.com).
+
 ### Get Started
 
 #### Download
@@ -18,15 +23,19 @@ First download the `vue-formulate` package from npm:
 npm install vue-formulate
 ```
 
-You will require Babel so...
+If you want to use ES6 features in your project
+(and this readme assumes you do), then you'll also
+need Babel:
 
 ```sh
 babel-preset-env
 babel-preset-stage-2
 ```
 
+Many Vue/Vuex projects require Babel’s `stage-2` preset.
+Best practice is to include a `.babelrc` in the project
+root:
 
-... and ensure a `.babelrc` is in the project root and includes ...
 ```sh
 {
   "presets": [
@@ -47,12 +56,6 @@ import formulate from 'vue-formulate'
 
 Vue.use(formulate)
 ```
-
-#### Examples
-
-You'll find an easy to use example, with getting started instructions, in [the example directory](https://github.com/wearebraid/vue-formulate/tree/master/example)
-
-
 #### Vuex
 `vue-formulate` needs to be linked to your vuex store. Vuex can be
 configured as a single root store, or as namespaced modules and `vue-formualte`
