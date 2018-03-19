@@ -13,6 +13,7 @@
       />
       <input
         ref="input"
+        :class="elementClasses"
         :type="type"
         :name="name"
         v-model="val"
@@ -23,6 +24,7 @@
       <!-- BUTTON INPUTS -->
       <button
         :type="type"
+        :class="elementClasses"
         v-text="label || name"
         v-if="isButtonInput"
         :disabled="type === 'submit' && (form.hasErrors && form.behavior === 'live')"
@@ -31,6 +33,7 @@
       <select
         v-bind="attributes"
         v-if="isSelectInput"
+        :class="elementClasses"
         :name="name"
         v-model="val"
         @blur="errorBlurState = true"
@@ -51,6 +54,7 @@
         <template v-for="option in optionList">
           <input
             type="radio"
+            :class="elementClasses"
             :name="name"
             :id="option.id"
             :value="option.value"
@@ -62,6 +66,7 @@
           >
           <input
             type="checkbox"
+            :class="elementClasses"
             :name="name"
             :id="option.id"
             :value="option.value"
@@ -168,6 +173,10 @@ export default {
     validationLabel: {
       type: [String, Boolean],
       default: false
+    },
+    elementClasses: {
+      type: [String, Array, Object],
+      default: () => {}
     }
   },
   data () {
