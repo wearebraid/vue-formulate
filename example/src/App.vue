@@ -29,6 +29,16 @@
         validation="required|confirmed"
       />
       <formulate-element
+        name="animal"
+        label="Spirit Animal"
+      >
+        <custom-input
+          v-model="animal"
+          :options="{eagle: 'Eagle', lion: 'Lion', sloth: 'Sloth'}"
+        />
+        <small>Example of a custom field using vue-formulate.</small>
+      </formulate-element>
+      <formulate-element
         type="submit"
         name="Save"
       />
@@ -42,11 +52,22 @@
 </template>
 
 <script>
+import CustomInput from './CustomInput.vue'
+import {mapModels} from 'vue-formulate'
+
 export default {
+  components: {
+    'custom-input': CustomInput
+  },
   data () {
     return {
       values: false
     }
+  },
+  computed: {
+    ...mapModels({
+      animal: 'registration/animal'
+    })
   },
   methods: {
     useFormData (vals) {
@@ -164,5 +185,12 @@ button {
 button:focus {
   outline: 0;
   border-color: #35495e;
+}
+
+small {
+  color: grey;
+  display: block;
+  font-size: .8em;
+  margin: .5em 0;
 }
 </style>
