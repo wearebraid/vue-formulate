@@ -88,5 +88,8 @@ export const inputTypes = {
   box: [
     'radio',
     'checkbox'
+  ],
+  textarea: [
+    'textarea'
   ]
 }

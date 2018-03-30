@@ -21,6 +21,16 @@
         v-if="isTextInput"
         @blur="errorBlurState = true"
       >
+      <textarea
+        ref="textarea"
+        :class="elementClasses"
+        :type="type"
+        :name="name"
+        v-model="val"
+        v-bind="attributes"
+        v-if="isTextareaInput"
+        @blur="errorBlurState = true"
+      />
       <!-- BUTTON INPUTS -->
       <button
         :type="type"
@@ -198,6 +208,9 @@ export default {
     },
     isTextInput () {
       return !this.hasCustomInput && inputTypes.text.includes(this.type)
+    },
+    isTextareaInput () {
+      return !this.hasCustomInput && inputTypes.textarea.includes(this.type)
     },
     isButtonInput () {
       return !this.hasCustomInput && inputTypes.button.includes(this.type)
