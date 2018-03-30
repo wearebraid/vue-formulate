@@ -222,7 +222,7 @@ export default {
       return !this.hasCustomInput && inputTypes.box.includes(this.type)
     },
     isUnsupportedInput () {
-      return (!this.hasCustomInput && !this.isTextInput && !this.isButtonInput && !this.isSelectInput && !this.isBoxInput)
+      return (!this.hasCustomInput && !this.isTextInput && !this.isButtonInput && !this.isSelectInput && !this.isBoxInput && !this.isTextareaInput)
     },
     form () {
       let parent = this.$parent
