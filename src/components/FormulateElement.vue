@@ -4,6 +4,7 @@
       class="formulate-element-input-wrapper"
       :data-type="type"
       :data-classification="classification"
+      :data-is-disabled="disabled"
     >
       <!-- TEXT STYLE INPUTS -->
       <label
@@ -20,6 +21,7 @@
         v-bind="attributes"
         v-if="isTextInput"
         @blur="errorBlurState = true"
+        :disabled="disabled"
       >
       <textarea
         ref="textarea"
@@ -30,15 +32,24 @@
         v-bind="attributes"
         v-if="isTextareaInput"
         @blur="errorBlurState = true"
+        :disabled="disabled"
       />
       <!-- BUTTON INPUTS -->
       <button
         :type="type"
         :class="elementClasses"
-        v-text="label || name"
         v-if="isButtonInput"
-        :disabled="type === 'submit' && (form.hasErrors && form.behavior === 'live')"
-      />
+        :disabled="disabled || (type === 'submit' && (form.hasErrors && form.behavior === 'live'))"
+      >
+        <slot
+          v-if="$slots.button"
+          name="button"
+        />
+        <span
+          v-text="label || name"
+          v-else
+        />
+      </button>
       <!-- SELECT INPUTS -->
       <select
         v-bind="attributes"
@@ -47,6 +58,7 @@
         :name="name"
         v-model="val"
         @blur="errorBlurState = true"
+        :disabled="disabled"
       >
         <option
           v-for="option in optionList"
@@ -73,6 +85,7 @@
             v-model="val"
             v-if="type === 'radio'"
             @blur="errorBlurState = true"
+            :disabled="disabled"
           >
           <input
             type="checkbox"
@@ -85,6 +98,7 @@
             v-model="val"
             v-if="type === 'checkbox'"
             @blur="errorBlurState = true"
+            :disabled="disabled"
           >
           <label
             :for="option.id"
@@ -187,6 +201,10 @@ export default {
     elementClasses: {
       type: [String, Array, Object],
       default: () => {}
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
