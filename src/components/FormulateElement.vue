@@ -117,6 +117,11 @@
         v-text="`Unsupported field type: “${type}”.`"
       />
     </div>
+    <div
+      class="formulate-help"
+      v-if="help"
+      v-text="help"
+    />
     <transition
       name="formulate-errors"
     >
@@ -204,6 +209,10 @@ export default {
     },
     disabled: {
       type: Boolean,
+      default: false
+    },
+    help: {
+      type: [Boolean, String],
       default: false
     }
   },
