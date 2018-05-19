@@ -70,10 +70,14 @@
       </select>
       <!-- BOX INPUTS -->
       <div
-        class="formulate-element-box-input-group"
+        class="formulate-element-box-input-wrap"
         v-if="isBoxInput"
       >
-        <template v-for="option in optionList">
+        <div
+          class="formulate-element-box-input-group"
+          v-for="option in optionList"
+          :key="option.id"
+        >
           <input
             type="radio"
             :class="elementClasses"
@@ -105,7 +109,7 @@
             :key="`${option.id}-label`"
             v-text="option.label"
           />
-        </template>
+        </div>
       </div>
       <!-- CUSTOM SLOT INPUTS -->
       <slot v-if="hasCustomInput" />
