@@ -187,6 +187,14 @@ export default {
       type: [String, Number, Boolean],
       default: () => false
     },
+    maxlength: {
+      type: [String, Number, Boolean],
+      default: () => false
+    },
+    minlength: {
+      type: [String, Number, Boolean],
+      default: () => false
+    },
     placeholder: {
       type: [String, Number, Boolean],
       default: () => false
@@ -320,7 +328,7 @@ export default {
       return show
     },
     attributes () {
-      return ['min', 'max', 'placeholder', 'id', 'multiple']
+      return ['min', 'max', 'minlength', 'maxlength', 'placeholder', 'id', 'multiple']
         .filter(prop => this[prop] !== false)
         .reduce((attributes, attr) => {
           attributes[attr] = this[attr]
