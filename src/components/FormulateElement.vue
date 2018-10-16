@@ -22,6 +22,7 @@
         v-if="isTextInput"
         @blur="errorBlurState = true"
         :disabled="disabled"
+        :step="step"
       >
       <textarea
         ref="textarea"
@@ -196,6 +197,10 @@ export default {
       default: () => false
     },
     placeholder: {
+      type: [String, Number, Boolean],
+      default: () => false
+    },
+    step: {
       type: [String, Number, Boolean],
       default: () => false
     },

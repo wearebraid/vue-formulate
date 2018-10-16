@@ -99,6 +99,7 @@ export default {
   },
   mounted () {
     this.hydrate(this.mergedInitial)
+    // this.$emit('mounted', true)
   },
   methods: {
     registerField (field, data) {
