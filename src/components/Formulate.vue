@@ -99,19 +99,15 @@ export default {
   },
   mounted () {
     this.hydrate(this.mergedInitial)
-    // this.$emit('mounted', true)
   },
   methods: {
     registerField (field, data) {
       this.$store.commit(`${this.m}setFieldMeta`, {form: this.name, field, data})
-      if (this.mergedInitial.hasOwnProperty(field)) {
-        this.$store.commit(`${this.m}setFieldValue`, {
-          field,
-          value: this.mergedInitial[field],
-          form: this.name
-        })
-      }
-      // this.updateFormValidation()
+      this.$store.commit(`${this.m}setFieldValue`, {
+        field,
+        value: this.mergedInitial.hasOwnProperty(field) ? this.mergedInitial[field] : undefined,
+        form: this.name
+      })
     },
     deregisterField (field) {
       this.$store.commit(`${this.m}removeField`, {
@@ -129,7 +125,6 @@ export default {
           })
         }
       }
-      // this.updateFormValidation()
     },
     setInitial (field, value) {
       this.fieldInitials = Object.assign({}, this.fieldInitials, {[field]: value})
@@ -138,7 +133,6 @@ export default {
       this.$store.commit(`${this.m}setFieldValue`, Object.assign(change, {
         form: this.name
       }))
-      // this.updateFormValidation()
     },
     updateFieldErrors (change) {
       this.$store.commit(`${this.m}setFieldErrors`, Object.assign(change, {
