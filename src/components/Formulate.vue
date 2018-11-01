@@ -48,7 +48,8 @@ export default {
     return {
       parentIdentifier: 'vue-formulate-wrapper-element',
       forceErrors: null,
-      fieldInitials: {}
+      fieldInitials: {},
+      whenFinishedValidating: Promise.resolve()
     }
   },
   computed: {
@@ -103,13 +104,16 @@ export default {
   methods: {
     registerField (field, data) {
       this.$store.commit(`${this.m}setFieldMeta`, {form: this.name, field, data})
-      this.$store.commit(`${this.m}setFieldValue`, {
-        field,
-        value: this.mergedInitial.hasOwnProperty(field) ? this.mergedInitial[field] : undefined,
-        form: this.name
-      })
+      if (data.type !== 'submit') {
+        this.$store.commit(`${this.m}setFieldValue`, {
+          field,
+          value: this.mergedInitial.hasOwnProperty(field) ? this.mergedInitial[field] : undefined,
+          form: this.name
+        })
+      }
     },
-    deregisterField (field) {
+    async deregisterField (field) {
+      await this.whenFinishedValidating
       this.$store.commit(`${this.m}removeField`, {
         form: this.name,
         field
@@ -151,16 +155,19 @@ export default {
         label
       }, validation, this.values)
       if (!equals(errors || [], (this.validationErrors[field] || []))) {
-        this.updateFieldValidationErrors({field, errors: errors || []})
+        if (this.fields.find(f => f.name === field)) {
+          this.updateFieldValidationErrors({field, errors: errors || []})
+        }
       }
       return errors
     },
-    updateFormValidation () {
-      this.fields.map(async field => this.validateField({
+    async updateFormValidation () {
+      await this.whenFinishedValidating
+      this.whenFinishedValidating = Promise.all(this.fields.map(async field => this.validateField({
         field: field.name,
         validation: field.validation,
         label: field.validationLabel || field.label || field.name
-      }))
+      })))
     },
     submit () {
       if ((this.prevent === 'validation' && this.hasValidationErrors) || (this.prevent === 'any' && this.hasErrors)) {

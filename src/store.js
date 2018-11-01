@@ -90,6 +90,11 @@ export const formulateMutations = (mutations = {}) => Object.assign({
         state[group][form] = filter(state[group][form], (key, value) => key !== field)
       }
     }
+  },
+  removeFieldValidationErrors (state, {form, field}) {
+    state.validationErrors = Object.assign({}, state.validationErrors, {
+      [form]: filter(state.validationErrors[form] || {}, key => key !== field)
+    })
   }
 }, mutations)
 
