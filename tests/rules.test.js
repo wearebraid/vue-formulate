@@ -12,6 +12,22 @@ test('test required rule failure', async t => {
   t.is('namexyz', v)
 })
 
+test('test number no failure on empty', async t => {
+  let v = await rules.number({field: 'name', value: '', error, label: 'xyz'})
+  t.is(false, v)
+})
+
+test('test number failure not number', async t => {
+  let v = await rules.number({field: 'name', value: 't', error, label: 'xyz'})
+  t.is('string', typeof v)
+  t.is('namexyz', v)
+})
+
+test('test number is typeof number', async t => {
+  let v = await rules.number({field: 'name', value: '3', error, label: 'xyz'})
+  t.is(false, v)
+})
+
 test('test required rule empty array failure', async t => {
   let v = await rules.required({field: 'name', value: [], error, label: 'xyz'})
   t.is('namexyz', v)

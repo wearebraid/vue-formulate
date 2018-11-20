@@ -9,6 +9,15 @@ export default {
   },
 
   /**
+   *  Validates the field contains only numbers
+   * @param {Object} field
+   * @param {string} label
+   */
+  async number ({value, error}) {
+    return isNaN(value) ? error(...arguments) : false
+  },
+
+  /**
    * Validate email addresses
    * @param {Object} field
    * @param {string} label
