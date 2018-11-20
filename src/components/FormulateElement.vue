@@ -192,6 +192,10 @@ export default {
       type: [String, Number, Boolean],
       default: () => false
     },
+    pattern: {
+      type: [String, Number, Boolean],
+      default: () => false
+    },
     minlength: {
       type: [String, Number, Boolean],
       default: () => false
@@ -333,7 +337,7 @@ export default {
       return show
     },
     attributes () {
-      return ['min', 'max', 'minlength', 'maxlength', 'placeholder', 'id', 'multiple']
+      return ['min', 'max', 'minlength', 'maxlength', 'placeholder', 'id', 'multiple', 'pattern']
         .filter(prop => this[prop] !== false)
         .reduce((attributes, attr) => {
           attributes[attr] = this[attr]

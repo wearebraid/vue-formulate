@@ -11,7 +11,7 @@ mechanism for building and validating forms with a centralized data store.
 
 ### Show and tell
 
-You'll find an easy to use example, in [the example directory](https://github.com/wearebraid/vue-formulate/tree/master/example) 
+You'll find an easy to use example, in [the example directory](https://github.com/wearebraid/vue-formulate/tree/master/example)
 as well as a live demo available at: [demo.vueformulate.com](https://demo.vueformulate.com).
 
 ### Get Started
@@ -159,8 +159,9 @@ Rule      |  Arguments
 required  | *none*
 email     | *none*
 confirmed | confirmation field
+number    | *none*
 
-You can add as many validation rules as you want to each `formulate-element`, 
+You can add as many validation rules as you want to each `formulate-element`,
 simply chain your rules with pipes `|'. Additional arguments can be passed to
 validation rules by using parenthesis after the rule name:
 
@@ -194,7 +195,7 @@ attribute on the `formulate-element`.
 />
 ```
 
-Validation rules should return an error message string if they failed, or 
+Validation rules should return an error message string if they failed, or
 `false` if the input data is valid.
 
 Adding your own validation rules is easy. Just pass an additional object
