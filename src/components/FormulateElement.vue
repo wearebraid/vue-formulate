@@ -1,5 +1,6 @@
 <template>
   <div :class="classes">
+    <slot name="prefix" />
     <div
       class="formulate-element-input-wrapper"
       :data-type="type"
@@ -143,6 +144,7 @@
         />
       </transition-group>
     </transition>
+    <slot name="suffix" />
   </div>
 </template>
 
@@ -311,7 +313,9 @@ export default {
         'formulate-element': true,
         [`formulate-element--type--${this.type}`]: true,
         'formulate-element--has-value': !!this.value,
-        'formulate-element--has-errors': this.localAndValidationErrors.length && this.shouldShowErrors
+        'formulate-element--has-errors': this.localAndValidationErrors.length && this.shouldShowErrors,
+        'formulate-element--has-prefix': !!this.slots.prefix,
+        'formulate-element--has-suffix': !!this.slots.suffix
       }
     },
     validationErrors () {
