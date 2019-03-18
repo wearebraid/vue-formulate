@@ -21,7 +21,8 @@
         v-model="val"
         v-bind="attributes"
         v-if="isTextInput"
-        @blur="errorBlurState = true"
+        @blur="setBlurState"
+        @focus="setFocusState"
         :disabled="disabled"
         :step="step"
       >
@@ -33,7 +34,8 @@
         v-model="val"
         v-bind="attributes"
         v-if="isTextareaInput"
-        @blur="errorBlurState = true"
+        @blur="setBlurState"
+        @focus="setFocusState"
         :disabled="disabled"
       />
       <!-- BUTTON INPUTS -->
@@ -59,7 +61,8 @@
         :class="elementClasses"
         :name="name"
         v-model="val"
-        @blur="errorBlurState = true"
+        @blur="setBlurState"
+        @focus="setFocusState"
         :disabled="disabled"
       >
         <option
@@ -90,7 +93,8 @@
             v-bind="attributes"
             v-model="val"
             v-if="type === 'radio'"
-            @blur="errorBlurState = true"
+            @blur="setBlurState"
+            @focus="setFocusState"
             :disabled="disabled"
           >
           <input
@@ -103,7 +107,8 @@
             v-bind="attributes"
             v-model="val"
             v-if="type === 'checkbox'"
-            @blur="errorBlurState = true"
+            @blur="setBlurState"
+            @focus="setFocusState"
             :disabled="disabled"
           >
           <label
@@ -116,7 +121,7 @@
       <!-- CUSTOM SLOT INPUTS -->
       <slot v-if="hasCustomInput" />
 
-      <!-- UNSUPORTED INPUT -->
+      <!-- UNSUPPORTED INPUT -->
       <div
         style="background-color: red; color: white"
         v-if="isUnsupportedInput"
@@ -241,7 +246,8 @@ export default {
   },
   data () {
     return {
-      errorBlurState: false
+      errorBlurState: false,
+      focusState: false
     }
   },
   computed: {
@@ -314,8 +320,9 @@ export default {
         [`formulate-element--type--${this.type}`]: true,
         'formulate-element--has-value': !!this.value,
         'formulate-element--has-errors': this.localAndValidationErrors.length && this.shouldShowErrors,
-        'formulate-element--has-prefix': !!this.slots.prefix,
-        'formulate-element--has-suffix': !!this.slots.suffix
+        'formulate-element--has-prefix': !!this.$slots.prefix,
+        'formulate-element--has-suffix': !!this.$slots.suffix,
+        'formulate-element--has-focus': !!this.focusState
       }
     },
     validationErrors () {
@@ -401,6 +408,13 @@ export default {
       if (this.initial !== false) {
         this.form.setInitial(this.name, this.initial)
       }
+    },
+    setBlurState () {
+      this.errorBlurState = true
+      this.focusState = false
+    },
+    setFocusState () {
+      this.focusState = true
     }
   }
 }

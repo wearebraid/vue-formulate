@@ -6,21 +6,21 @@
     "build": "cross-env NODE_ENV=production webpack -p"
   },
   "dependencies": {
-    "vue": "^2.3.3",
-    "vue-formulate": "^0.7.4",
+    "vue": "^2.6.9",
+    "vue-formulate": "^0.10.0",
     "vuex": "^2.4.0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-preset-env": "^1.6.1",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.24.1",
     "cross-env": "^3.0.0",
     "css-loader": "^0.25.0",
     "file-loader": "^0.9.0",
-    "vue-loader": "^13.7.0",
-    "vue-template-compiler": "^2.5.13",
-    "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.4.5"
+    "vue-loader": "^13.7.3",
+    "vue-template-compiler": "^2.6.9",
+    "webpack": "^3.12.0",
+    "webpack-dev-server": "^2.11.3"
   }
 }
