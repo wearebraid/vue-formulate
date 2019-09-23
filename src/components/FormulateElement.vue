@@ -95,7 +95,7 @@
             v-if="type === 'radio'"
             @blur="setBlurState"
             @focus="setFocusState"
-            :disabled="disabled"
+            :disabled="disabled || option.disabled"
           >
           <input
             type="checkbox"
@@ -109,7 +109,7 @@
             v-if="type === 'checkbox'"
             @blur="setBlurState"
             @focus="setFocusState"
-            :disabled="disabled"
+            :disabled="disabled || option.disabled"
           >
           <label
             :for="option.id"
