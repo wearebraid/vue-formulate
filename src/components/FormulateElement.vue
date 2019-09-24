@@ -65,13 +65,34 @@
         @focus="setFocusState"
         :disabled="disabled"
       >
-        <option
-          v-for="option in optionList"
-          :value="option.value"
-          :key="option.id"
-          v-bind="option.attributes || {}"
-          v-text="option.label"
-        />
+        <template
+          v-if="!optionGroups"
+        >
+          <option
+            v-for="option in optionList"
+            :value="option.value"
+            :key="option.id"
+            v-bind="option.attributes || {}"
+            v-text="option.label"
+          />
+        </template>
+        <template
+          v-else
+        >
+          <optgroup
+            v-for="(list, label) in optionGroups"
+            :key="label"
+            :label="label"
+          >
+            <option
+              v-for="option in createOptionList(list)"
+              :value="option.value"
+              :key="option.value"
+              v-bind="option.attributes || {}"
+              v-text="option.label"
+            />
+          </optgroup>
+        </template>
       </select>
       <!-- BOX INPUTS -->
       <div
@@ -219,6 +240,18 @@ export default {
       type: [Object, Array],
       default: () => []
     },
+    optionGroups: {
+      type: [Boolean, Object],
+      default: false,
+      validator: function (value) {
+        if (value === false) {
+          return true
+        } else if (typeof value === 'boolean') {
+          return false
+        }
+        return true
+      }
+    },
     multiple: {
       type: Boolean,
       default: false
@@ -357,12 +390,7 @@ export default {
         }, {})
     },
     optionList () {
-      if (!Array.isArray(this.options)) {
-        return reduce(this.options, (options, value, label) => options.concat({value, label, id: shortid.generate()}), [])
-      } else if (Array.isArray(this.options) && !this.options.length) {
-        return [{value: this.name, label: (this.label || this.name), id: shortid.generate()}]
-      }
-      return this.options
+      return this.createOptionList(this.options)
     },
     val: {
       set (value) {
@@ -416,6 +444,14 @@ export default {
     },
     setFocusState () {
       this.focusState = true
+    },
+    createOptionList (options) {
+      if (!Array.isArray(options)) {
+        return reduce(options, (options, value, label) => options.concat({value, label, id: shortid.generate()}), [])
+      } else if (Array.isArray(options) && !options.length) {
+        return [{value: this.name, label: (this.label || this.name), id: shortid.generate()}]
+      }
+      return options
     }
   }
 }
