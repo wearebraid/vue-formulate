@@ -1,0 +1,56 @@
+// Snow theme colors
+// -----------------------------------------------------------------------------
+
+$formulate-font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+$formulate-gray: #efefef;
+$formulate-gray-d: #cecece;
+$formulate-gray-dd: #a8a8a8;
+$formulate-gray-ddd: #6d6d6d;
+$formulate-gray-dddd: #2e2e2e;
+
+$formulate-dark: #000000;
+
+$formulate-blue-l: #f3f4f4;
+
+$formulate-green: #41b883;
+
+$formulate-yellow-d: #6b5900;
+$formulate-yellow: #e6c000;
+$formulate-yellow-l: #fff8d2;
+
+
+
+// Mixins
+// -----------------------------------------------------------------------------
+@mixin baseinput {
+  appearance: none;
+  border-radius: .3em;
+  border: 1px solid $formulate-gray-d;
+  box-sizing: border-box;
+  background-color: transparent;
+  font-size: .9em;
+  font-family: $formulate-font-stack;
+  padding: .75em;
+  display: block;
+  width: 100%;
+  font-weight: 400;
+
+  &::placeholder {
+    color: $formulate-gray-dd;
+  }
+
+  &:focus {
+    outline: 0;
+    border: 1px solid $formulate-green;
+  }
+}
+
+@mixin down-arrow {
+  content: '';
+  width: 0;
+  height: 0;
+  border: .3em solid transparent;
+  border-top-color: $formulate-gray-d;
+  border-bottom-width: 0;
+}

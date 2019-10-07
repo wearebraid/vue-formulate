@@ -1,0 +1,183 @@
+// Formulate inputs
+// -----------------------------------------------------------------------------
+
+.formulate-input {
+  margin-bottom: 2em;
+
+  .formulate-input-label {
+    display: block;
+    line-height: 1.5;
+    font-size: .9em;
+    font-weight: 600;
+    margin-bottom: .1em;
+  }
+
+  .formulate-input-element {
+    max-width: 20em;
+    margin-bottom: .1em;
+  }
+
+  .formulate-input-help {
+    color: $formulate-gray-ddd;
+    font-size: .7em;
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: .25em;
+  }
+
+  .formulate-input-group-item {
+    margin-bottom: .5em;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+
+// Text inputs
+// -----------------------------------------------------------------------------
+
+  &[data-classification='text'] {
+    input {
+      @include baseinput;
+    }
+  }
+
+
+// Textarea inputs
+// -----------------------------------------------------------------------------
+
+  &[data-classification='textarea'] {
+    textarea {
+      @include baseinput;
+    }
+  }
+
+
+// Select lists
+// -----------------------------------------------------------------------------
+
+  &[data-classification='select'] {
+    .formulate-input-element {
+      position: relative;
+
+      &::before {
+        @include down-arrow;
+        top: 50%;
+        margin-top: -.1em;
+        right: 1em;
+        position: absolute;
+      }
+    }
+
+    select {
+      @include baseinput;
+      padding-right: 2em;
+
+      &[data-placeholder-selected] {
+        color: $formulate-gray-dd;
+      }
+    }
+  }
+
+
+// Box inputs
+// -----------------------------------------------------------------------------
+
+  &[data-classification='box'] {
+    .formulate-input-wrapper {
+      display: flex;
+      align-items: center;
+    }
+
+    .formulate-input-element {
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+
+      input {
+        position: absolute;
+        left: -999px;
+      }
+
+      &-decorator {
+        display: block;
+        width: 1em;
+        height: 1em;
+        border-radius: .25em;
+        border: 1px solid $formulate-gray-d;
+        position: relative;
+
+        &::before {
+          content: '';
+          display: block;
+          background-size: contain;
+          background-position: right;
+          width: calc(100% - .125em);
+          height: calc(100% - .125em);
+          box-sizing: border-box;
+          position: absolute;
+          top: .0625em;
+          left: .0625em;
+        }
+      }
+
+
+      &[data-type="radio"] {
+        .formulate-input-element-decorator {
+          border-radius: 1em;
+
+          &::before {
+            border-radius: 1em;
+            width: calc(100% - .5em);
+            height: calc(100% - .5em);
+            top: .25em;
+            left: .25em;
+          }
+        }
+      }
+
+      input[type="checkbox"]:checked {
+        & ~ .formulate-input-element-decorator {
+          border-color: $formulate-green;
+
+          &::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23#{str-slice("#{$formulate-green}", 2)}"><path d="M8.76,56.2c-6.38-6.34,3.26-16,9.64-9.69L38,65.88,80.56,23.29c6.38-6.38,16.07,3.32,9.69,9.69L42.84,80.37a6.83,6.83,0,0,1-9.65,0Z"/></svg>');
+          }
+        }
+      }
+
+      input[type="radio"]:checked {
+        & ~ .formulate-input-element-decorator {
+          border-color: $formulate-green;
+
+          &::before {
+            background-color: $formulate-green;
+          }
+        }
+      }
+
+      input:focus {
+        & ~ .formulate-input-element-decorator {
+          border-color: $formulate-green;
+        }
+      }
+    }
+
+    .formulate-input-label--after {
+      margin-left: .5em;
+    }
+
+    .formulate-input-label--before {
+      margin-right: .5em;
+    }
+  }
+
+  &[data-classification="group"] {
+    & > .formulate-input-wrapper {
+      & > .formulate-input-label {
+        margin-bottom: .5em;
+      }
+    }
+  }
+}
