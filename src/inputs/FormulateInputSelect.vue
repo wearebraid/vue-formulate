@@ -61,7 +61,7 @@ export default {
       return this.context.optionGroups || false
     },
     placeholderSelected () {
-      return !!(!this.hasValue && this.context.attributes.placeholder)
+      return !!(!this.hasValue && this.context.attributes && this.context.attributes.placeholder)
     }
   }
 }

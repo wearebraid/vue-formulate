@@ -12,7 +12,7 @@
       >
         <label
           class="formulate-input-label formulate-input-label--before"
-          :for="id"
+          :for="context.attributes.id"
           v-text="context.label"
         />
       </slot>
@@ -29,7 +29,7 @@
       >
         <label
           class="formulate-input-label formulate-input-label--after"
-          :for="id"
+          :for="context.attributes.id"
           v-text="context.label"
         />
       </slot>
@@ -44,7 +44,9 @@
 
 <script>
 import context from './libs/context'
+import { shallowEqualObjects } from './libs/utils'
 import nanoid from 'nanoid'
+import library from './libs/library'
 
 export default {
   name: 'FormulateInput',
@@ -60,7 +62,7 @@ export default {
     },
     formulateValue: {
       type: [String, Number, Object, Boolean, Array],
-      default: false
+      default: ''
     },
     value: {
       type: [String, Number, Object, Boolean, Array],
@@ -76,7 +78,7 @@ export default {
     },
     id: {
       type: [String, Boolean, Number],
-      default: () => nanoid(9)
+      default: false
     },
     label: {
       type: [String, Boolean],
@@ -89,16 +91,49 @@ export default {
     help: {
       type: [String, Boolean],
       default: false
+    },
+    debug: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data () {
+    return {
+      defaultId: nanoid(9),
+      localAttributes: {}
     }
   },
   computed: {
-    context,
+    ...context,
     classification () {
       const classification = this.$formulate.classify(this.type)
       return (classification === 'box' && this.options) ? 'group' : classification
     },
     component () {
-      return this.$formulate.component(this.type)
+      return (this.classification === 'group') ? 'FormulateInputGroup' : this.$formulate.component(this.type)
+    }
+  },
+  watch: {
+    '$attrs': {
+      handler (value) {
+        this.updateLocalAttributes(value)
+      },
+      deep: true
+    }
+  },
+  created () {
+    this.updateLocalAttributes(this.$attrs)
+  },
+  mounted () {
+    if (this.debug) {
+      console.log('MOUNTED:' + this.$options.name + ':' + this.type)
+    }
+  },
+  methods: {
+    updateLocalAttributes (value) {
+      if (!shallowEqualObjects(value, this.localAttributes)) {
+        this.localAttributes = value
+      }
     }
   }
 }

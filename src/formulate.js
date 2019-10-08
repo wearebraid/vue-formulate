@@ -38,6 +38,7 @@ class Formulate {
     for (var componentName in this.options.components) {
       Vue.component(componentName, this.options.components[componentName])
     }
+    Object.freeze(this)
   }
 
   /**

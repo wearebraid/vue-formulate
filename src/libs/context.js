@@ -6,36 +6,45 @@ import { reduce, map } from './utils'
  * render that element.
  * @return {object}
  */
-export default function context () {
-  return defineModel.call(this, Object.assign({
-    type: this.type,
-    value: this.value,
-    classification: this.classification,
-    component: this.component,
-    id: this.id,
-    label: this.label,
-    labelPosition: labelPosition.call(this),
-    attributes: attributeReducer.call(this, this.$attrs)
-  }, typeContext.call(this)))
+export default {
+  context () {
+    if (this.debug) {
+      console.log(`${this.type} re-context`)
+    }
+    return defineModel.call(this, {
+      type: this.type,
+      value: this.value,
+      classification: this.classification,
+      component: this.component,
+      id: this.id || this.defaultId,
+      label: this.label,
+      labelPosition: this.logicalLabelPosition,
+      attributes: this.elementAttributes,
+      ...this.typeContext
+    })
+  },
+  typeContext,
+  elementAttributes,
+  logicalLabelPosition
 }
 
 /**
  * Given (this.type), return an object to merge with the context
+ * @return {object}
  * @return {object}
  */
 function typeContext () {
   switch (this.classification) {
     case 'select':
       return {
-        options: createOptionList(this.options),
-        optionGroups: this.optionGroups ? map(this.optionGroups, (k, v) => createOptionList(v)) : false,
+        options: createOptionList.call(this, this.options),
+        optionGroups: this.optionGroups ? map(this.optionGroups, (k, v) => createOptionList.call(this, v)) : false,
         placeholder: this.$attrs.placeholder || false
       }
     case 'group':
       if (this.options) {
         return {
-          options: createOptionList(this.options),
-          component: 'FormulateInputGroup'
+          options: createOptionList.call(this, this.options)
         }
       }
       break
@@ -48,18 +57,21 @@ function typeContext () {
  * Reducer for attributes that will be applied to each core input element.
  * @return {object}
  */
-function attributeReducer (attributes = {}) {
+function elementAttributes () {
+  const attrs = Object.assign({}, this.localAttributes)
   if (this.id) {
-    attributes.id = this.id
+    attrs.id = this.id
+  } else {
+    attrs.id = this.defaultId
   }
-  return attributes
+  return attrs
 }
 
 /**
  * Determine the a best-guess location for the label (before or after).
  * @return {string} before|after
  */
-function labelPosition () {
+function logicalLabelPosition () {
   if (this.labelPosition) {
     return this.labelPosition
   }
@@ -78,17 +90,22 @@ function labelPosition () {
  * @return {array}
  */
 function createOptionList (options) {
-  if (!Array.isArray(options)) {
-    return reduce(options, (options, value, label) => options.concat({ value, label, id: nanoid(15) }), [])
+  if (!Array.isArray(options) && options && typeof options === 'object') {
+    const optionList = []
+    const that = this
+    for (const value in options) {
+      optionList.push({ value, label: options[value], id: `${that.elementAttributes.id}_${value}` })
+    }
+    return optionList
   } else if (Array.isArray(options) && !options.length) {
-    return [{ value: this.name, label: (this.label || this.name), id: nanoid(15) }]
+    return [{ value: this.value, label: (this.label || this.name), id: this.context.id || nanoid(9) }]
   }
   return options
 }
 
 /**
- * Create a getter/setter model factory
- * @return object
+ * Defines the model used throughout the existing context.
+ * @param {object} context
  */
 function defineModel (context) {
   return Object.defineProperty(context, 'model', {

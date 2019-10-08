@@ -111,16 +111,33 @@ function map (original, callback) {
 }
 
 /**
- * Function to reduce an object's properties
- * @param {Object} original
- * @param {Function} callback
- * @param {*} accumulator
+ * Shallow equal.
+ * @param {} objA
+ * @param {*} objB
  */
-function reduce (original, callback, accumulator) {
-  for (var key in original) {
-    accumulator = callback(accumulator, key, original[key]);
+function shallowEqualObjects (objA, objB) {
+  if (objA === objB) {
+    return true
   }
-  return accumulator
+  if (!objA || !objB) {
+    return false
+  }
+  var aKeys = Object.keys(objA);
+  var bKeys = Object.keys(objB);
+  var len = aKeys.length;
+
+  if (bKeys.length !== len) {
+    return false
+  }
+
+  for (var i = 0; i < len; i++) {
+    var key = aKeys[i];
+
+    if (objA[key] !== objB[key]) {
+      return false
+    }
+  }
+  return true
 }
 
 /**
@@ -128,36 +145,45 @@ function reduce (original, callback, accumulator) {
  * render that element.
  * @return {object}
  */
-function context () {
-  return defineModel.call(this, Object.assign({
-    type: this.type,
-    value: this.value,
-    classification: this.classification,
-    component: this.component,
-    id: this.id,
-    label: this.label,
-    labelPosition: labelPosition.call(this),
-    attributes: attributeReducer.call(this, this.$attrs)
-  }, typeContext.call(this)))
-}
+var context = {
+  context: function context () {
+    if (this.debug) {
+      console.log(((this.type) + " re-context"));
+    }
+    return defineModel.call(this, Object.assign({}, {type: this.type,
+      value: this.value,
+      classification: this.classification,
+      component: this.component,
+      id: this.id || this.defaultId,
+      label: this.label,
+      labelPosition: this.logicalLabelPosition,
+      attributes: this.elementAttributes},
+      this.typeContext))
+  },
+  typeContext: typeContext,
+  elementAttributes: elementAttributes,
+  logicalLabelPosition: logicalLabelPosition
+};
 
 /**
  * Given (this.type), return an object to merge with the context
  * @return {object}
+ * @return {object}
  */
 function typeContext () {
+  var this$1 = this;
+
   switch (this.classification) {
     case 'select':
       return {
-        options: createOptionList(this.options),
-        optionGroups: this.optionGroups ? map(this.optionGroups, function (k, v) { return createOptionList(v); }) : false,
+        options: createOptionList.call(this, this.options),
+        optionGroups: this.optionGroups ? map(this.optionGroups, function (k, v) { return createOptionList.call(this$1, v); }) : false,
         placeholder: this.$attrs.placeholder || false
       }
     case 'group':
       if (this.options) {
         return {
-          options: createOptionList(this.options),
-          component: 'FormulateInputGroup'
+          options: createOptionList.call(this, this.options)
         }
       }
       break
@@ -170,20 +196,21 @@ function typeContext () {
  * Reducer for attributes that will be applied to each core input element.
  * @return {object}
  */
-function attributeReducer (attributes) {
-  if ( attributes === void 0 ) attributes = {};
-
+function elementAttributes () {
+  var attrs = Object.assign({}, this.localAttributes);
   if (this.id) {
-    attributes.id = this.id;
+    attrs.id = this.id;
+  } else {
+    attrs.id = this.defaultId;
   }
-  return attributes
+  return attrs
 }
 
 /**
  * Determine the a best-guess location for the label (before or after).
  * @return {string} before|after
  */
-function labelPosition () {
+function logicalLabelPosition () {
   if (this.labelPosition) {
     return this.labelPosition
   }
@@ -202,17 +229,22 @@ function labelPosition () {
  * @return {array}
  */
 function createOptionList (options) {
-  if (!Array.isArray(options)) {
-    return reduce(options, function (options, value, label) { return options.concat({ value: value, label: label, id: nanoid(15) }); }, [])
+  if (!Array.isArray(options) && options && typeof options === 'object') {
+    var optionList = [];
+    var that = this;
+    for (var value in options) {
+      optionList.push({ value: value, label: options[value], id: ((that.elementAttributes.id) + "_" + value) });
+    }
+    return optionList
   } else if (Array.isArray(options) && !options.length) {
-    return [{ value: this.name, label: (this.label || this.name), id: nanoid(15) }]
+    return [{ value: this.value, label: (this.label || this.name), id: this.context.id || nanoid(9) }]
   }
   return options
 }
 
 /**
- * Create a getter/setter model factory
- * @return object
+ * Defines the model used throughout the existing context.
+ * @param {object} context
  */
 function defineModel (context) {
   return Object.defineProperty(context, 'model', {
@@ -257,7 +289,7 @@ var script = {
     },
     formulateValue: {
       type: [String, Number, Object, Boolean, Array],
-      default: false
+      default: ''
     },
     value: {
       type: [String, Number, Object, Boolean, Array],
@@ -273,7 +305,7 @@ var script = {
     },
     id: {
       type: [String, Boolean, Number],
-      default: function () { return nanoid(9); }
+      default: false
     },
     label: {
       type: [String, Boolean],
@@ -286,16 +318,47 @@ var script = {
     help: {
       type: [String, Boolean],
       default: false
+    },
+    debug: {
+      type: Boolean,
+      default: false
     }
   },
-  computed: {
-    context: context,
-    classification: function classification () {
+  data: function data () {
+    return {
+      defaultId: nanoid(9),
+      localAttributes: {}
+    }
+  },
+  computed: Object.assign({}, context,
+    {classification: function classification () {
       var classification = this.$formulate.classify(this.type);
       return (classification === 'box' && this.options) ? 'group' : classification
     },
     component: function component () {
-      return this.$formulate.component(this.type)
+      return (this.classification === 'group') ? 'FormulateInputGroup' : this.$formulate.component(this.type)
+    }}),
+  watch: {
+    '$attrs': {
+      handler: function handler (value) {
+        this.updateLocalAttributes(value);
+      },
+      deep: true
+    }
+  },
+  created: function created () {
+    this.updateLocalAttributes(this.$attrs);
+  },
+  mounted: function mounted () {
+    if (this.debug) {
+      console.log('MOUNTED:' + this.$options.name + ':' + this.type);
+    }
+  },
+  methods: {
+    updateLocalAttributes: function updateLocalAttributes (value) {
+      if (!shallowEqualObjects(value, this.localAttributes)) {
+        this.localAttributes = value;
+      }
     }
   }
 };
@@ -414,7 +477,7 @@ var __vue_render__ = function() {
                   _c("label", {
                     staticClass:
                       "formulate-input-label formulate-input-label--before",
-                    attrs: { for: _vm.id },
+                    attrs: { for: _vm.context.attributes.id },
                     domProps: { textContent: _vm._s(_vm.context.label) }
                   })
                 ],
@@ -442,7 +505,7 @@ var __vue_render__ = function() {
                   _c("label", {
                     staticClass:
                       "formulate-input-label formulate-input-label--after",
-                    attrs: { for: _vm.id },
+                    attrs: { for: _vm.context.attributes.id },
                     domProps: { textContent: _vm._s(_vm.context.label) }
                   })
                 ],
@@ -562,7 +625,8 @@ var script$1 = {
       var options = ref.options;
       var labelPosition = ref.labelPosition;
       var attributes = ref.attributes;
-      var rest = objectWithoutProperties( ref, ["options", "labelPosition", "attributes"] );
+      var classification = ref.classification;
+      var rest = objectWithoutProperties( ref, ["options", "labelPosition", "attributes", "classification"] );
       var context = rest;
       return this.options.map(function (option) { return this$1.groupItemContext(context, option); })
     }
@@ -647,10 +711,18 @@ __vue_render__$2._withStripped = true;
  * Default base for input components.
  */
 var FormulateInputMixin = {
+  model: {
+    prop: 'formulateValue',
+    event: 'input'
+  },
   props: {
     context: {
       type: Object,
       required: true
+    },
+    formulateValue: {
+      type: [Object, Array, Boolean, String, Number],
+      default: ''
     }
   },
   computed: {
@@ -664,7 +736,7 @@ var FormulateInputMixin = {
       return this.context.attributes || {}
     },
     hasValue: function hasValue () {
-      return !!this.context.model
+      return !!this.model
     }
   }
 };
@@ -1005,7 +1077,7 @@ var script$4 = {
       return this.context.optionGroups || false
     },
     placeholderSelected: function placeholderSelected () {
-      return !!(!this.hasValue && this.context.attributes.placeholder)
+      return !!(!this.hasValue && this.context.attributes && this.context.attributes.placeholder)
     }
   }
 };
@@ -1255,6 +1327,7 @@ Formulate.prototype.install = function install (Vue, options) {
   for (var componentName in this.options.components) {
     Vue.component(componentName, this.options.components[componentName]);
   }
+  Object.freeze(this);
 };
 
 /**

@@ -25,7 +25,7 @@ export default {
       return this.context.options || []
     },
     optionsWithContext () {
-      const { options, labelPosition, attributes, ...context } = this.context
+      const { options, labelPosition, attributes, classification, ...context } = this.context
       return this.options.map(option => this.groupItemContext(context, option))
     }
   },
