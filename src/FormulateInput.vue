@@ -46,11 +46,14 @@
 import context from './libs/context'
 import { shallowEqualObjects } from './libs/utils'
 import nanoid from 'nanoid'
-import library from './libs/library'
 
 export default {
   name: 'FormulateInput',
   inheritAttrs: false,
+  inject: {
+    formulateFormSetter: { default: undefined },
+    formulateFormRegister: { default: undefined }
+  },
   model: {
     prop: 'formulateValue',
     event: 'input'
@@ -60,14 +63,18 @@ export default {
       type: String,
       default: 'text'
     },
+    name: {
+      type: [Boolean, String],
+      default: true
+    },
+    /* eslint-disable */
     formulateValue: {
-      type: [String, Number, Object, Boolean, Array],
-      default: ''
+      default: undefined
     },
     value: {
-      type: [String, Number, Object, Boolean, Array],
       default: false
     },
+    /* eslint-enable */
     options: {
       type: [Object, Array, Boolean],
       default: false
@@ -122,6 +129,9 @@ export default {
     }
   },
   created () {
+    if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
+      this.formulateFormRegister(this.name, this)
+    }
     this.updateLocalAttributes(this.$attrs)
   },
   mounted () {

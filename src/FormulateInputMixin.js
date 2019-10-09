@@ -2,18 +2,10 @@
  * Default base for input components.
  */
 export default {
-  model: {
-    prop: 'formulateValue',
-    event: 'input'
-  },
   props: {
     context: {
       type: Object,
       required: true
-    },
-    formulateValue: {
-      type: [Object, Array, Boolean, String, Number],
-      default: ''
     }
   },
   computed: {
@@ -27,7 +19,7 @@ export default {
       return this.context.attributes || {}
     },
     hasValue () {
-      return !!this.model
+      return !!this.context.model
     }
   }
 }

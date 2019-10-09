@@ -1,5 +1,5 @@
 import nanoid from 'nanoid'
-import { reduce, map } from './utils'
+import { map } from './utils'
 
 /**
  * For a single instance of an input, export all of the context needed to fully
@@ -14,6 +14,7 @@ export default {
     return defineModel.call(this, {
       type: this.type,
       value: this.value,
+      name: this.nameOrFallback,
       classification: this.classification,
       component: this.component,
       id: this.id || this.defaultId,
@@ -23,6 +24,7 @@ export default {
       ...this.typeContext
     })
   },
+  nameOrFallback,
   typeContext,
   elementAttributes,
   logicalLabelPosition
@@ -84,6 +86,19 @@ function logicalLabelPosition () {
 }
 
 /**
+ * Return the element’s name, or select a fallback.
+ */
+function nameOrFallback () {
+  if (this.name === true) {
+    return `${this.type}_${this.elementAttributes.id}`
+  }
+  if (this.name === false) {
+    return false
+  }
+  return this.name
+}
+
+/**
  * Given an object or array of options, create an array of objects with label,
  * value, and id.
  * @param {array|object}
@@ -121,7 +136,7 @@ function modelGetter () {
   if (this.type === 'checkbox' && !Array.isArray(this.formulateValue) && this.options) {
     return []
   }
-  if (this.formulateValue === false) {
+  if (!this.formulateValue) {
     return ''
   }
   return this.formulateValue
@@ -132,4 +147,7 @@ function modelGetter () {
  **/
 function modelSetter (value) {
   this.$emit('input', value)
+  if (this.context.name && typeof this.formulateFormSetter === 'function') {
+    this.formulateFormSetter(this.context.name, value)
+  }
 }

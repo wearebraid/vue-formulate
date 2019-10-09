@@ -158,6 +158,7 @@
       }
       return defineModel.call(this, Object.assign({}, {type: this.type,
         value: this.value,
+        name: this.nameOrFallback,
         classification: this.classification,
         component: this.component,
         id: this.id || this.defaultId,
@@ -166,6 +167,7 @@
         attributes: this.elementAttributes},
         this.typeContext))
     },
+    nameOrFallback: nameOrFallback,
     typeContext: typeContext,
     elementAttributes: elementAttributes,
     logicalLabelPosition: logicalLabelPosition
@@ -229,6 +231,19 @@
   }
 
   /**
+   * Return the element’s name, or select a fallback.
+   */
+  function nameOrFallback () {
+    if (this.name === true) {
+      return ((this.type) + "_" + (this.elementAttributes.id))
+    }
+    if (this.name === false) {
+      return false
+    }
+    return this.name
+  }
+
+  /**
    * Given an object or array of options, create an array of objects with label,
    * value, and id.
    * @param {array|object}
@@ -266,7 +281,7 @@
     if (this.type === 'checkbox' && !Array.isArray(this.formulateValue) && this.options) {
       return []
     }
-    if (this.formulateValue === false) {
+    if (!this.formulateValue) {
       return ''
     }
     return this.formulateValue
@@ -277,6 +292,9 @@
    **/
   function modelSetter (value) {
     this.$emit('input', value);
+    if (this.context.name && typeof this.formulateFormSetter === 'function') {
+      this.formulateFormSetter(this.context.name, value);
+    }
   }
 
   //
@@ -284,6 +302,10 @@
   var script = {
     name: 'FormulateInput',
     inheritAttrs: false,
+    inject: {
+      formulateFormSetter: { default: undefined },
+      formulateFormRegister: { default: undefined }
+    },
     model: {
       prop: 'formulateValue',
       event: 'input'
@@ -293,14 +315,18 @@
         type: String,
         default: 'text'
       },
+      name: {
+        type: [Boolean, String],
+        default: true
+      },
+      /* eslint-disable */
       formulateValue: {
-        type: [String, Number, Object, Boolean, Array],
-        default: ''
+        default: undefined
       },
       value: {
-        type: [String, Number, Object, Boolean, Array],
         default: false
       },
+      /* eslint-enable */
       options: {
         type: [Object, Array, Boolean],
         default: false
@@ -353,6 +379,9 @@
       }
     },
     created: function created () {
+      if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
+        this.formulateFormRegister(this.name, this);
+      }
       this.updateLocalAttributes(this.$attrs);
     },
     mounted: function mounted () {
@@ -560,14 +589,85 @@
       undefined
     );
 
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+
+  var script$1 = {
+    provide: function provide () {
+      return {
+        formulateFormSetter: this.setFieldValue,
+        formulateFormRegister: this.register
+      }
+    },
+    name: 'FormulateForm',
+    model: {
+      prop: 'formulateValue',
+      event: 'input'
+    },
+    props: {
+      name: {
+        type: [String, Boolean],
+        default: false
+      },
+      formulateValue: {
+        type: Object,
+        default: function () { return ({}); }
+      }
+    },
+    data: function data () {
+      return {
+        registry: {}
+      }
+    },
+    computed: {
+      formModel: {
+        get: function get () {
+          return this.formulateValue
+        },
+        set: function set (value) {
+          this.$emit('input', value);
+        }
+      }
+    },
+    methods: {
+      setFieldValue: function setFieldValue (field, value) {
+        var obj;
+
+        this.formModel = Object.assign({}, this.formulateValue, ( obj = {}, obj[field] = value, obj ));
+      },
+      register: function register (field, component) {
+        this.registry[field] = component;
+      }
+    }
+  };
+
   /* script */
+  var __vue_script__$1 = script$1;
 
   /* template */
   var __vue_render__$1 = function() {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
-    return _c("form", [_vm._t("default")], 2)
+    return _c(
+      "form",
+      {
+        on: {
+          submit: function($event) {
+            $event.preventDefault();
+            return _vm.formSubmitted($event)
+          }
+        }
+      },
+      [_vm._t("default")],
+      2
+    )
   };
   var __vue_staticRenderFns__$1 = [];
   __vue_render__$1._withStripped = true;
@@ -589,7 +689,7 @@
     var FormulateForm = normalizeComponent_1(
       { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
       __vue_inject_styles__$1,
-      {},
+      __vue_script__$1,
       __vue_scope_id__$1,
       __vue_is_functional_template__$1,
       __vue_module_identifier__$1,
@@ -612,7 +712,7 @@
   //
 
   function objectWithoutProperties (obj, exclude) { var target = {}; for (var k in obj) if (Object.prototype.hasOwnProperty.call(obj, k) && exclude.indexOf(k) === -1) target[k] = obj[k]; return target; }
-  var script$1 = {
+  var script$2 = {
     name: 'FormulateInputGroup',
     props: {
       context: {
@@ -650,7 +750,7 @@
   };
 
   /* script */
-  var __vue_script__$1 = script$1;
+  var __vue_script__$2 = script$2;
 
   /* template */
   var __vue_render__$2 = function() {
@@ -705,7 +805,7 @@
     var FormulateInputGroup = normalizeComponent_1(
       { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
       __vue_inject_styles__$2,
-      __vue_script__$1,
+      __vue_script__$2,
       __vue_scope_id__$2,
       __vue_is_functional_template__$2,
       __vue_module_identifier__$2,
@@ -717,18 +817,10 @@
    * Default base for input components.
    */
   var FormulateInputMixin = {
-    model: {
-      prop: 'formulateValue',
-      event: 'input'
-    },
     props: {
       context: {
         type: Object,
         required: true
-      },
-      formulateValue: {
-        type: [Object, Array, Boolean, String, Number],
-        default: ''
       }
     },
     computed: {
@@ -742,20 +834,20 @@
         return this.context.attributes || {}
       },
       hasValue: function hasValue () {
-        return !!this.model
+        return !!this.context.model
       }
     }
   };
 
   //
 
-  var script$2 = {
+  var script$3 = {
     name: 'FormulateInputBox',
     mixins: [FormulateInputMixin]
   };
 
   /* script */
-  var __vue_script__$2 = script$2;
+  var __vue_script__$3 = script$3;
 
   /* template */
   var __vue_render__$3 = function() {
@@ -907,7 +999,7 @@
     var FormulateInputBox = normalizeComponent_1(
       { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
       __vue_inject_styles__$3,
-      __vue_script__$2,
+      __vue_script__$3,
       __vue_scope_id__$3,
       __vue_is_functional_template__$3,
       __vue_module_identifier__$3,
@@ -917,13 +1009,13 @@
 
   //
 
-  var script$3 = {
+  var script$4 = {
     name: 'FormulateInputText',
     mixins: [FormulateInputMixin]
   };
 
   /* script */
-  var __vue_script__$3 = script$3;
+  var __vue_script__$4 = script$4;
 
   /* template */
   var __vue_render__$4 = function() {
@@ -1062,7 +1154,7 @@
     var FormulateInputText = normalizeComponent_1(
       { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
       __vue_inject_styles__$4,
-      __vue_script__$3,
+      __vue_script__$4,
       __vue_scope_id__$4,
       __vue_is_functional_template__$4,
       __vue_module_identifier__$4,
@@ -1072,7 +1164,7 @@
 
   //
 
-  var script$4 = {
+  var script$5 = {
     name: 'FormulateInputSelect',
     mixins: [FormulateInputMixin],
     computed: {
@@ -1089,7 +1181,7 @@
   };
 
   /* script */
-  var __vue_script__$4 = script$4;
+  var __vue_script__$5 = script$5;
 
   /* template */
   var __vue_render__$5 = function() {
@@ -1219,7 +1311,7 @@
     var FormulateInputSelect = normalizeComponent_1(
       { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
       __vue_inject_styles__$5,
-      __vue_script__$4,
+      __vue_script__$5,
       __vue_scope_id__$5,
       __vue_is_functional_template__$5,
       __vue_module_identifier__$5,
@@ -1229,13 +1321,13 @@
 
   //
 
-  var script$5 = {
+  var script$6 = {
     name: 'FormulateInputTextArea',
     mixins: [FormulateInputMixin]
   };
 
   /* script */
-  var __vue_script__$5 = script$5;
+  var __vue_script__$6 = script$6;
 
   /* template */
   var __vue_render__$6 = function() {
@@ -1298,7 +1390,7 @@
     var FormulateInputTextArea = normalizeComponent_1(
       { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
       __vue_inject_styles__$6,
-      __vue_script__$5,
+      __vue_script__$6,
       __vue_scope_id__$6,
       __vue_is_functional_template__$6,
       __vue_module_identifier__$6,
