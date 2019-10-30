@@ -164,7 +164,8 @@ var context = {
   nameOrFallback: nameOrFallback,
   typeContext: typeContext,
   elementAttributes: elementAttributes,
-  logicalLabelPosition: logicalLabelPosition
+  logicalLabelPosition: logicalLabelPosition,
+  isVmodeled: isVmodeled
 };
 
 /**
@@ -238,6 +239,16 @@ function nameOrFallback () {
 }
 
 /**
+ * Determines if this formulate element is v-modeled or not.
+ */
+function isVmodeled () {
+  return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
+    this._events &&
+    Array.isArray(this._events.input) &&
+    this._events.input.length)
+}
+
+/**
  * Given an object or array of options, create an array of objects with label,
  * value, and id.
  * @param {array|object}
@@ -272,19 +283,21 @@ function defineModel (context) {
  * Get the value from a model.
  **/
 function modelGetter () {
-  if (this.type === 'checkbox' && !Array.isArray(this.formulateValue) && this.options) {
+  var model = this.isVmodeled ? 'formulateValue' : 'internalModelProxy';
+  if (this.type === 'checkbox' && !Array.isArray(this[model]) && this.options) {
     return []
   }
-  if (!this.formulateValue) {
+  if (!this[model]) {
     return ''
   }
-  return this.formulateValue
+  return this[model]
 }
 
 /**
  * Set the value from a model.
  **/
 function modelSetter (value) {
+  this.internalModelProxy = value;
   this.$emit('input', value);
   if (this.context.name && typeof this.formulateFormSetter === 'function') {
     this.formulateFormSetter(this.context.name, value);
@@ -315,7 +328,7 @@ var script = {
     },
     /* eslint-disable */
     formulateValue: {
-      default: undefined
+      default: ''
     },
     value: {
       default: false
@@ -353,7 +366,8 @@ var script = {
   data: function data () {
     return {
       defaultId: nanoid(9),
-      localAttributes: {}
+      localAttributes: {},
+      internalModelProxy: this.formulateValue
     }
   },
   computed: Object.assign({}, context,
@@ -370,18 +384,23 @@ var script = {
         this.updateLocalAttributes(value);
       },
       deep: true
+    },
+    internalModelProxy: function internalModelProxy (newValue, oldValue) {
+      if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
+        this.context.model = newValue;
+      }
+    },
+    formulateValue: function formulateValue (newValue, oldValue) {
+      if (this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
+        this.context.model = newValue;
+      }
     }
   },
   created: function created () {
     if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
-      this.formulateFormRegister(this.name, this);
+      this.formulateFormRegister(this.nameOrFallback, this);
     }
     this.updateLocalAttributes(this.$attrs);
-  },
-  mounted: function mounted () {
-    if (this.debug) {
-      console.log('MOUNTED:' + this.$options.name + ':' + this.type);
-    }
   },
   methods: {
     updateLocalAttributes: function updateLocalAttributes (value) {
@@ -584,13 +603,6 @@ __vue_render__._withStripped = true;
   );
 
 //
-//
-//
-//
-//
-//
-//
-//
 
 var script$1 = {
   provide: function provide () {
@@ -627,6 +639,36 @@ var script$1 = {
       set: function set (value) {
         this.$emit('input', value);
       }
+    },
+    hasFormulateValue: function hasFormulateValue () {
+      return this.formulateValue && typeof this.formulateValue === 'object'
+    },
+    isVmodeled: function isVmodeled () {
+      return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
+        this._events &&
+        Array.isArray(this._events.input) &&
+        this._events.input.length)
+    }
+  },
+  watch: {
+    formulateValue: {
+      handler: function handler (newValue, oldValue) {
+        if (this.isVmodeled &&
+          newValue &&
+          typeof newValue === 'object'
+        ) {
+          for (var field in newValue) {
+            if (this.registry.hasOwnProperty(field) && !shallowEqualObjects(newValue[field], this.registry[field].internalModelProxy)) {
+              // If the value of the formulateValue changed (probably as a prop)
+              // and it doesn't match the internal proxied value of the registered
+              // component, we set it explicitly. Its important we check the
+              // model proxy here since the model itself is not fully synchronous.
+              this.registry[field].context.model = newValue[field];
+            }
+          }
+        }
+      },
+      deep: true
     }
   },
   methods: {
@@ -637,6 +679,11 @@ var script$1 = {
     },
     register: function register (field, component) {
       this.registry[field] = component;
+      if (!component.$options.propsData.hasOwnProperty('formulateValue') && this.hasFormulateValue && this.formulateValue[field]) {
+        // In the case that the form is carrying an initial value and the
+        // element is not, set it directly.
+        component.context.model = this.formulateValue[field];
+      }
     }
   }
 };

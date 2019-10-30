@@ -27,7 +27,8 @@ export default {
   nameOrFallback,
   typeContext,
   elementAttributes,
-  logicalLabelPosition
+  logicalLabelPosition,
+  isVmodeled
 }
 
 /**
@@ -99,6 +100,16 @@ function nameOrFallback () {
 }
 
 /**
+ * Determines if this formulate element is v-modeled or not.
+ */
+function isVmodeled () {
+  return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
+    this._events &&
+    Array.isArray(this._events.input) &&
+    this._events.input.length)
+}
+
+/**
  * Given an object or array of options, create an array of objects with label,
  * value, and id.
  * @param {array|object}
@@ -133,19 +144,21 @@ function defineModel (context) {
  * Get the value from a model.
  **/
 function modelGetter () {
-  if (this.type === 'checkbox' && !Array.isArray(this.formulateValue) && this.options) {
+  const model = this.isVmodeled ? 'formulateValue' : 'internalModelProxy'
+  if (this.type === 'checkbox' && !Array.isArray(this[model]) && this.options) {
     return []
   }
-  if (!this.formulateValue) {
+  if (!this[model]) {
     return ''
   }
-  return this.formulateValue
+  return this[model]
 }
 
 /**
  * Set the value from a model.
  **/
 function modelSetter (value) {
+  this.internalModelProxy = value
   this.$emit('input', value)
   if (this.context.name && typeof this.formulateFormSetter === 'function') {
     this.formulateFormSetter(this.context.name, value)

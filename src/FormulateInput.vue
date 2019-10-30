@@ -69,7 +69,7 @@ export default {
     },
     /* eslint-disable */
     formulateValue: {
-      default: undefined
+      default: ''
     },
     value: {
       default: false
@@ -107,7 +107,8 @@ export default {
   data () {
     return {
       defaultId: nanoid(9),
-      localAttributes: {}
+      localAttributes: {},
+      internalModelProxy: this.formulateValue
     }
   },
   computed: {
@@ -126,18 +127,23 @@ export default {
         this.updateLocalAttributes(value)
       },
       deep: true
+    },
+    internalModelProxy (newValue, oldValue) {
+      if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
+        this.context.model = newValue
+      }
+    },
+    formulateValue (newValue, oldValue) {
+      if (this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
+        this.context.model = newValue
+      }
     }
   },
   created () {
     if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
-      this.formulateFormRegister(this.name, this)
+      this.formulateFormRegister(this.nameOrFallback, this)
     }
     this.updateLocalAttributes(this.$attrs)
-  },
-  mounted () {
-    if (this.debug) {
-      console.log('MOUNTED:' + this.$options.name + ':' + this.type)
-    }
   },
   methods: {
     updateLocalAttributes (value) {
