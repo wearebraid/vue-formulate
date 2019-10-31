@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
-import Formulate from '../dist/formulate.esm.js'
+import Formulate from '../src/Formulate.js'
 import FormulateInput from '../src/FormulateInput.vue'
 import FormulateInputText from '../src/inputs/FormulateInputText.vue'
 import { doesNotReject } from 'assert';
@@ -145,4 +145,11 @@ test('test that inputs that arent updated dont re-context themselves', () => {
 test('test that inputs contain their v-model value as the initial input', () => {
   const wrapper = mount(FormulateInput, { propsData: { type: 'text', formulateValue: 'initial val' } })
   expect(wrapper.find('input').element.value).toBe('initial val')
+})
+
+test('test that inputs without v-model set a proxy model', () => {
+  const wrapper = mount(FormulateInput, { propsData: { type: 'textarea' } })
+  const input = wrapper.find('textarea')
+  input.setValue('changed value')
+  expect(wrapper.vm.internalModelProxy).toBe('changed value')
 })

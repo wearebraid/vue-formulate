@@ -683,7 +683,13 @@ var script$1 = {
         // In the case that the form is carrying an initial value and the
         // element is not, set it directly.
         component.context.model = this.formulateValue[field];
+      } else if (component.$options.propsData.hasOwnProperty('formulateValue')) {
+        this.setFieldValue(field, component.context.model);
       }
+    },
+    formSubmitted: function formSubmitted () {
+      // perform validation here
+      this.$emit('submit', this.formModel);
     }
   }
 };
