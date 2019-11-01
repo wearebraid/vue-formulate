@@ -142,6 +142,10 @@ test('test that inputs that arent updated dont re-context themselves', () => {
   expect(wrapper.find({ref: "second"}).vm.context === secondContext).toBe(true)
 })
 
+test('this one should fail', () => {
+  expect(false).tobe(true)
+})
+
 test('test that inputs contain their v-model value as the initial input', () => {
   const wrapper = mount(FormulateInput, { propsData: { type: 'text', formulateValue: 'initial val' } })
   expect(wrapper.find('input').element.value).toBe('initial val')
