@@ -2,7 +2,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('is-plain-object'), require('nanoid')) :
   typeof define === 'function' && define.amd ? define(['exports', 'is-plain-object', 'nanoid'], factory) :
   (global = global || self, factory(global.Formulate = {}, global.isPlainObject, global.nanoid));
-}(this, function (exports, isPlainObject, nanoid) { 'use strict';
+}(this, (function (exports, isPlainObject, nanoid) { 'use strict';
 
   isPlainObject = isPlainObject && isPlainObject.hasOwnProperty('default') ? isPlainObject['default'] : isPlainObject;
   nanoid = nanoid && nanoid.hasOwnProperty('default') ? nanoid['default'] : nanoid;
@@ -417,90 +417,80 @@
     }
   };
 
-  function normalizeComponent(template, style, script, scopeId, isFunctionalTemplate, moduleIdentifier
-  /* server only */
-  , shadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
-    if (typeof shadowMode !== 'boolean') {
-      createInjectorSSR = createInjector;
-      createInjector = shadowMode;
-      shadowMode = false;
-    } // Vue.extend constructor export interop.
-
-
-    var options = typeof script === 'function' ? script.options : script; // render functions
-
-    if (template && template.render) {
-      options.render = template.render;
-      options.staticRenderFns = template.staticRenderFns;
-      options._compiled = true; // functional template
-
-      if (isFunctionalTemplate) {
-        options.functional = true;
+  function normalizeComponent(template, style, script, scopeId, isFunctionalTemplate, moduleIdentifier /* server only */, shadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
+      if (typeof shadowMode !== 'boolean') {
+          createInjectorSSR = createInjector;
+          createInjector = shadowMode;
+          shadowMode = false;
       }
-    } // scopedId
-
-
-    if (scopeId) {
-      options._scopeId = scopeId;
-    }
-
-    var hook;
-
-    if (moduleIdentifier) {
-      // server build
-      hook = function hook(context) {
-        // 2.3 injection
-        context = context || // cached call
-        this.$vnode && this.$vnode.ssrContext || // stateful
-        this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext; // functional
-        // 2.2 with runInNewContext: true
-
-        if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-          context = __VUE_SSR_CONTEXT__;
-        } // inject component styles
-
-
-        if (style) {
-          style.call(this, createInjectorSSR(context));
-        } // register component module identifier for async chunk inference
-
-
-        if (context && context._registeredComponents) {
-          context._registeredComponents.add(moduleIdentifier);
-        }
-      }; // used by ssr in case component is cached and beforeCreate
-      // never gets called
-
-
-      options._ssrRegister = hook;
-    } else if (style) {
-      hook = shadowMode ? function () {
-        style.call(this, createInjectorShadow(this.$root.$options.shadowRoot));
-      } : function (context) {
-        style.call(this, createInjector(context));
-      };
-    }
-
-    if (hook) {
-      if (options.functional) {
-        // register for functional component in vue file
-        var originalRender = options.render;
-
-        options.render = function renderWithStyleInjection(h, context) {
-          hook.call(context);
-          return originalRender(h, context);
-        };
-      } else {
-        // inject component registration as beforeCreate hook
-        var existing = options.beforeCreate;
-        options.beforeCreate = existing ? [].concat(existing, hook) : [hook];
+      // Vue.extend constructor export interop.
+      var options = typeof script === 'function' ? script.options : script;
+      // render functions
+      if (template && template.render) {
+          options.render = template.render;
+          options.staticRenderFns = template.staticRenderFns;
+          options._compiled = true;
+          // functional template
+          if (isFunctionalTemplate) {
+              options.functional = true;
+          }
       }
-    }
-
-    return script;
+      // scopedId
+      if (scopeId) {
+          options._scopeId = scopeId;
+      }
+      var hook;
+      if (moduleIdentifier) {
+          // server build
+          hook = function (context) {
+              // 2.3 injection
+              context =
+                  context || // cached call
+                      (this.$vnode && this.$vnode.ssrContext) || // stateful
+                      (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
+              // 2.2 with runInNewContext: true
+              if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+                  context = __VUE_SSR_CONTEXT__;
+              }
+              // inject component styles
+              if (style) {
+                  style.call(this, createInjectorSSR(context));
+              }
+              // register component module identifier for async chunk inference
+              if (context && context._registeredComponents) {
+                  context._registeredComponents.add(moduleIdentifier);
+              }
+          };
+          // used by ssr in case component is cached and beforeCreate
+          // never gets called
+          options._ssrRegister = hook;
+      }
+      else if (style) {
+          hook = shadowMode
+              ? function (context) {
+                  style.call(this, createInjectorShadow(context, this.$root.$options.shadowRoot));
+              }
+              : function (context) {
+                  style.call(this, createInjector(context));
+              };
+      }
+      if (hook) {
+          if (options.functional) {
+              // register for functional component in vue file
+              var originalRender = options.render;
+              options.render = function renderWithStyleInjection(h, context) {
+                  hook.call(context);
+                  return originalRender(h, context);
+              };
+          }
+          else {
+              // inject component registration as beforeCreate hook
+              var existing = options.beforeCreate;
+              options.beforeCreate = existing ? [].concat(existing, hook) : [hook];
+          }
+      }
+      return script;
   }
-
-  var normalizeComponent_1 = normalizeComponent;
 
   /* script */
   var __vue_script__ = script;
@@ -595,15 +585,19 @@
     
     /* style inject SSR */
     
+    /* style inject shadow dom */
+    
 
     
-    var FormulateInput = normalizeComponent_1(
+    var FormulateInput = normalizeComponent(
       { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
       __vue_inject_styles__,
       __vue_script__,
       __vue_scope_id__,
       __vue_is_functional_template__,
       __vue_module_identifier__,
+      false,
+      undefined,
       undefined,
       undefined
     );
@@ -689,8 +683,8 @@
           // In the case that the form is carrying an initial value and the
           // element is not, set it directly.
           component.context.model = this.formulateValue[field];
-        } else if (component.$options.propsData.hasOwnProperty('formulateValue')) {
-          this.setFieldValue(field, component.context.model);
+        } else if (component.$options.propsData.hasOwnProperty('formulateValue') && !shallowEqualObjects(component.internalModelProxy, this.formulateValue[field])) {
+          this.setFieldValue(field, component.internalModelProxy);
         }
       },
       formSubmitted: function formSubmitted () {
@@ -737,15 +731,19 @@
     
     /* style inject SSR */
     
+    /* style inject shadow dom */
+    
 
     
-    var FormulateForm = normalizeComponent_1(
+    var FormulateForm = normalizeComponent(
       { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
       __vue_inject_styles__$1,
       __vue_script__$1,
       __vue_scope_id__$1,
       __vue_is_functional_template__$1,
       __vue_module_identifier__$1,
+      false,
+      undefined,
       undefined,
       undefined
     );
@@ -853,15 +851,19 @@
     
     /* style inject SSR */
     
+    /* style inject shadow dom */
+    
 
     
-    var FormulateInputGroup = normalizeComponent_1(
+    var FormulateInputGroup = normalizeComponent(
       { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
       __vue_inject_styles__$2,
       __vue_script__$2,
       __vue_scope_id__$2,
       __vue_is_functional_template__$2,
       __vue_module_identifier__$2,
+      false,
+      undefined,
       undefined,
       undefined
     );
@@ -1047,15 +1049,19 @@
     
     /* style inject SSR */
     
+    /* style inject shadow dom */
+    
 
     
-    var FormulateInputBox = normalizeComponent_1(
+    var FormulateInputBox = normalizeComponent(
       { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
       __vue_inject_styles__$3,
       __vue_script__$3,
       __vue_scope_id__$3,
       __vue_is_functional_template__$3,
       __vue_module_identifier__$3,
+      false,
+      undefined,
       undefined,
       undefined
     );
@@ -1202,15 +1208,19 @@
     
     /* style inject SSR */
     
+    /* style inject shadow dom */
+    
 
     
-    var FormulateInputText = normalizeComponent_1(
+    var FormulateInputText = normalizeComponent(
       { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
       __vue_inject_styles__$4,
       __vue_script__$4,
       __vue_scope_id__$4,
       __vue_is_functional_template__$4,
       __vue_module_identifier__$4,
+      false,
+      undefined,
       undefined,
       undefined
     );
@@ -1359,15 +1369,19 @@
     
     /* style inject SSR */
     
+    /* style inject shadow dom */
+    
 
     
-    var FormulateInputSelect = normalizeComponent_1(
+    var FormulateInputSelect = normalizeComponent(
       { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
       __vue_inject_styles__$5,
       __vue_script__$5,
       __vue_scope_id__$5,
       __vue_is_functional_template__$5,
       __vue_module_identifier__$5,
+      false,
+      undefined,
       undefined,
       undefined
     );
@@ -1438,15 +1452,19 @@
     
     /* style inject SSR */
     
+    /* style inject shadow dom */
+    
 
     
-    var FormulateInputTextArea = normalizeComponent_1(
+    var FormulateInputTextArea = normalizeComponent(
       { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
       __vue_inject_styles__$6,
       __vue_script__$6,
       __vue_scope_id__$6,
       __vue_is_functional_template__$6,
       __vue_module_identifier__$6,
+      false,
+      undefined,
       undefined,
       undefined
     );
@@ -1533,4 +1551,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
