@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
-import Formulate from '@/Formulate'
+import Formulate from '@/Formulate.js'
 import FormulateInput from '../src/FormulateInput.vue'
 import FormulateInputBox from '../src/inputs/FormulateInputBox.vue'
 import FormulateInputGroup from '../src/FormulateInputGroup.vue'
