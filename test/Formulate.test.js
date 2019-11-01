@@ -1,4 +1,4 @@
-import Formulate from '../src/Formulate'
+import Formulate from '@/Formulate'
 
 test('can extend simple object', () => {
   let a = {
