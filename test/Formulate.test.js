@@ -1,4 +1,4 @@
-import Formulate from '@/Formulate.js'
+import Formulate from '../dist/formulate.esm.js'
 
 test('can extend simple object', () => {
   let a = {

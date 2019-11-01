@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
-import Formulate from '@/Formulate.js'
-import FormulateInput from '../src/FormulateInput.vue'
-import FormulateInputBox from '../src/inputs/FormulateInputBox.vue'
-import FormulateInputGroup from '../src/FormulateInputGroup.vue'
+import Formulate from '../dist/formulate.esm.js'
+import FormulateInput from '@/FormulateInput.vue'
+import FormulateInputBox from '@/inputs/FormulateInputBox.vue'
+import FormulateInputGroup from '@/FormulateInputGroup.vue'
 
 Vue.use(Formulate)
 

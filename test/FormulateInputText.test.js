@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
-import Formulate from '@/Formulate.js'
-import FormulateInput from '../src/FormulateInput.vue'
-import FormulateInputText from '../src/inputs/FormulateInputText.vue'
+import Formulate from '../dist/formulate.esm.js'
+import FormulateInput from '@/FormulateInput.vue'
+import FormulateInputText from '@/inputs/FormulateInputText.vue'
 import { doesNotReject } from 'assert';
 
 Vue.use(Formulate)
