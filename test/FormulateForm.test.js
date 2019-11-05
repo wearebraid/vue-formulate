@@ -123,6 +123,6 @@ describe('FormulateForm', () => {
         default: '<FormulateInput type="text" name="testinput" formulate-value="override-data" />'
       }
     })
-    expect(wrapper.emitted().input[0]).toEqual([{ testinput: 'override-data' }])
+    expect(wrapper.emitted().input[wrapper.emitted().input.length - 1]).toEqual([{ testinput: 'override-data' }])
   })
 })

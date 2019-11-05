@@ -33,18 +33,11 @@ export default {
   },
   data () {
     return {
-      registry: {}
+      registry: {},
+      internalFormModelProxy: {}
     }
   },
   computed: {
-    formModel: {
-      get () {
-        return this.formulateValue
-      },
-      set (value) {
-        this.$emit('input', value)
-      }
-    },
     hasFormulateValue () {
       return this.formulateValue && typeof this.formulateValue === 'object'
     },
@@ -63,22 +56,29 @@ export default {
           typeof newValue === 'object'
         ) {
           for (const field in newValue) {
-            if (this.registry.hasOwnProperty(field) && !shallowEqualObjects(newValue[field], this.registry[field].internalModelProxy)) {
-              // If the value of the formulateValue changed (probably as a prop)
-              // and it doesn't match the internal proxied value of the registered
-              // component, we set it explicitly. Its important we check the
-              // model proxy here since the model itself is not fully synchronous.
+            if (this.registry.hasOwnProperty(field) &&
+              !shallowEqualObjects(newValue[field], this.internalFormModelProxy[field]) &&
+              !shallowEqualObjects(newValue[field], this.registry[field].internalModelProxy[field])
+            ) {
+              this.setFieldValue(field, newValue[field])
               this.registry[field].context.model = newValue[field]
             }
           }
         }
       },
-      deep: true
+      deep: true,
+      immediate: false
+    }
+  },
+  created () {
+    if (this.$options.propsData.hasOwnProperty('formulateValue')) {
+      this.internalFormModelProxy = Object.assign({}, this.formulateValue)
     }
   },
   methods: {
     setFieldValue (field, value) {
-      this.formModel = Object.assign({}, this.formulateValue, { [field]: value })
+      Object.assign(this.internalFormModelProxy, { [field]: value })
+      this.$emit('input', Object.assign({}, this.internalFormModelProxy))
     },
     register (field, component) {
       this.registry[field] = component
