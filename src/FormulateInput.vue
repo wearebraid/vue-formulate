@@ -2,6 +2,7 @@
   <div
     class="formulate-input"
     :data-classification="classification"
+    :data-has-errors="hasErrors"
     :data-type="type"
   >
     <div class="formulate-input-wrapper">
@@ -38,6 +39,9 @@
       v-if="help"
       class="formulate-input-help"
       v-text="help"
+    />
+    <FormulateInputErrors
+      :errors="mergedErrors"
     />
   </div>
 </template>
@@ -101,6 +105,25 @@ export default {
     },
     debug: {
       type: Boolean,
+      default: false
+    },
+    errors: {
+      type: [String, Array, Boolean],
+      default: false
+    },
+    validation: {
+      type: [String, Boolean, Array],
+      default: false
+    },
+    validationBehavior: {
+      type: String,
+      default: 'blur',
+      validator: function (value) {
+        return ['blur', 'live'].includes(value)
+      }
+    },
+    error: {
+      type: [String, Boolean],
       default: false
     }
   },

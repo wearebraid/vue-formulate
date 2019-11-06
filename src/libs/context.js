@@ -1,5 +1,5 @@
 import nanoid from 'nanoid'
-import { map } from './utils'
+import { map, arrayify, parseRules } from './utils'
 
 /**
  * For a single instance of an input, export all of the context needed to fully
@@ -28,7 +28,10 @@ export default {
   typeContext,
   elementAttributes,
   logicalLabelPosition,
-  isVmodeled
+  isVmodeled,
+  mergedErrors,
+  hasErrors,
+  validationRules
 }
 
 /**
@@ -127,6 +130,30 @@ function createOptionList (options) {
     return [{ value: this.value, label: (this.label || this.name), id: this.context.id || nanoid(9) }]
   }
   return options
+}
+
+/**
+ * The merged errors computed property.
+ */
+function mergedErrors () {
+  return arrayify(this.errors)
+    .concat(arrayify(this.error))
+    .concat(arrayify(this.validationErrors))
+    .reduce((errors, err) => !errors.includes(err) ? errors.concat(err) : errors, [])
+}
+
+/**
+ * Does this computed property have errors.
+ */
+function hasErrors () {
+  return !!this.mergedErrors.length
+}
+
+/**
+ * An array of validation rules to pass.
+ */
+function validationRules () {
+  return parseRules(this.validation)
 }
 
 /**

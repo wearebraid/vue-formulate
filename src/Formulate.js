@@ -2,6 +2,7 @@ import library from './libs/library'
 import isPlainObject from 'is-plain-object'
 import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
+import FormulateInputErrors from './FormulateInputErrors.vue'
 import FormulateInputGroup from './FormulateInputGroup.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
@@ -19,6 +20,7 @@ class Formulate {
       components: {
         FormulateForm,
         FormulateInput,
+        FormulateInputErrors,
         FormulateInputBox,
         FormulateInputText,
         FormulateInputGroup,

@@ -15,6 +15,16 @@
     font-weight: 300;
     line-height: 1.5;
     margin-bottom: .25em; }
+  .formulate-input .formulate-input-errors {
+    list-style-type: none;
+    padding: 0;
+    margin: 0; }
+  .formulate-input .formulate-input-error {
+    color: #960505;
+    font-size: .8em;
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: .25em; }
   .formulate-input .formulate-input-group-item {
     margin-bottom: .5em; }
   .formulate-input:last-child {

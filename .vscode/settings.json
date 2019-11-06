@@ -1,3 +1,6 @@
 {
-  "jest.showCoverageOnLoad": true
+  "jest.showCoverageOnLoad": true,
+  "cSpell.words": [
+    "arrayify"
+  ]
 }

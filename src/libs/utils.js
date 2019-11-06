@@ -69,3 +69,68 @@ export function shallowEqualObjects (objA, objB) {
   }
   return true
 }
+
+/**
+ * Given a string, object, falsey, or array - return an array.
+ * @param {mixed} item
+ */
+export function arrayify (item) {
+  if (!item) {
+    return []
+  }
+  if (typeof item === 'string') {
+    return [item]
+  }
+  if (Array.isArray(item)) {
+    return item
+  }
+  if (typeof item === 'object') {
+    return Object.values(item)
+  }
+  return []
+}
+
+/**
+ * Given an array or string return an array of callables.
+ * @param {array|string} validation
+ * @param {array} rules and array of functions
+ * @return {array} an array of functions
+ */
+export function parseRules (validation, rules) {
+  if (typeof validation === 'string') {
+    return parseRules(validation.split('|'), rules)
+  }
+  if (!Array.isArray(validation)) {
+    return []
+  }
+  return validation.map(rule => parseRule(rule, rules)).filter(f => !!f)
+}
+
+/**
+ * Given a string or function, parse it and return the an array in the format
+ * [fn, [...arguments]]
+ * @param {string|function} rule
+ */
+function parseRule (rule, rules) {
+  if (typeof rule === 'function') {
+    return [rule, []]
+  }
+  if (Array.isArray(rule) && rule.length) {
+    if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
+      return [rules[rule.shift()], rule]
+    }
+    if (typeof rule[0] === 'function') {
+      return [rule.shift(), rule]
+    }
+  }
+  if (typeof rule === 'string') {
+    const segments = rule.split(':')
+    const functionName = segments.shift()
+    if (rules.hasOwnProperty(functionName)) {
+      return [rules[functionName], segments.length ? segments.join(':').split(',') : []]
+    } else {
+      throw new Error(`Unknown validation rule ${rule}`)
+    }
+  }
+  return false
+}

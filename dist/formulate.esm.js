@@ -141,6 +141,26 @@ function shallowEqualObjects (objA, objB) {
 }
 
 /**
+ * Given a string, object, falsey, or array - return an array.
+ * @param {mixed} item
+ */
+function arrayify (item) {
+  if (!item) {
+    return []
+  }
+  if (typeof item === 'string') {
+    return [item]
+  }
+  if (Array.isArray(item)) {
+    return item
+  }
+  if (typeof item === 'object') {
+    return Object.values(item)
+  }
+  return []
+}
+
+/**
  * For a single instance of an input, export all of the context needed to fully
  * render that element.
  * @return {object}
@@ -165,7 +185,8 @@ var context = {
   typeContext: typeContext,
   elementAttributes: elementAttributes,
   logicalLabelPosition: logicalLabelPosition,
-  isVmodeled: isVmodeled
+  isVmodeled: isVmodeled,
+  mergedErrors: mergedErrors
 };
 
 /**
@@ -269,6 +290,16 @@ function createOptionList (options) {
 }
 
 /**
+ * The merged errors computed property.
+ */
+function mergedErrors () {
+  return arrayify(this.errors)
+    .concat(arrayify(this.error))
+    .concat(arrayify(this.validationErrors))
+    .reduce(function (errors, err) { return !errors.includes(err) ? errors.concat(err) : errors; }, [])
+}
+
+/**
  * Defines the model used throughout the existing context.
  * @param {object} context
  */
@@ -360,6 +391,14 @@ var script = {
     },
     debug: {
       type: Boolean,
+      default: false
+    },
+    errors: {
+      type: [String, Array, Boolean],
+      default: false
+    },
+    error: {
+      type: [String, Boolean],
       default: false
     }
   },
@@ -560,8 +599,11 @@ var __vue_render__ = function() {
             staticClass: "formulate-input-help",
             domProps: { textContent: _vm._s(_vm.help) }
           })
-        : _vm._e()
-    ]
+        : _vm._e(),
+      _vm._v(" "),
+      _c("FormulateInputErrors", { attrs: { errors: _vm.mergedErrors } })
+    ],
+    1
   )
 };
 var __vue_staticRenderFns__ = [];
@@ -755,9 +797,90 @@ __vue_render__$1._withStripped = true;
 //
 //
 //
+//
+//
+//
+
+var script$2 = {
+  props: {
+    errors: {
+      type: [Boolean, Array],
+      required: true
+    }
+  }
+};
+
+/* script */
+var __vue_script__$2 = script$2;
+
+/* template */
+var __vue_render__$2 = function() {
+  var _vm = this;
+  var _h = _vm.$createElement;
+  var _c = _vm._self._c || _h;
+  return _vm.errors.length
+    ? _c(
+        "ul",
+        { staticClass: "formulate-input-errors" },
+        _vm._l(_vm.errors, function(error) {
+          return _c("li", {
+            key: error,
+            staticClass: "formulate-input-error",
+            domProps: { innerHTML: _vm._s(error) }
+          })
+        }),
+        0
+      )
+    : _vm._e()
+};
+var __vue_staticRenderFns__$2 = [];
+__vue_render__$2._withStripped = true;
+
+  /* style */
+  var __vue_inject_styles__$2 = undefined;
+  /* scoped */
+  var __vue_scope_id__$2 = undefined;
+  /* module identifier */
+  var __vue_module_identifier__$2 = undefined;
+  /* functional template */
+  var __vue_is_functional_template__$2 = false;
+  /* style inject */
+  
+  /* style inject SSR */
+  
+  /* style inject shadow dom */
+  
+
+  
+  var FormulateInputErrors = normalizeComponent(
+    { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
+    __vue_inject_styles__$2,
+    __vue_script__$2,
+    __vue_scope_id__$2,
+    __vue_is_functional_template__$2,
+    __vue_module_identifier__$2,
+    false,
+    undefined,
+    undefined,
+    undefined
+  );
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 function objectWithoutProperties (obj, exclude) { var target = {}; for (var k in obj) if (Object.prototype.hasOwnProperty.call(obj, k) && exclude.indexOf(k) === -1) target[k] = obj[k]; return target; }
-var script$2 = {
+var script$3 = {
   name: 'FormulateInputGroup',
   props: {
     context: {
@@ -795,10 +918,10 @@ var script$2 = {
 };
 
 /* script */
-var __vue_script__$2 = script$2;
+var __vue_script__$3 = script$3;
 
 /* template */
-var __vue_render__$2 = function() {
+var __vue_render__$3 = function() {
   var _vm = this;
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
@@ -830,17 +953,17 @@ var __vue_render__$2 = function() {
     1
   )
 };
-var __vue_staticRenderFns__$2 = [];
-__vue_render__$2._withStripped = true;
+var __vue_staticRenderFns__$3 = [];
+__vue_render__$3._withStripped = true;
 
   /* style */
-  var __vue_inject_styles__$2 = undefined;
+  var __vue_inject_styles__$3 = undefined;
   /* scoped */
-  var __vue_scope_id__$2 = undefined;
+  var __vue_scope_id__$3 = undefined;
   /* module identifier */
-  var __vue_module_identifier__$2 = undefined;
+  var __vue_module_identifier__$3 = undefined;
   /* functional template */
-  var __vue_is_functional_template__$2 = false;
+  var __vue_is_functional_template__$3 = false;
   /* style inject */
   
   /* style inject SSR */
@@ -850,12 +973,12 @@ __vue_render__$2._withStripped = true;
 
   
   var FormulateInputGroup = normalizeComponent(
-    { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
-    __vue_inject_styles__$2,
-    __vue_script__$2,
-    __vue_scope_id__$2,
-    __vue_is_functional_template__$2,
-    __vue_module_identifier__$2,
+    { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
+    __vue_inject_styles__$3,
+    __vue_script__$3,
+    __vue_scope_id__$3,
+    __vue_is_functional_template__$3,
+    __vue_module_identifier__$3,
     false,
     undefined,
     undefined,
@@ -890,16 +1013,16 @@ var FormulateInputMixin = {
 
 //
 
-var script$3 = {
+var script$4 = {
   name: 'FormulateInputBox',
   mixins: [FormulateInputMixin]
 };
 
 /* script */
-var __vue_script__$3 = script$3;
+var __vue_script__$4 = script$4;
 
 /* template */
-var __vue_render__$3 = function() {
+var __vue_render__$4 = function() {
   var _vm = this;
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
@@ -1028,17 +1151,17 @@ var __vue_render__$3 = function() {
     ]
   )
 };
-var __vue_staticRenderFns__$3 = [];
-__vue_render__$3._withStripped = true;
+var __vue_staticRenderFns__$4 = [];
+__vue_render__$4._withStripped = true;
 
   /* style */
-  var __vue_inject_styles__$3 = undefined;
+  var __vue_inject_styles__$4 = undefined;
   /* scoped */
-  var __vue_scope_id__$3 = undefined;
+  var __vue_scope_id__$4 = undefined;
   /* module identifier */
-  var __vue_module_identifier__$3 = undefined;
+  var __vue_module_identifier__$4 = undefined;
   /* functional template */
-  var __vue_is_functional_template__$3 = false;
+  var __vue_is_functional_template__$4 = false;
   /* style inject */
   
   /* style inject SSR */
@@ -1048,12 +1171,12 @@ __vue_render__$3._withStripped = true;
 
   
   var FormulateInputBox = normalizeComponent(
-    { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
-    __vue_inject_styles__$3,
-    __vue_script__$3,
-    __vue_scope_id__$3,
-    __vue_is_functional_template__$3,
-    __vue_module_identifier__$3,
+    { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
+    __vue_inject_styles__$4,
+    __vue_script__$4,
+    __vue_scope_id__$4,
+    __vue_is_functional_template__$4,
+    __vue_module_identifier__$4,
     false,
     undefined,
     undefined,
@@ -1062,16 +1185,16 @@ __vue_render__$3._withStripped = true;
 
 //
 
-var script$4 = {
+var script$5 = {
   name: 'FormulateInputText',
   mixins: [FormulateInputMixin]
 };
 
 /* script */
-var __vue_script__$4 = script$4;
+var __vue_script__$5 = script$5;
 
 /* template */
-var __vue_render__$4 = function() {
+var __vue_render__$5 = function() {
   var _vm = this;
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
@@ -1187,17 +1310,17 @@ var __vue_render__$4 = function() {
     ]
   )
 };
-var __vue_staticRenderFns__$4 = [];
-__vue_render__$4._withStripped = true;
+var __vue_staticRenderFns__$5 = [];
+__vue_render__$5._withStripped = true;
 
   /* style */
-  var __vue_inject_styles__$4 = undefined;
+  var __vue_inject_styles__$5 = undefined;
   /* scoped */
-  var __vue_scope_id__$4 = undefined;
+  var __vue_scope_id__$5 = undefined;
   /* module identifier */
-  var __vue_module_identifier__$4 = undefined;
+  var __vue_module_identifier__$5 = undefined;
   /* functional template */
-  var __vue_is_functional_template__$4 = false;
+  var __vue_is_functional_template__$5 = false;
   /* style inject */
   
   /* style inject SSR */
@@ -1207,12 +1330,12 @@ __vue_render__$4._withStripped = true;
 
   
   var FormulateInputText = normalizeComponent(
-    { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
-    __vue_inject_styles__$4,
-    __vue_script__$4,
-    __vue_scope_id__$4,
-    __vue_is_functional_template__$4,
-    __vue_module_identifier__$4,
+    { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
+    __vue_inject_styles__$5,
+    __vue_script__$5,
+    __vue_scope_id__$5,
+    __vue_is_functional_template__$5,
+    __vue_module_identifier__$5,
     false,
     undefined,
     undefined,
@@ -1221,7 +1344,7 @@ __vue_render__$4._withStripped = true;
 
 //
 
-var script$5 = {
+var script$6 = {
   name: 'FormulateInputSelect',
   mixins: [FormulateInputMixin],
   computed: {
@@ -1238,10 +1361,10 @@ var script$5 = {
 };
 
 /* script */
-var __vue_script__$5 = script$5;
+var __vue_script__$6 = script$6;
 
 /* template */
-var __vue_render__$5 = function() {
+var __vue_render__$6 = function() {
   var _vm = this;
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
@@ -1348,17 +1471,17 @@ var __vue_render__$5 = function() {
     ]
   )
 };
-var __vue_staticRenderFns__$5 = [];
-__vue_render__$5._withStripped = true;
+var __vue_staticRenderFns__$6 = [];
+__vue_render__$6._withStripped = true;
 
   /* style */
-  var __vue_inject_styles__$5 = undefined;
+  var __vue_inject_styles__$6 = undefined;
   /* scoped */
-  var __vue_scope_id__$5 = undefined;
+  var __vue_scope_id__$6 = undefined;
   /* module identifier */
-  var __vue_module_identifier__$5 = undefined;
+  var __vue_module_identifier__$6 = undefined;
   /* functional template */
-  var __vue_is_functional_template__$5 = false;
+  var __vue_is_functional_template__$6 = false;
   /* style inject */
   
   /* style inject SSR */
@@ -1368,12 +1491,12 @@ __vue_render__$5._withStripped = true;
 
   
   var FormulateInputSelect = normalizeComponent(
-    { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
-    __vue_inject_styles__$5,
-    __vue_script__$5,
-    __vue_scope_id__$5,
-    __vue_is_functional_template__$5,
-    __vue_module_identifier__$5,
+    { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
+    __vue_inject_styles__$6,
+    __vue_script__$6,
+    __vue_scope_id__$6,
+    __vue_is_functional_template__$6,
+    __vue_module_identifier__$6,
     false,
     undefined,
     undefined,
@@ -1382,16 +1505,16 @@ __vue_render__$5._withStripped = true;
 
 //
 
-var script$6 = {
+var script$7 = {
   name: 'FormulateInputTextArea',
   mixins: [FormulateInputMixin]
 };
 
 /* script */
-var __vue_script__$6 = script$6;
+var __vue_script__$7 = script$7;
 
 /* template */
-var __vue_render__$6 = function() {
+var __vue_render__$7 = function() {
   var _vm = this;
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
@@ -1431,17 +1554,17 @@ var __vue_render__$6 = function() {
     ]
   )
 };
-var __vue_staticRenderFns__$6 = [];
-__vue_render__$6._withStripped = true;
+var __vue_staticRenderFns__$7 = [];
+__vue_render__$7._withStripped = true;
 
   /* style */
-  var __vue_inject_styles__$6 = undefined;
+  var __vue_inject_styles__$7 = undefined;
   /* scoped */
-  var __vue_scope_id__$6 = undefined;
+  var __vue_scope_id__$7 = undefined;
   /* module identifier */
-  var __vue_module_identifier__$6 = undefined;
+  var __vue_module_identifier__$7 = undefined;
   /* functional template */
-  var __vue_is_functional_template__$6 = false;
+  var __vue_is_functional_template__$7 = false;
   /* style inject */
   
   /* style inject SSR */
@@ -1451,12 +1574,12 @@ __vue_render__$6._withStripped = true;
 
   
   var FormulateInputTextArea = normalizeComponent(
-    { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
-    __vue_inject_styles__$6,
-    __vue_script__$6,
-    __vue_scope_id__$6,
-    __vue_is_functional_template__$6,
-    __vue_module_identifier__$6,
+    { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
+    __vue_inject_styles__$7,
+    __vue_script__$7,
+    __vue_scope_id__$7,
+    __vue_is_functional_template__$7,
+    __vue_module_identifier__$7,
     false,
     undefined,
     undefined,
@@ -1471,6 +1594,7 @@ var Formulate = function Formulate () {
     components: {
       FormulateForm: FormulateForm,
       FormulateInput: FormulateInput,
+      FormulateInputErrors: FormulateInputErrors,
       FormulateInputBox: FormulateInputBox,
       FormulateInputText: FormulateInputText,
       FormulateInputGroup: FormulateInputGroup,

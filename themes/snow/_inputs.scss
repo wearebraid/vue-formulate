@@ -25,6 +25,20 @@
     margin-bottom: .25em;
   }
 
+  .formulate-input-errors {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .formulate-input-error {
+    color: $formulate-error;
+    font-size: .8em;
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: .25em;
+  }
+
   .formulate-input-group-item {
     margin-bottom: .5em;
   }

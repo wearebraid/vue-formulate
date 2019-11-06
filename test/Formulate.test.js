@@ -50,6 +50,7 @@ test('installs on vue instance', () => {
   const components = [
     'FormulateForm',
     'FormulateInput',
+    'FormulateInputErrors',
     'FormulateInputBox',
     'FormulateInputText',
     'FormulateInputGroup',
