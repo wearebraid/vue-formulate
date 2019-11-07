@@ -1,9 +1,10 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('is-plain-object'), require('nanoid')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'is-plain-object', 'nanoid'], factory) :
-  (global = global || self, factory(global.Formulate = {}, global.isPlainObject, global.nanoid));
-}(this, (function (exports, isPlainObject, nanoid) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('is-url'), require('is-plain-object'), require('nanoid')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'is-url', 'is-plain-object', 'nanoid'], factory) :
+  (global = global || self, factory(global.Formulate = {}, global.isUrl, global.isPlainObject, global.nanoid));
+}(this, (function (exports, isUrl, isPlainObject, nanoid) { 'use strict';
 
+  isUrl = isUrl && isUrl.hasOwnProperty('default') ? isUrl['default'] : isUrl;
   isPlainObject = isPlainObject && isPlainObject.hasOwnProperty('default') ? isPlainObject['default'] : isPlainObject;
   nanoid = nanoid && nanoid.hasOwnProperty('default') ? nanoid['default'] : nanoid;
 
@@ -167,6 +168,291 @@
   }
 
   /**
+   * Given an array or string return an array of callables.
+   * @param {array|string} validation
+   * @param {array} rules and array of functions
+   * @return {array} an array of functions
+   */
+  function parseRules (validation, rules) {
+    if (typeof validation === 'string') {
+      return parseRules(validation.split('|'), rules)
+    }
+    if (!Array.isArray(validation)) {
+      return []
+    }
+    return validation.map(function (rule) { return parseRule(rule, rules); }).filter(function (f) { return !!f; })
+  }
+
+  /**
+   * Given a string or function, parse it and return the an array in the format
+   * [fn, [...arguments]]
+   * @param {string|function} rule
+   */
+  function parseRule (rule, rules) {
+    if (typeof rule === 'function') {
+      return [rule, []]
+    }
+    if (Array.isArray(rule) && rule.length) {
+      if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
+        return [rules[rule.shift()], rule]
+      }
+      if (typeof rule[0] === 'function') {
+        return [rule.shift(), rule]
+      }
+    }
+    if (typeof rule === 'string') {
+      var segments = rule.split(':');
+      var functionName = segments.shift();
+      if (rules.hasOwnProperty(functionName)) {
+        return [rules[functionName], segments.length ? segments.join(':').split(',') : []]
+      } else {
+        throw new Error(("Unknown validation rule " + rule))
+      }
+    }
+    return false
+  }
+
+  /**
+   * Library of rules
+   */
+  var rules = {
+    /**
+     * Rule: the value must be "yes", "on", "1", or true
+     */
+    accepted: function (value) {
+      return Promise.resolve(['yes', 'on', '1', 1, true, 'true'].includes(value))
+    },
+
+    /**
+     * Rule: must be a value
+     */
+    required: function (value, isRequired) {
+      if ( isRequired === void 0 ) isRequired = true;
+
+      return Promise.resolve((function () {
+        if (!isRequired || ['no', 'false'].includes(isRequired)) {
+          return true
+        }
+        if (Array.isArray(value)) {
+          return !!value.length
+        }
+        if (typeof value === 'string') {
+          return !!value
+        }
+        if (typeof value === 'object') {
+          return (!value) ? false : !!Object.keys(value).length
+        }
+        return true
+      })())
+    },
+
+    /**
+     * Rule: Value is in an array (stack).
+     */
+    in: function (value) {
+      var stack = [], len = arguments.length - 1;
+      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
+
+      return Promise.resolve(stack.find(function (item) {
+        if (typeof item === 'object') {
+          return shallowEqualObjects(item, value)
+        }
+        return item === value
+      }) !== undefined)
+    },
+
+    /**
+     * Rule: Value is not in stack.
+     */
+    not: function (value) {
+      var stack = [], len = arguments.length - 1;
+      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
+
+      return Promise.resolve(stack.find(function (item) {
+        if (typeof item === 'object') {
+          return shallowEqualObjects(item, value)
+        }
+        return item === value
+      }) === undefined)
+    },
+
+    /**
+     * Rule: Match the value against a (stack) of patterns or strings
+     */
+    matches: function (value) {
+      var stack = [], len = arguments.length - 1;
+      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
+
+      return Promise.resolve(!!stack.find(function (pattern) {
+        if (pattern instanceof RegExp) {
+          return pattern.test(value)
+        }
+        return pattern === value
+      }))
+    },
+
+    /**
+     * Rule: checks if a string is a valid url
+     */
+    url: function (value) {
+      return Promise.resolve(isUrl(value))
+    },
+
+    /**
+     * Rule: ensures the value is a date according to Date.parse()
+     */
+    date: function (value) {
+      return Promise.resolve(!isNaN(Date.parse(value)))
+    },
+
+    /**
+     * Rule: checks if a value is after a given date. Defaults to current time
+     */
+    after: function (value, compare) {
+      if ( compare === void 0 ) compare = false;
+
+      var timestamp = Date.parse(compare || new Date());
+      var fieldValue = Date.parse(value);
+      return Promise.resolve(isNaN(fieldValue) ? false : (fieldValue > timestamp))
+    },
+
+    /**
+     * Rule: checks if a value is after a given date. Defaults to current time
+     */
+    before: function (value, compare) {
+      if ( compare === void 0 ) compare = false;
+
+      var timestamp = Date.parse(compare || new Date());
+      var fieldValue = Date.parse(value);
+      return Promise.resolve(isNaN(fieldValue) ? false : (fieldValue < timestamp))
+    },
+
+    /**
+     * Rule: checks if the value is only alpha numeric
+     */
+    alpha: function (value, set) {
+      if ( set === void 0 ) set = 'default';
+
+      var sets = {
+        default: /^[a-zA-ZÀ-ÖØ-öø-ÿ]+$/,
+        latin: /^[a-z][A-Z]$/
+      };
+      var selectedSet = sets.hasOwnProperty(set) ? set : 'default';
+      return Promise.resolve(sets[selectedSet].test(value))
+    },
+
+    /**
+     * Rule: checks if the value is only alpha numeric
+     */
+    number: function (value) {
+      return Promise.resolve(!isNaN(value))
+    },
+
+    /**
+     * Rule: checks if the value is alpha numeric
+     */
+    alphanumeric: function (value, set) {
+      if ( set === void 0 ) set = 'default';
+
+      var sets = {
+        default: /^[a-zA-Z0-9À-ÖØ-öø-ÿ]+$/,
+        latin: /^[a-zA-Z0-9]$/
+      };
+      var selectedSet = sets.hasOwnProperty(set) ? set : 'default';
+      return Promise.resolve(sets[selectedSet].test(value))
+    },
+
+    /**
+     * Rule: checks if the value is between two other values
+     */
+    between: function (value, from, to) {
+      return Promise.resolve((function () {
+        if (from === null || to === null || isNaN(from) || isNaN(to)) {
+          return false
+        }
+        from = Number(from);
+        to = Number(to);
+        if (!isNaN(value)) {
+          value = Number(value);
+          return (value > from && value < to)
+        }
+        if (typeof value === 'string') {
+          return value.length > from && value.length < to
+        }
+        return false
+      })())
+    },
+
+    /**
+     * Rule: tests
+     */
+    email: function (value) {
+      // eslint-disable-next-line
+      var isEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+      return Promise.resolve(isEmail.test(value))
+    },
+
+    /**
+     * Check the file type is correct.
+     */
+    mime: function (files) {
+      var types = [], len = arguments.length - 1;
+      while ( len-- > 0 ) types[ len ] = arguments[ len + 1 ];
+
+      return Promise.resolve((function () {
+        if (typeof window !== 'undefined' && typeof FileReader !== 'undefined' && typeof Blob !== 'undefined') {
+          for (var i in files) {
+            if (!types.includes(files[i].type)) {
+              return false
+            }
+          }
+        }
+        return true
+      })())
+    },
+
+    /**
+     * Check the minimum value of a particular.
+     */
+    min: function (value, minimum) {
+      return Promise.resolve((function () {
+        minimum = Number(minimum);
+        if (!isNaN(value)) {
+          value = Number(value);
+          return value >= minimum
+        }
+        if (typeof value === 'string') {
+          return value.length >= minimum
+        }
+        if (Array.isArray(value)) {
+          return value.length >= minimum
+        }
+        return false
+      })())
+    },
+
+    /**
+     * Check the minimum value of a particular.
+     */
+    max: function (value, minimum) {
+      return Promise.resolve((function () {
+        minimum = Number(minimum);
+        if (!isNaN(value)) {
+          value = Number(value);
+          return value <= minimum
+        }
+        if (typeof value === 'string') {
+          return value.length <= minimum
+        }
+        if (Array.isArray(value)) {
+          return value.length <= minimum
+        }
+        return false
+      })())
+    }
+  };
+
+  /**
    * For a single instance of an input, export all of the context needed to fully
    * render that element.
    * @return {object}
@@ -192,7 +478,8 @@
     elementAttributes: elementAttributes,
     logicalLabelPosition: logicalLabelPosition,
     isVmodeled: isVmodeled,
-    mergedErrors: mergedErrors
+    mergedErrors: mergedErrors,
+    hasErrors: hasErrors
   };
 
   /**
@@ -306,6 +593,13 @@
   }
 
   /**
+   * Does this computed property have errors.
+   */
+  function hasErrors () {
+    return !!this.mergedErrors.length
+  }
+
+  /**
    * Defines the model used throughout the existing context.
    * @param {object} context
    */
@@ -403,6 +697,17 @@
         type: [String, Array, Boolean],
         default: false
       },
+      validation: {
+        type: [String, Boolean, Array],
+        default: false
+      },
+      validationBehavior: {
+        type: String,
+        default: 'blur',
+        validator: function (value) {
+          return ['blur', 'live'].includes(value)
+        }
+      },
       error: {
         type: [String, Boolean],
         default: false
@@ -412,7 +717,8 @@
       return {
         defaultId: nanoid(9),
         localAttributes: {},
-        internalModelProxy: this.formulateValue
+        internalModelProxy: this.formulateValue,
+        validationErrors: []
       }
     },
     computed: Object.assign({}, context,
@@ -431,6 +737,7 @@
         deep: true
       },
       internalModelProxy: function internalModelProxy (newValue, oldValue) {
+        this.performValidation();
         if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
           this.context.model = newValue;
         }
@@ -446,12 +753,29 @@
         this.formulateFormRegister(this.nameOrFallback, this);
       }
       this.updateLocalAttributes(this.$attrs);
+      this.performValidation();
     },
     methods: {
       updateLocalAttributes: function updateLocalAttributes (value) {
         if (!shallowEqualObjects(value, this.localAttributes)) {
           this.localAttributes = value;
         }
+      },
+      performValidation: function performValidation () {
+        var this$1 = this;
+
+        var rules = parseRules(this.validation, this.$formulate.rules());
+        Promise.all(
+          rules.map(function (ref) {
+            var rule = ref[0];
+            var args = ref[1];
+
+            return rule.apply(void 0, [ this$1.context.model ].concat( args ))
+              .then(function (res) { return res ? false : 'Validation error!'; })
+          })
+        )
+          .then(function (result) { return result.filter(function (result) { return result; }); })
+          .then(function (errorMessages) { this$1.validationErrors = errorMessages; });
       }
     }
   };
@@ -545,6 +869,7 @@
         staticClass: "formulate-input",
         attrs: {
           "data-classification": _vm.classification,
+          "data-has-errors": _vm.hasErrors,
           "data-type": _vm.type
         }
       },
@@ -1607,7 +1932,8 @@
         FormulateInputSelect: FormulateInputSelect,
         FormulateInputTextArea: FormulateInputTextArea
       },
-      library: library
+      library: library,
+      rules: rules
     };
   };
 
@@ -1667,6 +1993,14 @@
       return this.options.library[type].component
     }
     return false
+  };
+
+  /**
+   * Get validation rules.
+   * @return {object} object of validation functions
+   */
+  Formulate.prototype.rules = function rules () {
+    return this.options.rules
   };
 
   var Formulate$1 = new Formulate();

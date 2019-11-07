@@ -1,5 +1,5 @@
 import nanoid from 'nanoid'
-import { map, arrayify, parseRules } from './utils'
+import { map, arrayify } from './utils'
 
 /**
  * For a single instance of an input, export all of the context needed to fully
@@ -30,8 +30,7 @@ export default {
   logicalLabelPosition,
   isVmodeled,
   mergedErrors,
-  hasErrors,
-  validationRules
+  hasErrors
 }
 
 /**
@@ -147,13 +146,6 @@ function mergedErrors () {
  */
 function hasErrors () {
   return !!this.mergedErrors.length
-}
-
-/**
- * An array of validation rules to pass.
- */
-function validationRules () {
-  return parseRules(this.validation)
 }
 
 /**

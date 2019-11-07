@@ -9,10 +9,11 @@ export default {
     exports: 'named',
     globals: {
       'is-plain-object': 'isPlainObject',
-      'nanoid': 'nanoid'
+      'nanoid': 'nanoid',
+      'is-url': 'isUrl'
     }
   },
-  external: ['is-plain-object', 'nanoid'],
+  external: ['is-plain-object', 'nanoid', 'is-url'],
   plugins: [
     commonjs(),
     vue({

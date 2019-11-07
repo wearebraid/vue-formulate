@@ -1,4 +1,5 @@
 import library from './libs/library'
+import rules from './libs/rules'
 import isPlainObject from 'is-plain-object'
 import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
@@ -8,6 +9,7 @@ import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
+
 /**
  * The base formulate library.
  */
@@ -27,7 +29,8 @@ class Formulate {
         FormulateInputSelect,
         FormulateInputTextArea
       },
-      library
+      library,
+      rules
     }
   }
 
@@ -87,6 +90,14 @@ class Formulate {
       return this.options.library[type].component
     }
     return false
+  }
+
+  /**
+   * Get validation rules.
+   * @return {object} object of validation functions
+   */
+  rules () {
+    return this.options.rules
   }
 }
 

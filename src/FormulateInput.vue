@@ -48,7 +48,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects } from './libs/utils'
+import { shallowEqualObjects, parseRules } from './libs/utils'
 import nanoid from 'nanoid'
 
 export default {
@@ -131,7 +131,8 @@ export default {
     return {
       defaultId: nanoid(9),
       localAttributes: {},
-      internalModelProxy: this.formulateValue
+      internalModelProxy: this.formulateValue,
+      validationErrors: []
     }
   },
   computed: {
@@ -152,6 +153,7 @@ export default {
       deep: true
     },
     internalModelProxy (newValue, oldValue) {
+      this.performValidation()
       if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
         this.context.model = newValue
       }
@@ -167,12 +169,24 @@ export default {
       this.formulateFormRegister(this.nameOrFallback, this)
     }
     this.updateLocalAttributes(this.$attrs)
+    this.performValidation()
   },
   methods: {
     updateLocalAttributes (value) {
       if (!shallowEqualObjects(value, this.localAttributes)) {
         this.localAttributes = value
       }
+    },
+    performValidation () {
+      const rules = parseRules(this.validation, this.$formulate.rules())
+      Promise.all(
+        rules.map(([rule, args]) => {
+          return rule(this.context.model, ...args)
+            .then(res => res ? false : 'Validation error!')
+        })
+      )
+        .then(result => result.filter(result => result))
+        .then(errorMessages => { this.validationErrors = errorMessages })
     }
   }
 }
