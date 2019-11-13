@@ -8,9 +8,6 @@ import { map, arrayify } from './utils'
  */
 export default {
   context () {
-    if (this.debug) {
-      console.log(`${this.type} re-context`)
-    }
     return defineModel.call(this, {
       type: this.type,
       value: this.value,
@@ -21,6 +18,7 @@ export default {
       label: this.label,
       labelPosition: this.logicalLabelPosition,
       attributes: this.elementAttributes,
+      blurHandler: blurHandler.bind(this),
       ...this.typeContext
     })
   },
@@ -30,7 +28,9 @@ export default {
   logicalLabelPosition,
   isVmodeled,
   mergedErrors,
-  hasErrors
+  hasErrors,
+  showFieldErrors,
+  mergedValidationName
 }
 
 /**
@@ -86,6 +86,33 @@ function logicalLabelPosition () {
     default:
       return 'before'
   }
+}
+
+/**
+ * The validation label to use.
+ */
+function mergedValidationName () {
+  if (this.validationName) {
+    return this.validationName
+  }
+  if (typeof this.name === 'string') {
+    return this.name
+  }
+  if (this.label) {
+    return this.label
+  }
+  return this.type
+}
+
+/**
+ * Determines if the field should show it's error (if it has one)
+ * @return {boolean}
+ */
+function showFieldErrors () {
+  if (this.showErrors) {
+    return this.showErrors
+  }
+  return this.behavioralErrorVisibility
 }
 
 /**
@@ -146,6 +173,15 @@ function mergedErrors () {
  */
 function hasErrors () {
   return !!this.mergedErrors.length
+}
+
+/**
+ * Bound into the context object.
+ */
+function blurHandler () {
+  if (this.errorBehavior === 'blur') {
+    this.behavioralErrorVisibility = true
+  }
 }
 
 /**

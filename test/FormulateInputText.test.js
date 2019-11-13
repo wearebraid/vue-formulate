@@ -165,22 +165,49 @@ describe('FormulateInputText', () => {
   })
 
   it('accepts a single string as an error prop', () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'text', error: 'This is an error' } })
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', error: 'This is an error' } })
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
   })
 
   it('accepts an array as errors prop', () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errors: ['This is an error', 'this is another'] } })
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', errors: ['This is an error', 'this is another'] } })
     expect(wrapper.findAll('.formulate-input-error').length).toBe(2)
   })
 
   it('removes any duplicate errors', () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errors: ['This is an error', 'This is an error'] } })
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', errors: ['This is an error', 'This is an error'] } })
     expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
   })
 
   it('adds data-has-errors when there are errors', () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errors: ['This is an error', 'This is an error'] } })
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', errors: ['This is an error', 'This is an error'] } })
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
+  })
+
+  it('does not initially show error-behavior blur errors', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', errors: ['Bad input'] } })
+    expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
+    expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(false)
+    expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(false)
+  })
+
+
+  it('allows error-behavior blur to be overridden with show-errors', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', showErrors: true, errors: ['Bad input'] } })
+    expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
+    expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(true)
+    expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(true)
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
+  })
+
+  it('shows errors on blur with error-behavior blur', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', errors: ['Bad input'] } })
+    expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
+    expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(false)
+    expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(false)
+    wrapper.find('input').trigger('blur')
+    expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(true)
+    expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(true)
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
   })
 })

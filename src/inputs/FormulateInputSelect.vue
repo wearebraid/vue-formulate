@@ -6,6 +6,7 @@
       v-model="context.model"
       v-bind="attributes"
       :data-placeholder-selected="placeholderSelected"
+      @blur="context.blurHandler"
     >
       <option
         v-if="context.placeholder"

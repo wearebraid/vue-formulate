@@ -5,6 +5,7 @@
     <textarea
       v-model="context.model"
       v-bind="attributes"
+      @blur="context.blurHandler"
     />
   </div>
 </template>

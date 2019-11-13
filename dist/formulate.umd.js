@@ -168,6 +168,17 @@
   }
 
   /**
+   * How to add an item.
+   * @param {string} item
+   */
+  function sentence (item) {
+    if (typeof item === 'string') {
+      return item[0].toUpperCase() + item.substr(1)
+    }
+    return item
+  }
+
+  /**
    * Given an array or string return an array of callables.
    * @param {array|string} validation
    * @param {array} rules and array of functions
@@ -193,6 +204,7 @@
       return [rule, []]
     }
     if (Array.isArray(rule) && rule.length) {
+      rule = rule.map(function (r) { return r; }); // light clone
       if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
         return [rules[rule.shift()], rule]
       }
@@ -224,88 +236,6 @@
     },
 
     /**
-     * Rule: must be a value
-     */
-    required: function (value, isRequired) {
-      if ( isRequired === void 0 ) isRequired = true;
-
-      return Promise.resolve((function () {
-        if (!isRequired || ['no', 'false'].includes(isRequired)) {
-          return true
-        }
-        if (Array.isArray(value)) {
-          return !!value.length
-        }
-        if (typeof value === 'string') {
-          return !!value
-        }
-        if (typeof value === 'object') {
-          return (!value) ? false : !!Object.keys(value).length
-        }
-        return true
-      })())
-    },
-
-    /**
-     * Rule: Value is in an array (stack).
-     */
-    in: function (value) {
-      var stack = [], len = arguments.length - 1;
-      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
-
-      return Promise.resolve(stack.find(function (item) {
-        if (typeof item === 'object') {
-          return shallowEqualObjects(item, value)
-        }
-        return item === value
-      }) !== undefined)
-    },
-
-    /**
-     * Rule: Value is not in stack.
-     */
-    not: function (value) {
-      var stack = [], len = arguments.length - 1;
-      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
-
-      return Promise.resolve(stack.find(function (item) {
-        if (typeof item === 'object') {
-          return shallowEqualObjects(item, value)
-        }
-        return item === value
-      }) === undefined)
-    },
-
-    /**
-     * Rule: Match the value against a (stack) of patterns or strings
-     */
-    matches: function (value) {
-      var stack = [], len = arguments.length - 1;
-      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
-
-      return Promise.resolve(!!stack.find(function (pattern) {
-        if (pattern instanceof RegExp) {
-          return pattern.test(value)
-        }
-        return pattern === value
-      }))
-    },
-
-    /**
-     * Rule: checks if a string is a valid url
-     */
-    url: function (value) {
-      return Promise.resolve(isUrl(value))
-    },
-
-    /**
-     * Rule: ensures the value is a date according to Date.parse()
-     */
-    date: function (value) {
-      return Promise.resolve(!isNaN(Date.parse(value)))
-    },
-
-    /**
      * Rule: checks if a value is after a given date. Defaults to current time
      */
     after: function (value, compare) {
@@ -314,6 +244,34 @@
       var timestamp = Date.parse(compare || new Date());
       var fieldValue = Date.parse(value);
       return Promise.resolve(isNaN(fieldValue) ? false : (fieldValue > timestamp))
+    },
+
+    /**
+     * Rule: checks if the value is only alpha
+     */
+    alpha: function (value, set) {
+      if ( set === void 0 ) set = 'default';
+
+      var sets = {
+        default: /^[a-zA-ZÀ-ÖØ-öø-ÿ]+$/,
+        latin: /^[a-zA-Z]+$/
+      };
+      var selectedSet = sets.hasOwnProperty(set) ? set : 'default';
+      return Promise.resolve(sets[selectedSet].test(value))
+    },
+
+    /**
+     * Rule: checks if the value is alpha numeric
+     */
+    alphanumeric: function (value, set) {
+      if ( set === void 0 ) set = 'default';
+
+      var sets = {
+        default: /^[a-zA-Z0-9À-ÖØ-öø-ÿ]+$/,
+        latin: /^[a-zA-Z0-9]+$/
+      };
+      var selectedSet = sets.hasOwnProperty(set) ? set : 'default';
+      return Promise.resolve(sets[selectedSet].test(value))
     },
 
     /**
@@ -328,44 +286,12 @@
     },
 
     /**
-     * Rule: checks if the value is only alpha numeric
-     */
-    alpha: function (value, set) {
-      if ( set === void 0 ) set = 'default';
-
-      var sets = {
-        default: /^[a-zA-ZÀ-ÖØ-öø-ÿ]+$/,
-        latin: /^[a-z][A-Z]$/
-      };
-      var selectedSet = sets.hasOwnProperty(set) ? set : 'default';
-      return Promise.resolve(sets[selectedSet].test(value))
-    },
-
-    /**
-     * Rule: checks if the value is only alpha numeric
-     */
-    number: function (value) {
-      return Promise.resolve(!isNaN(value))
-    },
-
-    /**
-     * Rule: checks if the value is alpha numeric
-     */
-    alphanumeric: function (value, set) {
-      if ( set === void 0 ) set = 'default';
-
-      var sets = {
-        default: /^[a-zA-Z0-9À-ÖØ-öø-ÿ]+$/,
-        latin: /^[a-zA-Z0-9]$/
-      };
-      var selectedSet = sets.hasOwnProperty(set) ? set : 'default';
-      return Promise.resolve(sets[selectedSet].test(value))
-    },
-
-    /**
      * Rule: checks if the value is between two other values
      */
     between: function (value, from, to) {
+      if ( from === void 0 ) from = 0;
+      if ( to === void 0 ) to = 10;
+
       return Promise.resolve((function () {
         if (from === null || to === null || isNaN(from) || isNaN(to)) {
           return false
@@ -384,12 +310,71 @@
     },
 
     /**
+     * Rule: ensures the value is a date according to Date.parse()
+     */
+    date: function (value) {
+      return Promise.resolve(!isNaN(Date.parse(value)))
+    },
+
+    /**
      * Rule: tests
      */
     email: function (value) {
       // eslint-disable-next-line
       var isEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
       return Promise.resolve(isEmail.test(value))
+    },
+
+    /**
+     * Rule: Value is in an array (stack).
+     */
+    in: function (value) {
+      var stack = [], len = arguments.length - 1;
+      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
+
+      return Promise.resolve(stack.find(function (item) {
+        if (typeof item === 'object') {
+          return shallowEqualObjects(item, value)
+        }
+        return item === value
+      }) !== undefined)
+    },
+
+    /**
+     * Rule: Match the value against a (stack) of patterns or strings
+     */
+    matches: function (value) {
+      var stack = [], len = arguments.length - 1;
+      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
+
+      return Promise.resolve(!!stack.find(function (pattern) {
+        if (pattern instanceof RegExp) {
+          return pattern.test(value)
+        }
+        return pattern === value
+      }))
+    },
+
+    /**
+     * Check the maximum value of a particular.
+     */
+    max: function (value, minimum) {
+      if ( minimum === void 0 ) minimum = 10;
+
+      return Promise.resolve((function () {
+        minimum = Number(minimum);
+        if (!isNaN(value)) {
+          value = Number(value);
+          return value <= minimum
+        }
+        if (typeof value === 'string') {
+          return value.length <= minimum
+        }
+        if (Array.isArray(value)) {
+          return value.length <= minimum
+        }
+        return false
+      })())
     },
 
     /**
@@ -415,6 +400,8 @@
      * Check the minimum value of a particular.
      */
     min: function (value, minimum) {
+      if ( minimum === void 0 ) minimum = 1;
+
       return Promise.resolve((function () {
         minimum = Number(minimum);
         if (!isNaN(value)) {
@@ -432,23 +419,243 @@
     },
 
     /**
-     * Check the minimum value of a particular.
+     * Rule: Value is not in stack.
      */
-    max: function (value, minimum) {
-      return Promise.resolve((function () {
-        minimum = Number(minimum);
-        if (!isNaN(value)) {
-          value = Number(value);
-          return value <= minimum
+    not: function (value) {
+      var stack = [], len = arguments.length - 1;
+      while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
+
+      return Promise.resolve(stack.find(function (item) {
+        if (typeof item === 'object') {
+          return shallowEqualObjects(item, value)
         }
-        if (typeof value === 'string') {
-          return value.length <= minimum
+        return item === value
+      }) === undefined)
+    },
+
+    /**
+     * Rule: checks if the value is only alpha numeric
+     */
+    number: function (value) {
+      return Promise.resolve(!isNaN(value))
+    },
+
+    /**
+     * Rule: must be a value
+     */
+    required: function (value, isRequired) {
+      if ( isRequired === void 0 ) isRequired = true;
+
+      return Promise.resolve((function () {
+        if (!isRequired || ['no', 'false'].includes(isRequired)) {
+          return true
         }
         if (Array.isArray(value)) {
-          return value.length <= minimum
+          return !!value.length
         }
-        return false
+        if (typeof value === 'string') {
+          return !!value
+        }
+        if (typeof value === 'object') {
+          return (!value) ? false : !!Object.keys(value).length
+        }
+        return true
       })())
+    },
+
+    /**
+     * Rule: checks if a string is a valid url
+     */
+    url: function (value) {
+      return Promise.resolve(isUrl(value))
+    }
+  };
+
+  /**
+   * Validation error message generators.
+   */
+  var en = {
+
+    /**
+     * Valid accepted value.
+     */
+    accepted: function (ref) {
+      var name = ref.name;
+
+      return ("Please accept the " + name + ".")
+    },
+
+    /**
+     * The date is not after.
+     */
+    after: function (ref) {
+      var name = ref.name;
+      var args = ref.args;
+
+      if (Array.isArray(args) && args.length) {
+        return ((sentence(name)) + " must be after " + (args[0]) + ".")
+      }
+      return ((sentence(name)) + " must be a later date.")
+    },
+
+    /**
+     * The value is not a letter.
+     */
+    alpha: function (ref) {
+      var name = ref.name;
+
+      return ((sentence(name)) + " can only contain alphabetical characters.")
+    },
+
+    /**
+     * Rule: checks if the value is alpha numeric
+     */
+    alphanumeric: function (ref) {
+      var name = ref.name;
+
+      return ((sentence(name)) + " can only contain letters and numbers.")
+    },
+
+    /**
+     * The date is not before.
+     */
+    before: function (ref) {
+      var name = ref.name;
+      var args = ref.args;
+
+      if (Array.isArray(args) && args.length) {
+        return ((sentence(name)) + " must be before " + (args[0]) + ".")
+      }
+      return ((sentence(name)) + " must be an earlier date.")
+    },
+
+    /**
+     * The value is not between two numbers or lengths
+     */
+    between: function (ref) {
+      var name = ref.name;
+      var value = ref.value;
+      var args = ref.args;
+
+      if (!isNaN(value)) {
+        return ((sentence(name)) + " must be between " + (args[0]) + " and " + (args[1]) + ".")
+      }
+      return ((sentence(name)) + " must be between " + (args[0]) + " and " + (args[1]) + " characters long.")
+    },
+
+    /**
+     * Is not a valid date.
+     */
+    date: function (ref) {
+      var name = ref.name;
+
+      return ((sentence(name)) + " is not a valid date.")
+    },
+
+    /**
+     * The default render method for error messages.
+     */
+    default: function (ref) {
+      var name = ref.name;
+
+      return "This field isn’t valid."
+    },
+
+    /**
+     * Is not a valid email address.
+     */
+    email: function (ref) {
+      var name = ref.name;
+      var value = ref.value;
+
+      return (value + " is not a valid email address.")
+    },
+
+    /**
+     * Value is an allowed value.
+     */
+    in: function (ref) {
+      var name = ref.name;
+      var value = ref.value;
+
+      if (typeof value === 'string') {
+        return ("“" + (sentence(value)) + "” is not an allowed " + name + ".")
+      }
+      return ((sentence(name)) + " is not an allowed value.")
+    },
+
+    /**
+     * Value is not a match.
+     */
+    matches: function (ref) {
+      var name = ref.name;
+
+      return ((sentence(name)) + " is not an allowed value.")
+    },
+
+    /**
+     * The maximum value allowed.
+     */
+    max: function (ref) {
+      var name = ref.name;
+      var value = ref.value;
+      var args = ref.args;
+
+      if (!isNaN(value)) {
+        return (name + " must be less than " + (args[0]) + ".")
+      }
+      return (name + " must be less than " + (args[0]) + " characters long.")
+    },
+
+    /**
+     * The maximum value allowed.
+     */
+    min: function (ref) {
+      var name = ref.name;
+      var value = ref.value;
+      var args = ref.args;
+
+      if (!isNaN(value)) {
+        return (name + " must be more than " + (args[0]) + ".")
+      }
+      return (name + " must be more than " + (args[0]) + " characters long.")
+    },
+
+    /**
+     * The field is not an allowed value
+     */
+    not: function (ref) {
+      var name = ref.name;
+      var value = ref.value;
+
+      return ("“" + value + "” is not an allowed " + name + ".")
+    },
+
+    /**
+     * The field is not a number
+     */
+    number: function (ref) {
+      var name = ref.name;
+
+      return ((sentence(name)) + " must be a number.")
+    },
+
+    /**
+     * Required field.
+     */
+    required: function (ref) {
+      var name = ref.name;
+
+      return ((sentence(name)) + " is required.")
+    },
+
+    /**
+     * Value is not a url.
+     */
+    url: function (ref) {
+      var name = ref.name;
+
+      return "Please include a valid url."
     }
   };
 
@@ -459,9 +666,6 @@
    */
   var context = {
     context: function context () {
-      if (this.debug) {
-        console.log(((this.type) + " re-context"));
-      }
       return defineModel.call(this, Object.assign({}, {type: this.type,
         value: this.value,
         name: this.nameOrFallback,
@@ -470,7 +674,8 @@
         id: this.id || this.defaultId,
         label: this.label,
         labelPosition: this.logicalLabelPosition,
-        attributes: this.elementAttributes},
+        attributes: this.elementAttributes,
+        blurHandler: blurHandler.bind(this)},
         this.typeContext))
     },
     nameOrFallback: nameOrFallback,
@@ -479,7 +684,9 @@
     logicalLabelPosition: logicalLabelPosition,
     isVmodeled: isVmodeled,
     mergedErrors: mergedErrors,
-    hasErrors: hasErrors
+    hasErrors: hasErrors,
+    showFieldErrors: showFieldErrors,
+    mergedValidationName: mergedValidationName
   };
 
   /**
@@ -537,6 +744,33 @@
       default:
         return 'before'
     }
+  }
+
+  /**
+   * The validation label to use.
+   */
+  function mergedValidationName () {
+    if (this.validationName) {
+      return this.validationName
+    }
+    if (typeof this.name === 'string') {
+      return this.name
+    }
+    if (this.label) {
+      return this.label
+    }
+    return this.type
+  }
+
+  /**
+   * Determines if the field should show it's error (if it has one)
+   * @return {boolean}
+   */
+  function showFieldErrors () {
+    if (this.showErrors) {
+      return this.showErrors
+    }
+    return this.behavioralErrorVisibility
   }
 
   /**
@@ -600,6 +834,15 @@
   }
 
   /**
+   * Bound into the context object.
+   */
+  function blurHandler () {
+    if (this.errorBehavior === 'blur') {
+      this.behavioralErrorVisibility = true;
+    }
+  }
+
+  /**
    * Defines the model used throughout the existing context.
    * @param {object} context
    */
@@ -642,7 +885,8 @@
     inheritAttrs: false,
     inject: {
       formulateFormSetter: { default: undefined },
-      formulateFormRegister: { default: undefined }
+      formulateFormRegister: { default: undefined },
+      getFormValues: { default: function () { return function () { return ({}); }; } }
     },
     model: {
       prop: 'formulateValue',
@@ -701,15 +945,23 @@
         type: [String, Boolean, Array],
         default: false
       },
-      validationBehavior: {
+      validationName: {
+        type: [String, Boolean],
+        default: false
+      },
+      error: {
+        type: [String, Boolean],
+        default: false
+      },
+      errorBehavior: {
         type: String,
         default: 'blur',
         validator: function (value) {
           return ['blur', 'live'].includes(value)
         }
       },
-      error: {
-        type: [String, Boolean],
+      showErrors: {
+        type: Boolean,
         default: false
       }
     },
@@ -718,6 +970,7 @@
         defaultId: nanoid(9),
         localAttributes: {},
         internalModelProxy: this.formulateValue,
+        behavioralErrorVisibility: (this.errorBehavior === 'live'),
         validationErrors: []
       }
     },
@@ -771,7 +1024,13 @@
             var args = ref[1];
 
             return rule.apply(void 0, [ this$1.context.model ].concat( args ))
-              .then(function (res) { return res ? false : 'Validation error!'; })
+              .then(function (res) { return res ? false : this$1.$formulate.validationMessage(rule.name, {
+                args: args,
+                name: this$1.mergedValidationName,
+                value: this$1.context.model,
+                vm: this$1,
+                formValues: this$1.getFormValues()
+              }); })
           })
         )
           .then(function (result) { return result.filter(function (result) { return result; }); })
@@ -870,6 +1129,7 @@
         attrs: {
           "data-classification": _vm.classification,
           "data-has-errors": _vm.hasErrors,
+          "data-is-showing-errors": _vm.hasErrors && _vm.showFieldErrors,
           "data-type": _vm.type
         }
       },
@@ -932,7 +1192,9 @@
             })
           : _vm._e(),
         _vm._v(" "),
-        _c("FormulateInputErrors", { attrs: { errors: _vm.mergedErrors } })
+        _vm.showFieldErrors
+          ? _c("FormulateInputErrors", { attrs: { errors: _vm.mergedErrors } })
+          : _vm._e()
       ],
       1
     )
@@ -975,7 +1237,8 @@
     provide: function provide () {
       return {
         formulateFormSetter: this.setFieldValue,
-        formulateFormRegister: this.register
+        formulateFormRegister: this.register,
+        getFormValues: this.getFormValues
       }
     },
     name: 'FormulateForm',
@@ -1057,6 +1320,9 @@
       formSubmitted: function formSubmitted () {
         // perform validation here
         this.$emit('submit', this.formModel);
+      },
+      getFormValues: function getFormValues () {
+        return this.internalFormModelProxy
       }
     }
   };
@@ -1385,6 +1651,7 @@
                       : _vm.context.model
                   },
                   on: {
+                    blur: _vm.context.blurHandler,
                     change: function($event) {
                       var $$a = _vm.context.model,
                         $$el = $event.target,
@@ -1433,6 +1700,7 @@
                     checked: _vm._q(_vm.context.model, _vm.context.value)
                   },
                   on: {
+                    blur: _vm.context.blurHandler,
                     change: function($event) {
                       return _vm.$set(_vm.context, "model", _vm.context.value)
                     }
@@ -1461,6 +1729,7 @@
                     value: _vm.context.model
                   },
                   on: {
+                    blur: _vm.context.blurHandler,
                     input: function($event) {
                       if ($event.target.composing) {
                         return
@@ -1555,6 +1824,7 @@
                       : _vm.context.model
                   },
                   on: {
+                    blur: _vm.context.blurHandler,
                     change: function($event) {
                       var $$a = _vm.context.model,
                         $$el = $event.target,
@@ -1600,6 +1870,7 @@
                   attrs: { type: "radio" },
                   domProps: { checked: _vm._q(_vm.context.model, null) },
                   on: {
+                    blur: _vm.context.blurHandler,
                     change: function($event) {
                       return _vm.$set(_vm.context, "model", null)
                     }
@@ -1625,6 +1896,7 @@
                   attrs: { type: _vm.type },
                   domProps: { value: _vm.context.model },
                   on: {
+                    blur: _vm.context.blurHandler,
                     input: function($event) {
                       if ($event.target.composing) {
                         return
@@ -1717,6 +1989,7 @@
               ],
               attrs: { "data-placeholder-selected": _vm.placeholderSelected },
               on: {
+                blur: _vm.context.blurHandler,
                 change: function($event) {
                   var $$selectedVal = Array.prototype.filter
                     .call($event.target.options, function(o) {
@@ -1869,6 +2142,7 @@
               ],
               domProps: { value: _vm.context.model },
               on: {
+                blur: _vm.context.blurHandler,
                 input: function($event) {
                   if ($event.target.composing) {
                     return
@@ -1933,7 +2207,11 @@
         FormulateInputTextArea: FormulateInputTextArea
       },
       library: library,
-      rules: rules
+      rules: rules,
+      locale: 'en',
+      locales: {
+        en: en
+      }
     };
   };
 
@@ -2001,6 +2279,20 @@
    */
   Formulate.prototype.rules = function rules () {
     return this.options.rules
+  };
+
+  /**
+   * Get the validation message for a particular error.
+   */
+  Formulate.prototype.validationMessage = function validationMessage (rule, validationContext) {
+    var generators = this.options.locales[this.options.locale];
+    if (generators.hasOwnProperty(rule)) {
+      return generators[rule](validationContext)
+    }
+    if (generators.hasOwnProperty('default')) {
+      return generators.default(validationContext)
+    }
+    return 'This field does not have a valid value'
   };
 
   var Formulate$1 = new Formulate();

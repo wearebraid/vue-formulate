@@ -1,4 +1,3 @@
-
 /**
  * Function to map over an object.
  * @param {Object} obj An object to map over
@@ -91,6 +90,17 @@ export function arrayify (item) {
 }
 
 /**
+ * How to add an item.
+ * @param {string} item
+ */
+export function sentence (item) {
+  if (typeof item === 'string') {
+    return item[0].toUpperCase() + item.substr(1)
+  }
+  return item
+}
+
+/**
  * Given an array or string return an array of callables.
  * @param {array|string} validation
  * @param {array} rules and array of functions
@@ -116,6 +126,7 @@ function parseRule (rule, rules) {
     return [rule, []]
   }
   if (Array.isArray(rule) && rule.length) {
+    rule = rule.map(r => r) // light clone
     if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
       return [rules[rule.shift()], rule]
     }

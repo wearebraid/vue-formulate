@@ -1,5 +1,6 @@
 import library from './libs/library'
 import rules from './libs/rules'
+import en from './locales/en'
 import isPlainObject from 'is-plain-object'
 import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
@@ -30,7 +31,11 @@ class Formulate {
         FormulateInputTextArea
       },
       library,
-      rules
+      rules,
+      locale: 'en',
+      locales: {
+        en
+      }
     }
   }
 
@@ -98,6 +103,20 @@ class Formulate {
    */
   rules () {
     return this.options.rules
+  }
+
+  /**
+   * Get the validation message for a particular error.
+   */
+  validationMessage (rule, validationContext) {
+    const generators = this.options.locales[this.options.locale]
+    if (generators.hasOwnProperty(rule)) {
+      return generators[rule](validationContext)
+    }
+    if (generators.hasOwnProperty('default')) {
+      return generators.default(validationContext)
+    }
+    return 'This field does not have a valid value'
   }
 }
 

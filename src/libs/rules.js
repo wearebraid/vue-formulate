@@ -13,83 +13,36 @@ export default {
   },
 
   /**
-   * Rule: must be a value
-   */
-  required: function (value, isRequired = true) {
-    return Promise.resolve((() => {
-      if (!isRequired || ['no', 'false'].includes(isRequired)) {
-        return true
-      }
-      if (Array.isArray(value)) {
-        return !!value.length
-      }
-      if (typeof value === 'string') {
-        return !!value
-      }
-      if (typeof value === 'object') {
-        return (!value) ? false : !!Object.keys(value).length
-      }
-      return true
-    })())
-  },
-
-  /**
-   * Rule: Value is in an array (stack).
-   */
-  in: function (value, ...stack) {
-    return Promise.resolve(stack.find(item => {
-      if (typeof item === 'object') {
-        return shallowEqualObjects(item, value)
-      }
-      return item === value
-    }) !== undefined)
-  },
-
-  /**
-   * Rule: Value is not in stack.
-   */
-  not: function (value, ...stack) {
-    return Promise.resolve(stack.find(item => {
-      if (typeof item === 'object') {
-        return shallowEqualObjects(item, value)
-      }
-      return item === value
-    }) === undefined)
-  },
-
-  /**
-   * Rule: Match the value against a (stack) of patterns or strings
-   */
-  matches: function (value, ...stack) {
-    return Promise.resolve(!!stack.find(pattern => {
-      if (pattern instanceof RegExp) {
-        return pattern.test(value)
-      }
-      return pattern === value
-    }))
-  },
-
-  /**
-   * Rule: checks if a string is a valid url
-   */
-  url: function (value) {
-    return Promise.resolve(isUrl(value))
-  },
-
-  /**
-   * Rule: ensures the value is a date according to Date.parse()
-   */
-  date: function (value) {
-    return Promise.resolve(!isNaN(Date.parse(value)))
-  },
-
-  /**
    * Rule: checks if a value is after a given date. Defaults to current time
    */
   after: function (value, compare = false) {
     const timestamp = Date.parse(compare || new Date())
     const fieldValue = Date.parse(value)
     return Promise.resolve(isNaN(fieldValue) ? false : (fieldValue > timestamp))
+  },
+
+  /**
+   * Rule: checks if the value is only alpha
+   */
+  alpha: function (value, set = 'default') {
+    const sets = {
+      default: /^[a-zA-ZÀ-ÖØ-öø-ÿ]+$/,
+      latin: /^[a-zA-Z]+$/
+    }
+    const selectedSet = sets.hasOwnProperty(set) ? set : 'default'
+    return Promise.resolve(sets[selectedSet].test(value))
+  },
+
+  /**
+   * Rule: checks if the value is alpha numeric
+   */
+  alphanumeric: function (value, set = 'default') {
+    const sets = {
+      default: /^[a-zA-Z0-9À-ÖØ-öø-ÿ]+$/,
+      latin: /^[a-zA-Z0-9]+$/
+    }
+    const selectedSet = sets.hasOwnProperty(set) ? set : 'default'
+    return Promise.resolve(sets[selectedSet].test(value))
   },
 
   /**
@@ -102,40 +55,9 @@ export default {
   },
 
   /**
-   * Rule: checks if the value is only alpha numeric
-   */
-  alpha: function (value, set = 'default') {
-    const sets = {
-      default: /^[a-zA-ZÀ-ÖØ-öø-ÿ]+$/,
-      latin: /^[a-z][A-Z]$/
-    }
-    const selectedSet = sets.hasOwnProperty(set) ? set : 'default'
-    return Promise.resolve(sets[selectedSet].test(value))
-  },
-
-  /**
-   * Rule: checks if the value is only alpha numeric
-   */
-  number: function (value) {
-    return Promise.resolve(!isNaN(value))
-  },
-
-  /**
-   * Rule: checks if the value is alpha numeric
-   */
-  alphanumeric: function (value, set = 'default') {
-    const sets = {
-      default: /^[a-zA-Z0-9À-ÖØ-öø-ÿ]+$/,
-      latin: /^[a-zA-Z0-9]$/
-    }
-    const selectedSet = sets.hasOwnProperty(set) ? set : 'default'
-    return Promise.resolve(sets[selectedSet].test(value))
-  },
-
-  /**
    * Rule: checks if the value is between two other values
    */
-  between: function (value, from, to) {
+  between: function (value, from = 0, to = 10) {
     return Promise.resolve((() => {
       if (from === null || to === null || isNaN(from) || isNaN(to)) {
         return false
@@ -154,12 +76,63 @@ export default {
   },
 
   /**
+   * Rule: ensures the value is a date according to Date.parse()
+   */
+  date: function (value) {
+    return Promise.resolve(!isNaN(Date.parse(value)))
+  },
+
+  /**
    * Rule: tests
    */
   email: function (value) {
     // eslint-disable-next-line
     const isEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
     return Promise.resolve(isEmail.test(value))
+  },
+
+  /**
+   * Rule: Value is in an array (stack).
+   */
+  in: function (value, ...stack) {
+    return Promise.resolve(stack.find(item => {
+      if (typeof item === 'object') {
+        return shallowEqualObjects(item, value)
+      }
+      return item === value
+    }) !== undefined)
+  },
+
+  /**
+   * Rule: Match the value against a (stack) of patterns or strings
+   */
+  matches: function (value, ...stack) {
+    return Promise.resolve(!!stack.find(pattern => {
+      if (pattern instanceof RegExp) {
+        return pattern.test(value)
+      }
+      return pattern === value
+    }))
+  },
+
+  /**
+   * Check the maximum value of a particular.
+   */
+  max: function (value, minimum = 10) {
+    return Promise.resolve((() => {
+      minimum = Number(minimum)
+      if (!isNaN(value)) {
+        value = Number(value)
+        return value <= minimum
+      }
+      if (typeof value === 'string') {
+        return value.length <= minimum
+      }
+      if (Array.isArray(value)) {
+        return value.length <= minimum
+      }
+      return false
+    })())
   },
 
   /**
@@ -181,7 +154,7 @@ export default {
   /**
    * Check the minimum value of a particular.
    */
-  min: function (value, minimum) {
+  min: function (value, minimum = 1) {
     return Promise.resolve((() => {
       minimum = Number(minimum)
       if (!isNaN(value)) {
@@ -199,22 +172,49 @@ export default {
   },
 
   /**
-   * Check the minimum value of a particular.
+   * Rule: Value is not in stack.
    */
-  max: function (value, minimum) {
-    return Promise.resolve((() => {
-      minimum = Number(minimum)
-      if (!isNaN(value)) {
-        value = Number(value)
-        return value <= minimum
+  not: function (value, ...stack) {
+    return Promise.resolve(stack.find(item => {
+      if (typeof item === 'object') {
+        return shallowEqualObjects(item, value)
       }
-      if (typeof value === 'string') {
-        return value.length <= minimum
+      return item === value
+    }) === undefined)
+  },
+
+  /**
+   * Rule: checks if the value is only alpha numeric
+   */
+  number: function (value) {
+    return Promise.resolve(!isNaN(value))
+  },
+
+  /**
+   * Rule: must be a value
+   */
+  required: function (value, isRequired = true) {
+    return Promise.resolve((() => {
+      if (!isRequired || ['no', 'false'].includes(isRequired)) {
+        return true
       }
       if (Array.isArray(value)) {
-        return value.length <= minimum
+        return !!value.length
       }
-      return false
+      if (typeof value === 'string') {
+        return !!value
+      }
+      if (typeof value === 'object') {
+        return (!value) ? false : !!Object.keys(value).length
+      }
+      return true
     })())
+  },
+
+  /**
+   * Rule: checks if a string is a valid url
+   */
+  url: function (value) {
+    return Promise.resolve(isUrl(value))
   }
 }

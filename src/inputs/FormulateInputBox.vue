@@ -8,6 +8,7 @@
       :type="type"
       :value="context.value"
       v-bind="attributes"
+      @blur="context.blurHandler"
     >
     <label
       class="formulate-input-element-decorator"

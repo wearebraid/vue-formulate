@@ -13,7 +13,8 @@ export default {
   provide () {
     return {
       formulateFormSetter: this.setFieldValue,
-      formulateFormRegister: this.register
+      formulateFormRegister: this.register,
+      getFormValues: this.getFormValues
     }
   },
   name: 'FormulateForm',
@@ -93,6 +94,9 @@ export default {
     formSubmitted () {
       // perform validation here
       this.$emit('submit', this.formModel)
+    },
+    getFormValues () {
+      return this.internalFormModelProxy
     }
   }
 }

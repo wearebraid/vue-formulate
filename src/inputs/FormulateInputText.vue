@@ -6,6 +6,7 @@
       v-model="context.model"
       :type="type"
       v-bind="attributes"
+      @blur="context.blurHandler"
     >
   </div>
 </template>

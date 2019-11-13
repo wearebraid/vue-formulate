@@ -3,6 +3,7 @@
     class="formulate-input"
     :data-classification="classification"
     :data-has-errors="hasErrors"
+    :data-is-showing-errors="hasErrors && showFieldErrors"
     :data-type="type"
   >
     <div class="formulate-input-wrapper">
@@ -41,6 +42,7 @@
       v-text="help"
     />
     <FormulateInputErrors
+      v-if="showFieldErrors"
       :errors="mergedErrors"
     />
   </div>
@@ -56,7 +58,8 @@ export default {
   inheritAttrs: false,
   inject: {
     formulateFormSetter: { default: undefined },
-    formulateFormRegister: { default: undefined }
+    formulateFormRegister: { default: undefined },
+    getFormValues: { default: () => () => ({}) }
   },
   model: {
     prop: 'formulateValue',
@@ -115,15 +118,23 @@ export default {
       type: [String, Boolean, Array],
       default: false
     },
-    validationBehavior: {
+    validationName: {
+      type: [String, Boolean],
+      default: false
+    },
+    error: {
+      type: [String, Boolean],
+      default: false
+    },
+    errorBehavior: {
       type: String,
       default: 'blur',
       validator: function (value) {
         return ['blur', 'live'].includes(value)
       }
     },
-    error: {
-      type: [String, Boolean],
+    showErrors: {
+      type: Boolean,
       default: false
     }
   },
@@ -132,6 +143,7 @@ export default {
       defaultId: nanoid(9),
       localAttributes: {},
       internalModelProxy: this.formulateValue,
+      behavioralErrorVisibility: (this.errorBehavior === 'live'),
       validationErrors: []
     }
   },
@@ -182,7 +194,13 @@ export default {
       Promise.all(
         rules.map(([rule, args]) => {
           return rule(this.context.model, ...args)
-            .then(res => res ? false : 'Validation error!')
+            .then(res => res ? false : this.$formulate.validationMessage(rule.name, {
+              args,
+              name: this.mergedValidationName,
+              value: this.context.model,
+              vm: this,
+              formValues: this.getFormValues()
+            }))
         })
       )
         .then(result => result.filter(result => result))
