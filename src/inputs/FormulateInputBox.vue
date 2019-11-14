@@ -1,6 +1,6 @@
 <template>
   <div
-    class="formulate-input-element formulate-input-element--box"
+    :class="`formulate-input-element formulate-input-element--${context.type}`"
     :data-type="context.type"
   >
     <input

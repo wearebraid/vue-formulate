@@ -55,6 +55,7 @@ test('installs on vue instance', () => {
     'FormulateInputText',
     'FormulateInputGroup',
     'FormulateInputSelect',
+    'FormulateInputSlider',
     'FormulateInputTextArea'
   ]
   const registry = []

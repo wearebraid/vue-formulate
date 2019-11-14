@@ -32,10 +32,6 @@ export default {
     classification: 'text',
     component: 'FormulateInputText'
   },
-  range: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
   search: {
     classification: 'text',
     component: 'FormulateInputText'
@@ -59,6 +55,12 @@ export default {
   'datetime-local': {
     classification: 'text',
     component: 'FormulateInputText'
+  },
+
+  // === SLIDER INPUTS
+  range: {
+    classification: 'slider',
+    component: 'FormulateInputSlider'
   },
 
   // === MULTI LINE TEXT INPUTS

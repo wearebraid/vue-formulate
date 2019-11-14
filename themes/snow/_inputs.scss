@@ -57,6 +57,57 @@
     }
   }
 
+// Slider inputs
+// -----------------------------------------------------------------------------
+
+&[data-classification='slider'] {
+  input {
+    appearance: none;
+    width: 100%;
+    font-size: 1em;
+    padding: .5em 0;
+
+    &:focus {
+      outline: 0;
+    }
+
+    @mixin thumb {
+      cursor: pointer;
+      appearance: none;
+      width: 1em;
+      height: 1em;
+      border-radius: 1em;
+      background-color: $formulate-green;
+      margin-top: calc(-.5em + 2px);
+    }
+
+    @mixin track {
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background-color: $formulate-gray;
+      border-radius: 3px;
+      margin: 0;
+      padding: 0;
+    }
+
+    &::-webkit-slider-thumb {
+      @include thumb;
+    }
+
+    &::-moz-range-thumb {
+      @include thumb;
+    }
+
+    &::-ms-thumb {
+      @include thumb;
+    }
+
+    &::-webkit-slider-runnable-track {
+      @include track;
+    }
+  }
+}
 
 // Textarea inputs
 // -----------------------------------------------------------------------------

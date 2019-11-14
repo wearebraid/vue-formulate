@@ -9,6 +9,7 @@ import FormulateInputGroup from './FormulateInputGroup.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
+import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
 
 /**
@@ -28,6 +29,7 @@ class Formulate {
         FormulateInputText,
         FormulateInputGroup,
         FormulateInputSelect,
+        FormulateInputSlider,
         FormulateInputTextArea
       },
       library,
@@ -112,6 +114,8 @@ class Formulate {
     const generators = this.options.locales[this.options.locale]
     if (generators.hasOwnProperty(rule)) {
       return generators[rule](validationContext)
+    } else if (rule[0] === '_' && generators.hasOwnProperty(rule.substr(1))) {
+      return generators[rule.substr(1)](validationContext)
     }
     if (generators.hasOwnProperty('default')) {
       return generators.default(validationContext)

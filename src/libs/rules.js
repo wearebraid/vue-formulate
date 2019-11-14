@@ -1,5 +1,5 @@
 import isUrl from 'is-url'
-import { shallowEqualObjects } from './utils'
+import { shallowEqualObjects, regexForFormat } from './utils'
 
 /**
  * Library of rules
@@ -76,10 +76,16 @@ export default {
   },
 
   /**
-   * Rule: ensures the value is a date according to Date.parse()
+   * Rule: ensures the value is a date according to Date.parse(), or a format
+   * regex.
    */
-  date: function (value) {
-    return Promise.resolve(!isNaN(Date.parse(value)))
+  date: function (value, format = false) {
+    return Promise.resolve((() => {
+      if (format && typeof format === 'string') {
+        return regexForFormat(format).test(value)
+      }
+      return !isNaN(Date.parse(value))
+    })())
   },
 
   /**

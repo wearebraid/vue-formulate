@@ -36,10 +36,6 @@ var library = {
     classification: 'text',
     component: 'FormulateInputText'
   },
-  range: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
   search: {
     classification: 'text',
     component: 'FormulateInputText'
@@ -63,6 +59,12 @@ var library = {
   'datetime-local': {
     classification: 'text',
     component: 'FormulateInputText'
+  },
+
+  // === SLIDER INPUTS
+  range: {
+    classification: 'slider',
+    component: 'FormulateInputSlider'
   },
 
   // === MULTI LINE TEXT INPUTS
@@ -219,6 +221,33 @@ function parseRule (rule, rules) {
 }
 
 /**
+ * Escape a string for use in regular expressions.
+ * @param {string} string
+ */
+function escapeRegExp (string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
+}
+
+/**
+ * Given a string format (date) return a regex to match against.
+ * @param {string} format
+ */
+function regexForFormat (format) {
+  var escaped = "^" + (escapeRegExp(format)) + "$";
+  var formats = {
+    MM: '(0[1-9]|1[012])',
+    M: '([1-9]|1[012])',
+    DD: '([012][1-9]|3[01])',
+    D: '([012]?[1-9]|3[01])',
+    YYYY: '\\d{4}',
+    YY: '\\d{2}'
+  };
+  return new RegExp(Object.keys(formats).reduce(function (regex, format) {
+    return regex.replace(format, formats[format])
+  }, escaped))
+}
+
+/**
  * Library of rules
  */
 var rules = {
@@ -304,10 +333,18 @@ var rules = {
   },
 
   /**
-   * Rule: ensures the value is a date according to Date.parse()
+   * Rule: ensures the value is a date according to Date.parse(), or a format
+   * regex.
    */
-  date: function (value) {
-    return Promise.resolve(!isNaN(Date.parse(value)))
+  date: function (value, format) {
+    if ( format === void 0 ) format = false;
+
+    return Promise.resolve((function () {
+      if (format && typeof format === 'string') {
+        return regexForFormat(format).test(value)
+      }
+      return !isNaN(Date.parse(value))
+    })())
   },
 
   /**
@@ -542,7 +579,11 @@ var en = {
    */
   date: function (ref) {
     var name = ref.name;
+    var args = ref.args;
 
+    if (Array.isArray(args) && args.length) {
+      return ((sentence(name)) + " is not a valid, please use the format " + (args[0]))
+    }
     return ((sentence(name)) + " is not a valid date.")
   },
 
@@ -562,7 +603,10 @@ var en = {
     var name = ref.name;
     var value = ref.value;
 
-    return (value + " is not a valid email address.")
+    if (!value) {
+      return 'Please enter a valid email address.'
+    }
+    return ("“" + value + "” is not a valid email address.")
   },
 
   /**
@@ -572,10 +616,10 @@ var en = {
     var name = ref.name;
     var value = ref.value;
 
-    if (typeof value === 'string') {
+    if (typeof value === 'string' && value) {
       return ("“" + (sentence(value)) + "” is not an allowed " + name + ".")
     }
-    return ((sentence(name)) + " is not an allowed value.")
+    return ("This is not an allowed " + name + ".")
   },
 
   /**
@@ -1620,7 +1664,8 @@ var __vue_render__$4 = function() {
   return _c(
     "div",
     {
-      staticClass: "formulate-input-element formulate-input-element--box",
+      class:
+        "formulate-input-element formulate-input-element--" + _vm.context.type,
       attrs: { "data-type": _vm.context.type }
     },
     [
@@ -1795,7 +1840,9 @@ var __vue_render__$5 = function() {
   return _c(
     "div",
     {
-      staticClass: "formulate-input-element formulate-input-element--textarea"
+      class:
+        "formulate-input-element formulate-input-element--" + _vm.context.type,
+      attrs: { "data-type": _vm.context.type }
     },
     [
       _vm.type === "checkbox"
@@ -1967,7 +2014,11 @@ var __vue_render__$6 = function() {
   var _c = _vm._self._c || _h;
   return _c(
     "div",
-    { staticClass: "formulate-input-element formulate-input-element--select" },
+    {
+      class:
+        "formulate-input-element formulate-input-element--" + _vm.context.type,
+      attrs: { "data-type": _vm.context.type }
+    },
     [
       _c(
         "select",
@@ -2104,7 +2155,7 @@ __vue_render__$6._withStripped = true;
 //
 
 var script$7 = {
-  name: 'FormulateInputTextArea',
+  name: 'FormulateInputText',
   mixins: [FormulateInputMixin]
 };
 
@@ -2119,7 +2170,172 @@ var __vue_render__$7 = function() {
   return _c(
     "div",
     {
-      staticClass: "formulate-input-element formulate-input-element--textarea"
+      class:
+        "formulate-input-element formulate-input-element--" + _vm.context.type,
+      attrs: { "data-type": _vm.context.type }
+    },
+    [
+      _vm.type === "checkbox"
+        ? _c(
+            "input",
+            _vm._b(
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.context.model,
+                    expression: "context.model"
+                  }
+                ],
+                attrs: { type: "checkbox" },
+                domProps: {
+                  checked: Array.isArray(_vm.context.model)
+                    ? _vm._i(_vm.context.model, null) > -1
+                    : _vm.context.model
+                },
+                on: {
+                  blur: _vm.context.blurHandler,
+                  change: function($event) {
+                    var $$a = _vm.context.model,
+                      $$el = $event.target,
+                      $$c = $$el.checked ? true : false;
+                    if (Array.isArray($$a)) {
+                      var $$v = null,
+                        $$i = _vm._i($$a, $$v);
+                      if ($$el.checked) {
+                        $$i < 0 &&
+                          _vm.$set(_vm.context, "model", $$a.concat([$$v]));
+                      } else {
+                        $$i > -1 &&
+                          _vm.$set(
+                            _vm.context,
+                            "model",
+                            $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                          );
+                      }
+                    } else {
+                      _vm.$set(_vm.context, "model", $$c);
+                    }
+                  }
+                }
+              },
+              "input",
+              _vm.attributes,
+              false
+            )
+          )
+        : _vm.type === "radio"
+        ? _c(
+            "input",
+            _vm._b(
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.context.model,
+                    expression: "context.model"
+                  }
+                ],
+                attrs: { type: "radio" },
+                domProps: { checked: _vm._q(_vm.context.model, null) },
+                on: {
+                  blur: _vm.context.blurHandler,
+                  change: function($event) {
+                    return _vm.$set(_vm.context, "model", null)
+                  }
+                }
+              },
+              "input",
+              _vm.attributes,
+              false
+            )
+          )
+        : _c(
+            "input",
+            _vm._b(
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.context.model,
+                    expression: "context.model"
+                  }
+                ],
+                attrs: { type: _vm.type },
+                domProps: { value: _vm.context.model },
+                on: {
+                  blur: _vm.context.blurHandler,
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.$set(_vm.context, "model", $event.target.value);
+                  }
+                }
+              },
+              "input",
+              _vm.attributes,
+              false
+            )
+          )
+    ]
+  )
+};
+var __vue_staticRenderFns__$7 = [];
+__vue_render__$7._withStripped = true;
+
+  /* style */
+  var __vue_inject_styles__$7 = undefined;
+  /* scoped */
+  var __vue_scope_id__$7 = undefined;
+  /* module identifier */
+  var __vue_module_identifier__$7 = undefined;
+  /* functional template */
+  var __vue_is_functional_template__$7 = false;
+  /* style inject */
+  
+  /* style inject SSR */
+  
+  /* style inject shadow dom */
+  
+
+  
+  var FormulateInputSlider = normalizeComponent(
+    { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
+    __vue_inject_styles__$7,
+    __vue_script__$7,
+    __vue_scope_id__$7,
+    __vue_is_functional_template__$7,
+    __vue_module_identifier__$7,
+    false,
+    undefined,
+    undefined,
+    undefined
+  );
+
+//
+
+var script$8 = {
+  name: 'FormulateInputTextArea',
+  mixins: [FormulateInputMixin]
+};
+
+/* script */
+var __vue_script__$8 = script$8;
+
+/* template */
+var __vue_render__$8 = function() {
+  var _vm = this;
+  var _h = _vm.$createElement;
+  var _c = _vm._self._c || _h;
+  return _c(
+    "div",
+    {
+      staticClass: "formulate-input-element formulate-input-element--textarea",
+      attrs: { "data-type": "textarea" }
     },
     [
       _c(
@@ -2153,17 +2369,17 @@ var __vue_render__$7 = function() {
     ]
   )
 };
-var __vue_staticRenderFns__$7 = [];
-__vue_render__$7._withStripped = true;
+var __vue_staticRenderFns__$8 = [];
+__vue_render__$8._withStripped = true;
 
   /* style */
-  var __vue_inject_styles__$7 = undefined;
+  var __vue_inject_styles__$8 = undefined;
   /* scoped */
-  var __vue_scope_id__$7 = undefined;
+  var __vue_scope_id__$8 = undefined;
   /* module identifier */
-  var __vue_module_identifier__$7 = undefined;
+  var __vue_module_identifier__$8 = undefined;
   /* functional template */
-  var __vue_is_functional_template__$7 = false;
+  var __vue_is_functional_template__$8 = false;
   /* style inject */
   
   /* style inject SSR */
@@ -2173,12 +2389,12 @@ __vue_render__$7._withStripped = true;
 
   
   var FormulateInputTextArea = normalizeComponent(
-    { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
-    __vue_inject_styles__$7,
-    __vue_script__$7,
-    __vue_scope_id__$7,
-    __vue_is_functional_template__$7,
-    __vue_module_identifier__$7,
+    { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
+    __vue_inject_styles__$8,
+    __vue_script__$8,
+    __vue_scope_id__$8,
+    __vue_is_functional_template__$8,
+    __vue_module_identifier__$8,
     false,
     undefined,
     undefined,
@@ -2198,6 +2414,7 @@ var Formulate = function Formulate () {
       FormulateInputText: FormulateInputText,
       FormulateInputGroup: FormulateInputGroup,
       FormulateInputSelect: FormulateInputSelect,
+      FormulateInputSlider: FormulateInputSlider,
       FormulateInputTextArea: FormulateInputTextArea
     },
     library: library,
@@ -2282,6 +2499,8 @@ Formulate.prototype.validationMessage = function validationMessage (rule, valida
   var generators = this.options.locales[this.options.locale];
   if (generators.hasOwnProperty(rule)) {
     return generators[rule](validationContext)
+  } else if (rule[0] === '_' && generators.hasOwnProperty(rule.substr(1))) {
+    return generators[rule.substr(1)](validationContext)
   }
   if (generators.hasOwnProperty('default')) {
     return generators.default(validationContext)

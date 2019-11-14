@@ -52,11 +52,6 @@ describe('FormulateInputText', () => {
     expect(wrapper.contains(FormulateInputText)).toBe(true)
   })
 
-  it('renders range input when type is "range"', () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'range' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
-  })
-
   it('renders tel input when type is "tel"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'tel' } })
     expect(wrapper.contains(FormulateInputText)).toBe(true)

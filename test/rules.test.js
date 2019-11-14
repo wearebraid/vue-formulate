@@ -128,11 +128,16 @@ describe('date', () => {
 
   it('passes with only month', async () => expect(await rules.date('January')).toBe(false))
 
+  it('passes with valid date format', async () => expect(await rules.date('12/17/1987', 'MM/DD/YYYY')).toBe(true))
+
+  it('fails with simple number and date format', async () => expect(await rules.date('1234', 'MM/DD/YYYY')).toBe(false))
+
   it('fails with only day of week', async () => expect(await rules.date('saturday')).toBe(false))
 
   it('fails with random string', async () => expect(await rules.date('Pepsi 17')).toBe(false))
 
   it('fails with random number', async () => expect(await rules.date('1872301237')).toBe(false))
+
 })
 
 

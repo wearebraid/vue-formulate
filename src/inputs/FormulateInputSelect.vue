@@ -1,6 +1,7 @@
 <template>
   <div
-    class="formulate-input-element formulate-input-element--select"
+    :class="`formulate-input-element formulate-input-element--${context.type}`"
+    :data-type="context.type"
   >
     <select
       v-model="context.model"

@@ -1,6 +1,7 @@
 <template>
   <div
     class="formulate-input-element formulate-input-element--textarea"
+    data-type="textarea"
   >
     <textarea
       v-model="context.model"

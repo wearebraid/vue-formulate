@@ -58,7 +58,10 @@ export default {
   /**
    * Is not a valid date.
    */
-  date: function ({ name }) {
+  date: function ({ name, args }) {
+    if (Array.isArray(args) && args.length) {
+      return `${s(name)} is not a valid, please use the format ${args[0]}`
+    }
     return `${s(name)} is not a valid date.`
   },
 
@@ -73,17 +76,20 @@ export default {
    * Is not a valid email address.
    */
   email: function ({ name, value }) {
-    return `${value} is not a valid email address.`
+    if (!value) {
+      return 'Please enter a valid email address.'
+    }
+    return `“${value}” is not a valid email address.`
   },
 
   /**
    * Value is an allowed value.
    */
   in: function ({ name, value }) {
-    if (typeof value === 'string') {
+    if (typeof value === 'string' && value) {
       return `“${s(value)}” is not an allowed ${name}.`
     }
-    return `${s(name)} is not an allowed value.`
+    return `This is not an allowed ${name}.`
   },
 
   /**

@@ -145,3 +145,30 @@ function parseRule (rule, rules) {
   }
   return false
 }
+
+/**
+ * Escape a string for use in regular expressions.
+ * @param {string} string
+ */
+export function escapeRegExp (string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
+}
+
+/**
+ * Given a string format (date) return a regex to match against.
+ * @param {string} format
+ */
+export function regexForFormat (format) {
+  let escaped = `^${escapeRegExp(format)}$`
+  const formats = {
+    MM: '(0[1-9]|1[012])',
+    M: '([1-9]|1[012])',
+    DD: '([012][1-9]|3[01])',
+    D: '([012]?[1-9]|3[01])',
+    YYYY: '\\d{4}',
+    YY: '\\d{2}'
+  }
+  return new RegExp(Object.keys(formats).reduce((regex, format) => {
+    return regex.replace(format, formats[format])
+  }, escaped))
+}
