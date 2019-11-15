@@ -93,5 +93,16 @@ export default {
   select: {
     classification: 'select',
     component: 'FormulateInputSelect'
+  },
+
+  // === FILE TYPE
+
+  file: {
+    classification: 'file',
+    component: 'FormulateInputFile'
+  },
+  image: {
+    classification: 'file',
+    component: 'FormulateInputFile'
   }
 }

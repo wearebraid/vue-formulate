@@ -55,6 +55,37 @@
     input {
       @include baseinput;
     }
+
+    input[type="color"] {
+      height: 1.1em;
+      box-sizing: content-box;
+
+      @mixin color-swatch {
+        display: block;
+        height: 1em;
+        border-radius: .2em;
+        border: 0;
+        flex: auto;
+      }
+
+      &::-webkit-color-swatch-wrapper {
+        padding: 0 0 0 1.5em;
+        display: flex;
+        align-items: center;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 79.17 79.17"><path fill="%23#{str-slice("#{$formulate-gray-ddd}", 2)}" d="M40.8,22.92c-3.4-3.4-4.76-8.44-1-12.24s8.84-2.44,12.24,1c5-5,10.69-13.33,18.81-11.31a11,11,0,0,1,7.62,14.34c-1.26,3.45-4.63,6.06-7.16,8.59-.92.93-3,2.26-3.46,3.46-.42,1,1.82,2.63,2.36,4a8,8,0,0,1-12.42,9.19c-.21-.16-1.35-1.51-1.59-1.51s-.83.83-1,1L49.71,44.9,32.43,62.18c-3.37,3.38-6.6,7.14-10.26,10.21a11,11,0,0,1-4.48,2.28c-1.25.3-3.11-.22-4.18.18-1.28.48-2.42,2.65-3.68,3.4-6.05,3.61-12.64-4-8.46-9.57.73-1,2.53-1.92,3-3a14.46,14.46,0,0,0-.09-2.52,10.75,10.75,0,0,1,3.14-6.77c.92-1,1.93-1.93,2.89-2.9Zm4.4-1.5c4.19,4,8.24,8.24,12.36,12.36,2.06,2.06,5,5.59,8,2.61,4.65-4.62-5-6.8-2.42-10.78C66.3,20.7,76.4,16.48,74.84,9.45,73.62,4,67.12,2.78,63.29,6.32c-2.55,2.36-4.93,4.94-7.39,7.4-.79.78-1.8,2.28-2.88,2.73-2.14.88-3.4-1.62-4.79-2.77-2.58-2.14-6.89-.82-6.53,3C41.89,18.68,43.87,20.09,45.2,21.42Zm-1.45,4.44L27.82,41.79C22,47.57,15.89,53.14,10.41,59.2a8.23,8.23,0,0,0-1.44,2c-.93,2,.25,4.14-.5,6S4.92,69.94,4.3,72a2.34,2.34,0,0,0,2.56,3c1.11-.17,2-1.33,2.71-2.07a11.17,11.17,0,0,1,2.08-2c1.68-.94,4,.17,5.93-.57C20,69.41,22,66.73,23.76,65L34.42,54.3,53.3,35.42Z"/></svg>');
+        background-repeat: no-repeat;
+        background-size: .9em .9em;
+        background-position: left .1em;
+      }
+
+      &::-webkit-color-swatch {
+        @include color-swatch;
+      }
+
+      &::-moz-color-swatch {
+        @include color-swatch;
+      }
+    }
   }
 
 // Slider inputs
@@ -207,7 +238,8 @@
           border-color: $formulate-green;
 
           &::before {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23#{str-slice("#{$formulate-green}", 2)}"><path d="M8.76,56.2c-6.38-6.34,3.26-16,9.64-9.69L38,65.88,80.56,23.29c6.38-6.38,16.07,3.32,9.69,9.69L42.84,80.37a6.83,6.83,0,0,1-9.65,0Z"/></svg>');
+            background-color: $formulate-green;
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M8.76,56.2c-6.38-6.34,3.26-16,9.64-9.69L38,65.88,80.56,23.29c6.38-6.38,16.07,3.32,9.69,9.69L42.84,80.37a6.83,6.83,0,0,1-9.65,0Z"/></svg>');
           }
         }
       }
@@ -242,6 +274,99 @@
     & > .formulate-input-wrapper {
       & > .formulate-input-label {
         margin-bottom: .5em;
+      }
+    }
+  }
+
+
+  // File inputs
+// -----------------------------------------------------------------------------
+
+  &[data-classification="file"] {
+    .formulate-input-upload-area {
+      width: 100%;
+      position: relative;
+      padding: 2em;
+
+      &[data-has-files] {
+        padding: 0;
+      }
+
+      input {
+        cursor: pointer;
+        appearance: none;
+        opacity: 0;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+      }
+
+      &-mask {
+        border-radius: .4em;
+        position: absolute;
+        pointer-events: none;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        border: 2px dashed $formulate-gray-dd;
+        z-index: 2;
+
+        &::before {
+          content: '';
+          background-color: $formulate-gray-dd;
+          mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58 58"><path d="M29,58A29,29,0,1,0,0,29,29,29,0,0,0,29,58ZM29,4A25,25,0,1,1,4,29,25,25,0,0,1,29,4Z"/><polygon points="27 22 27 44.4 31 44.4 31 22 41.7 31.1 44.3 28.1 29 15 13.7 28.1 16.3 31.1 27 22"/></svg>');
+          width: 2em;
+          height: 2em;
+          position: absolute;
+          pointer-events: none;
+        }
+      }
+
+      input:focus,
+      input:hover,
+      input[data-is-drag-hover] {
+        & ~ .formulate-input-upload-area-mask {
+          border-color: $formulate-green;
+
+          &::before {
+            background-color: $formulate-green;
+          }
+        }
+      }
+    }
+
+    .formulate-files {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        @include baseinput;
+        display: block;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+
+        @mixin progress {
+          appearance: none;
+          height: .5em;
+          border-radius: .5em;
+          overflow: hidden;
+        }
+
+        ::-webkit-progress-bar {
+          @include progress;
+        }
       }
     }
   }

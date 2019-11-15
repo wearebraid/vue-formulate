@@ -136,6 +136,22 @@ export default {
     showErrors: {
       type: Boolean,
       default: false
+    },
+    showImage: {
+      type: Boolean,
+      default: true
+    },
+    uploadUrl: {
+      type: [String, Boolean],
+      default: false
+    },
+    uploader: {
+      type: [Function, Object, Boolean],
+      default: false
+    },
+    immediateUpload: {
+      type: Boolean,
+      default: true
     }
   },
   data () {

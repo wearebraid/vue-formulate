@@ -331,11 +331,19 @@ describe('max', () => {
 
   it('passes when a array length', async () => expect(await rules.max(Array(6), '6')).toBe(true))
 
+  it('passes when forced to validate on length', async () => expect(await rules.max(10, 3, 'length')).toBe(true))
+
+  it('passes when forced to validate string on value', async () => expect(await rules.max('b', 'e', 'value')).toBe(true))
+
   it('fails when a array length', async () => expect(await rules.max(Array(6), '5')).toBe(false))
 
   it('fails when a string length', async () => expect(await rules.max('bar', 2)).toBe(false))
 
   it('fails when a number', async () => expect(await rules.max(10, '7')).toBe(false))
+
+  it('fails when a number', async () => expect(await rules.max(10, '7')).toBe(false))
+
+  it('fails when forced to validate on length', async () => expect(await rules.max(-10, '1', 'length')).toBe(false))
 })
 
 /**

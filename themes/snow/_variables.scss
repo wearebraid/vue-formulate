@@ -37,6 +37,8 @@ $formulate-yellow-l: #fff8d2;
   display: block;
   width: 100%;
   font-weight: 400;
+  line-height: 1.1em;
+  margin: 0;
 
   &::placeholder {
     color: $formulate-gray-dd;

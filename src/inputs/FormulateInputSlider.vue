@@ -16,7 +16,7 @@
 import FormulateInputMixin from '../FormulateInputMixin'
 
 export default {
-  name: 'FormulateInputText',
+  name: 'FormulateInputSlider',
   mixins: [FormulateInputMixin]
 }
 </script>

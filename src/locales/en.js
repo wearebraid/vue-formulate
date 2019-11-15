@@ -103,20 +103,28 @@ export default {
    * The maximum value allowed.
    */
   max: function ({ name, value, args }) {
-    if (!isNaN(value)) {
-      return `${name} must be less than ${args[0]}.`
+    if (Array.isArray(value)) {
+      return `You may only select ${args[0]} ${name}.`
     }
-    return `${name} must be less than ${args[0]} characters long.`
+    const force = Array.isArray(args) && args[1] ? args[1] : false
+    if ((!isNaN(value) && force !== 'length') || force === 'value') {
+      return `${s(name)} must be less than ${args[0]}.`
+    }
+    return `${s(name)} must be less than ${args[0]} characters long.`
   },
 
   /**
    * The maximum value allowed.
    */
   min: function ({ name, value, args }) {
-    if (!isNaN(value)) {
-      return `${name} must be more than ${args[0]}.`
+    if (Array.isArray(value)) {
+      return `You must select at least ${args[0]} ${name}.`
     }
-    return `${name} must be more than ${args[0]} characters long.`
+    const force = Array.isArray(args) && args[1] ? args[1] : false
+    if ((!isNaN(value) && force !== 'length') || force === 'value') {
+      return `${s(name)} must be more than ${args[0]}.`
+    }
+    return `${s(name)} must be more than ${args[0]} characters long.`
   },
 
   /**

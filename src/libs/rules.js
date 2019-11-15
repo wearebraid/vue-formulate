@@ -1,4 +1,5 @@
 import isUrl from 'is-url'
+import FileUpload from '../FileUpload'
 import { shallowEqualObjects, regexForFormat } from './utils'
 
 /**
@@ -124,17 +125,18 @@ export default {
   /**
    * Check the maximum value of a particular.
    */
-  max: function (value, minimum = 10) {
+  max: function (value, minimum = 10, force) {
     return Promise.resolve((() => {
-      minimum = Number(minimum)
-      if (!isNaN(value)) {
-        value = Number(value)
-        return value <= minimum
-      }
-      if (typeof value === 'string') {
+      if (Array.isArray(value)) {
+        minimum = !isNaN(minimum) ? Number(minimum) : minimum
         return value.length <= minimum
       }
-      if (Array.isArray(value)) {
+      if ((!isNaN(value) && force !== 'length') || force === 'value') {
+        value = !isNaN(value) ? Number(value) : value
+        return value <= minimum
+      }
+      if (typeof value === 'string' || (force === 'length')) {
+        value = !isNaN(value) ? value.toString() : value
         return value.length <= minimum
       }
       return false
@@ -146,6 +148,12 @@ export default {
    */
   mime: function (files, ...types) {
     return Promise.resolve((() => {
+      if (files instanceof FileUpload) {
+        if (files.hasUploader()) {
+          return false
+        }
+        files = files.getFiles()
+      }
       if (typeof window !== 'undefined' && typeof FileReader !== 'undefined' && typeof Blob !== 'undefined') {
         for (const i in files) {
           if (!types.includes(files[i].type)) {

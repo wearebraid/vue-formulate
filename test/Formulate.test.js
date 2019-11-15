@@ -53,6 +53,7 @@ test('installs on vue instance', () => {
     'FormulateInputErrors',
     'FormulateInputBox',
     'FormulateInputText',
+    'FormulateInputFile',
     'FormulateInputGroup',
     'FormulateInputSelect',
     'FormulateInputSlider',

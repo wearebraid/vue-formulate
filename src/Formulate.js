@@ -1,13 +1,16 @@
 import library from './libs/library'
 import rules from './libs/rules'
 import en from './locales/en'
+import FileUpload from './FileUpload'
 import isPlainObject from 'is-plain-object'
+import fauxUploader from './libs/faux-uploader'
 import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
 import FormulateInputErrors from './FormulateInputErrors.vue'
 import FormulateInputGroup from './FormulateInputGroup.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
+import FormulateInputFile from './inputs/FormulateInputFile.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
@@ -27,6 +30,7 @@ class Formulate {
         FormulateInputErrors,
         FormulateInputBox,
         FormulateInputText,
+        FormulateInputFile,
         FormulateInputGroup,
         FormulateInputSelect,
         FormulateInputSlider,
@@ -35,6 +39,7 @@ class Formulate {
       library,
       rules,
       locale: 'en',
+      uploader: fauxUploader,
       locales: {
         en
       }
@@ -121,6 +126,20 @@ class Formulate {
       return generators.default(validationContext)
     }
     return 'This field does not have a valid value'
+  }
+
+  /**
+   * Get the file uploader.
+   */
+  getUploader () {
+    return this.options.uploader || false
+  }
+
+  /**
+   * Create a new instance of an upload.
+   */
+  createUpload (fileList, context) {
+    return new FileUpload(fileList, context, this.options)
   }
 }
 

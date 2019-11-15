@@ -19,6 +19,10 @@ export default {
       labelPosition: this.logicalLabelPosition,
       attributes: this.elementAttributes,
       blurHandler: blurHandler.bind(this),
+      showImage: this.showImage,
+      uploadUrl: this.uploadUrl,
+      uploader: this.uploader || this.$formulate.getUploader(),
+      immediateUpload: this.immediateUpload,
       ...this.typeContext
     })
   },
