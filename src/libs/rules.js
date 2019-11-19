@@ -149,14 +149,10 @@ export default {
   mime: function (files, ...types) {
     return Promise.resolve((() => {
       if (files instanceof FileUpload) {
-        if (files.hasUploader()) {
-          return false
-        }
-        files = files.getFiles()
-      }
-      if (typeof window !== 'undefined' && typeof FileReader !== 'undefined' && typeof Blob !== 'undefined') {
-        for (const i in files) {
-          if (!types.includes(files[i].type)) {
+        const fileList = files.getFileList()
+        for (let i = 0; i < fileList.length; i++) {
+          const file = fileList[i]
+          if (!types.includes(file.type)) {
             return false
           }
         }

@@ -48,16 +48,36 @@ export default {
   },
   computed: {
     hasFiles () {
-      return (this.context.model instanceof FileUpload && this.context.model.files.length)
+      return !!(this.context.model instanceof FileUpload && this.context.model.files.length)
+    }
+  },
+  mounted () {
+    // Add a listener to the window to prevent drag/drops that miss the dropzone
+    // from opening the file and navigating the user away from the page.
+    if (window && this.context.preventWindowDrops) {
+      window.addEventListener('dragover', this.preventDefault)
+      window.addEventListener('drop', this.preventDefault)
+    }
+  },
+  destroyed () {
+    if (window && this.context.preventWindowDrops) {
+      window.removeEventListener('dragover', this.preventDefault)
+      window.removeEventListener('drop', this.preventDefault)
     }
   },
   methods: {
+    preventDefault (e) {
+      if (e.target.tagName !== 'INPUT' && e.target.getAttribute('type') !== 'file') {
+        e = e || event
+        e.preventDefault()
+      }
+    },
     handleFile () {
       const input = this.$refs.file
       if (input.files.length) {
-        this.context.model = this.$formulate.createUpload(input.files, this.context)
+        this.context.model = this.$formulate.createUpload(input, this.context)
       }
-      if (this.context.immediateUpload && this.context.model instanceof FileUpload) {
+      if (this.context.uploadBehavior === 'live' && this.context.model instanceof FileUpload) {
         this.context.model.upload()
       }
     },

@@ -22,7 +22,8 @@ export default {
       showImage: this.showImage,
       uploadUrl: this.uploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
-      immediateUpload: this.immediateUpload,
+      uploadBehavior: this.uploadBehavior,
+      preventWindowDrops: this.preventWindowDrops,
       ...this.typeContext
     })
   },

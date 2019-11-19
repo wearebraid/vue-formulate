@@ -115,11 +115,12 @@ var library = {
  * The file upload class holds and represents a file’s upload state durring
  * the upload flow.
  */
-var FileUpload = function FileUpload (fileList, context, options) {
-  this.fileList = fileList;
+var FileUpload = function FileUpload (input, context, options) {
+  this.input = input;
+  this.fileList = input.files;
   this.files = [];
   this.options = options;
-  this.setFileList(fileList);
+  this.addFileList(this.fileList);
   this.context = context;
 };
 
@@ -127,16 +128,28 @@ var FileUpload = function FileUpload (fileList, context, options) {
  * Produce an array of files and alert the callback.
  * @param {FileList}
  */
-FileUpload.prototype.setFileList = function setFileList (fileList) {
-  for (var i = 0; i < fileList.length; i++) {
-    var file = fileList.item(i);
-    this.files.push({
-      progress: 0,
+FileUpload.prototype.addFileList = function addFileList (fileList) {
+    var this$1 = this;
+
+  var loop = function ( i ) {
+    var file = fileList[i];
+    var uuid = nanoid();
+    var removeFile = function () {
+      this.removeFile(uuid);
+    };
+    this$1.files.push({
+      progress: false,
+      error: false,
+      complete: false,
+      justFinished: false,
       name: file.name || 'file-upload',
       file: file,
-      uuid: nanoid()
+      uuid: uuid,
+      removeFile: removeFile.bind(this$1)
     });
-  }
+  };
+
+    for (var i = 0; i < fileList.length; i++) loop( i );
 };
 
 /**
@@ -196,14 +209,41 @@ FileUpload.prototype.upload = function upload () {
     Promise.all(this$1.files.map(function (file) {
       return this$1.getUploader(
         file.file,
-        function (progress) { file.progress = progress; },
-        function (error) { return reject(new Error(error)); },
+        function (progress) {
+          file.progress = progress;
+          if (progress >= 100) {
+            if (!file.complete) {
+              file.justFinished = true;
+              setTimeout(function () { file.justFinished = false; }, this$1.options.uploadJustCompleteDuration);
+            }
+            file.complete = true;
+          }
+        },
+        function (error) {
+          file.progress = 0;
+          file.error = error;
+          file.complete = true;
+        },
         this$1.options
       )
     }))
       .then(function (results) { return resolve(results); })
       .catch(function (err) { throw new Error(err) });
   })
+};
+
+/**
+ * Remove a file from the uploader (and the file list)
+ * @param {string} uuid
+ */
+FileUpload.prototype.removeFile = function removeFile (uuid) {
+  this.files = this.files.filter(function (file) { return file.uuid !== uuid; });
+  if (window) {
+    var transfer = new DataTransfer();
+    this.files.map(function (file) { return transfer.items.add(file.file); });
+    this.fileList = transfer.files;
+    this.input.files = this.fileList;
+  }
 };
 
 /**
@@ -538,14 +578,10 @@ var rules = {
 
     return Promise.resolve((function () {
       if (files instanceof FileUpload) {
-        if (files.hasUploader()) {
-          return false
-        }
-        files = files.getFiles();
-      }
-      if (typeof window !== 'undefined' && typeof FileReader !== 'undefined' && typeof Blob !== 'undefined') {
-        for (var i in files) {
-          if (!types.includes(files[i].type)) {
+        var fileList = files.getFileList();
+        for (var i = 0; i < fileList.length; i++) {
+          var file = fileList[i];
+          if (!types.includes(file.type)) {
             return false
           }
         }
@@ -777,6 +813,16 @@ var en = {
   },
 
   /**
+   * The (field-level) error message for mime errors.
+   */
+  mime: function (ref) {
+    var name = ref.name;
+    var args = ref.args;
+
+    return ((sentence(name)) + " must of the the type: " + (args[0] || 'No file formats allowed.'))
+  },
+
+  /**
    * The maximum value allowed.
    */
   min: function (ref) {
@@ -842,17 +888,29 @@ var en = {
  */
 function fauxUploader (file, progress, error, options) {
   return new Promise(function (resolve, reject) {
-    var totalTime = options.fauxUploaderDuration || 2000;
+    var totalTime = (options.fauxUploaderDuration || 2000) * (0.5 + Math.random());
     var start = performance.now();
+    /**
+     * @todo - remove, intentional failure
+     */
+    var fail = (Math.random() > 0.5);
     var advance = function () { return setTimeout(function () {
       var elapsed = performance.now() - start;
       var currentProgress = Math.min(100, Math.round(elapsed / totalTime * 100));
       progress(currentProgress);
+
+      /**
+       * @todo - remove, intentional failure
+       */
+      if (fail && currentProgress > 50) {
+        return error('There was an error uploading the file.')
+      }
+
       if (currentProgress >= 100) {
-        resolve({
+        return resolve({
           url: 'http://via.placeholder.com/350x150.png',
           name: file.name
-        });
+        })
       } else {
         advance();
       }
@@ -881,7 +939,8 @@ var context = {
       showImage: this.showImage,
       uploadUrl: this.uploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
-      immediateUpload: this.immediateUpload},
+      uploadBehavior: this.uploadBehavior,
+      preventWindowDrops: this.preventWindowDrops},
       this.typeContext))
   },
   nameOrFallback: nameOrFallback,
@@ -1182,7 +1241,11 @@ var script = {
       type: [Function, Object, Boolean],
       default: false
     },
-    immediateUpload: {
+    uploadBehavior: {
+      type: Boolean,
+      default: true
+    },
+    preventWindowDrops: {
       type: Boolean,
       default: true
     }
@@ -2200,18 +2263,52 @@ var __vue_render__$6 = function() {
         "ul",
         { staticClass: "formulate-files" },
         _vm._l(_vm.fileUploads, function(file) {
-          return _c("li", { key: file.uuid, staticClass: "formulate-file" }, [
-            _c("span", {
-              staticClass: "formualte-file-name",
-              domProps: { textContent: _vm._s(file.name) }
-            }),
-            _vm._v(" "),
-            file.progress > 0 && file.progress < 100
-              ? _c("span", {
-                  domProps: { textContent: _vm._s(file.progress + "%") }
-                })
-              : _vm._e()
-          ])
+          return _c(
+            "li",
+            { key: file.uuid, attrs: { "data-has-error": !!file.error } },
+            [
+              _c("div", { staticClass: "formulate-file" }, [
+                _c("div", {
+                  staticClass: "formualte-file-name",
+                  domProps: { textContent: _vm._s(file.name) }
+                }),
+                _vm._v(" "),
+                file.progress !== false
+                  ? _c(
+                      "div",
+                      {
+                        staticClass: "formulate-file-progress",
+                        attrs: {
+                          "data-just-finished": file.justFinished,
+                          "data-is-finished":
+                            !file.justFinished && file.complete
+                        }
+                      },
+                      [
+                        _c("div", {
+                          staticClass: "formulate-file-progress-inner",
+                          style: { width: file.progress + "%" }
+                        })
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                (file.complete && !file.justFinished) || file.progress === false
+                  ? _c("div", {
+                      staticClass: "formulate-file-remove",
+                      on: { click: file.removeFile }
+                    })
+                  : _vm._e()
+              ]),
+              _vm._v(" "),
+              file.error
+                ? _c("div", {
+                    staticClass: "formulate-file-upload-error",
+                    domProps: { textContent: _vm._s(file.error) }
+                  })
+                : _vm._e()
+            ]
+          )
         }),
         0
       )
@@ -2264,16 +2361,36 @@ var script$7 = {
   },
   computed: {
     hasFiles: function hasFiles () {
-      return (this.context.model instanceof FileUpload && this.context.model.files.length)
+      return !!(this.context.model instanceof FileUpload && this.context.model.files.length)
+    }
+  },
+  mounted: function mounted () {
+    // Add a listener to the window to prevent drag/drops that miss the dropzone
+    // from opening the file and navigating the user away from the page.
+    if (window && this.context.preventWindowDrops) {
+      window.addEventListener('dragover', this.preventDefault);
+      window.addEventListener('drop', this.preventDefault);
+    }
+  },
+  destroyed: function destroyed () {
+    if (window && this.context.preventWindowDrops) {
+      window.removeEventListener('dragover', this.preventDefault);
+      window.removeEventListener('drop', this.preventDefault);
     }
   },
   methods: {
+    preventDefault: function preventDefault (e) {
+      if (e.target.tagName !== 'INPUT' && e.target.getAttribute('type') !== 'file') {
+        e = e || event;
+        e.preventDefault();
+      }
+    },
     handleFile: function handleFile () {
       var input = this.$refs.file;
       if (input.files.length) {
-        this.context.model = this.$formulate.createUpload(input.files, this.context);
+        this.context.model = this.$formulate.createUpload(input, this.context);
       }
-      if (this.context.immediateUpload && this.context.model instanceof FileUpload) {
+      if (this.context.uploadBehavior === 'live' && this.context.model instanceof FileUpload) {
         this.context.model.upload();
       }
     },
@@ -2819,6 +2936,7 @@ var Formulate = function Formulate () {
     rules: rules,
     locale: 'en',
     uploader: fauxUploader,
+    uploadJustCompleteDuration: 1000,
     locales: {
       en: en
     }

@@ -32,7 +32,6 @@ test('type "radio" with options renders a group', () => {
   expect(wrapper.contains(FormulateInputGroup)).toBe(true)
 })
 
-
 test('labelPosition of type "checkbox" defaults to after', () => {
   const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox' } })
   expect(wrapper.vm.context.labelPosition).toBe('after')

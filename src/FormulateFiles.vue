@@ -6,15 +6,34 @@
     <li
       v-for="file in fileUploads"
       :key="file.uuid"
-      class="formulate-file"
+      :data-has-error="!!file.error"
     >
-      <span
-        class="formualte-file-name"
-        v-text="file.name"
-      />
-      <span
-        v-if="file.progress > 0 && file.progress < 100"
-        v-text="`${file.progress}%`"
+      <div class="formulate-file">
+        <div
+          class="formualte-file-name"
+          v-text="file.name"
+        />
+        <div
+          v-if="file.progress !== false"
+          :data-just-finished="file.justFinished"
+          :data-is-finished="!file.justFinished && file.complete"
+          class="formulate-file-progress"
+        >
+          <div
+            class="formulate-file-progress-inner"
+            :style="{width: file.progress + '%'}"
+          />
+        </div>
+        <div
+          v-if="(file.complete && !file.justFinished) || file.progress === false"
+          class="formulate-file-remove"
+          @click="file.removeFile"
+        />
+      </div>
+      <div
+        v-if="file.error"
+        class="formulate-file-upload-error"
+        v-text="file.error"
       />
     </li>
   </ul>

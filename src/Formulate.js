@@ -40,6 +40,7 @@ class Formulate {
       rules,
       locale: 'en',
       uploader: fauxUploader,
+      uploadJustCompleteDuration: 1000,
       locales: {
         en
       }

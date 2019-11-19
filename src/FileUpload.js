@@ -10,11 +10,12 @@ class FileUpload {
    * @param {FileList} fileList
    * @param {object} context
    */
-  constructor (fileList, context, options) {
-    this.fileList = fileList
+  constructor (input, context, options) {
+    this.input = input
+    this.fileList = input.files
     this.files = []
     this.options = options
-    this.setFileList(fileList)
+    this.addFileList(this.fileList)
     this.context = context
   }
 
@@ -22,14 +23,22 @@ class FileUpload {
    * Produce an array of files and alert the callback.
    * @param {FileList}
    */
-  setFileList (fileList) {
+  addFileList (fileList) {
     for (let i = 0; i < fileList.length; i++) {
-      const file = fileList.item(i)
+      const file = fileList[i]
+      const uuid = nanoid()
+      const removeFile = function () {
+        this.removeFile(uuid)
+      }
       this.files.push({
-        progress: 0,
+        progress: false,
+        error: false,
+        complete: false,
+        justFinished: false,
         name: file.name || 'file-upload',
-        file: file,
-        uuid: nanoid()
+        file,
+        uuid,
+        removeFile: removeFile.bind(this)
       })
     }
   }
@@ -85,14 +94,41 @@ class FileUpload {
       Promise.all(this.files.map(file => {
         return this.getUploader(
           file.file,
-          (progress) => { file.progress = progress },
-          (error) => reject(new Error(error)),
+          (progress) => {
+            file.progress = progress
+            if (progress >= 100) {
+              if (!file.complete) {
+                file.justFinished = true
+                setTimeout(() => { file.justFinished = false }, this.options.uploadJustCompleteDuration)
+              }
+              file.complete = true
+            }
+          },
+          (error) => {
+            file.progress = 0
+            file.error = error
+            file.complete = true
+          },
           this.options
         )
       }))
         .then(results => resolve(results))
         .catch(err => { throw new Error(err) })
     })
+  }
+
+  /**
+   * Remove a file from the uploader (and the file list)
+   * @param {string} uuid
+   */
+  removeFile (uuid) {
+    this.files = this.files.filter(file => file.uuid !== uuid)
+    if (window) {
+      const transfer = new DataTransfer()
+      this.files.map(file => transfer.items.add(file.file))
+      this.fileList = transfer.files
+      this.input.files = this.fileList
+    }
   }
 
   /**

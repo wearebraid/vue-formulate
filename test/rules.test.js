@@ -1,4 +1,5 @@
 import rules from '@/libs/rules'
+import FileUpload from '../src/FileUpload'
 
 /**
  * Required rule
@@ -295,9 +296,26 @@ describe('email', () => {
  * Mime types.
  */
 describe('mime', () => {
-  it('passes basic image/jpeg stack', async () => expect(await rules.mime([{type: 'image/jpeg'}], 'image/png', 'image/jpeg')).toBe(true))
+  it('passes basic image/jpeg stack', async () => {
+    const fileUpload = new FileUpload({
+      files: [ { type: 'image/jpeg' } ]
+    })
+    expect(await rules.mime(fileUpload, 'image/png', 'image/jpeg')).toBe(true)
+  })
 
-  it('fails when not in stack', async () => expect(await rules.mime([{type: 'application/json'}], 'image/png', 'image/jpeg')).toBe(false))
+  it('passes when match is at begining of stack', async () => {
+    const fileUpload = new FileUpload({
+      files: [ { type: 'document/pdf' } ]
+    })
+    expect(await rules.mime(fileUpload, 'document/pdf')).toBe(true)
+  })
+
+  it('fails when not in stack', async () => {
+    const fileUpload = new FileUpload({
+      files: [ { type: 'application/json' } ]
+    })
+    expect(await rules.mime(fileUpload, 'image/png', 'image/jpeg')).toBe(false)
+  })
 })
 
 /**

@@ -31,7 +31,8 @@
     margin: 0;
   }
 
-  .formulate-input-error {
+  .formulate-input-error,
+  .formulate-file-upload-error {
     color: $formulate-error;
     font-size: .8em;
     font-weight: 300;
@@ -286,11 +287,7 @@
     .formulate-input-upload-area {
       width: 100%;
       position: relative;
-      padding: 2em;
-
-      &[data-has-files] {
-        padding: 0;
-      }
+      padding: 2em 0;
 
       input {
         cursor: pointer;
@@ -304,6 +301,15 @@
         width: 100%;
         height: 100%;
         z-index: 5;
+      }
+
+
+      &[data-has-files] {
+        padding: 0;
+
+        input {
+          display: none;
+        }
       }
 
       &-mask {
@@ -325,6 +331,8 @@
           content: '';
           background-color: $formulate-gray-dd;
           mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58 58"><path d="M29,58A29,29,0,1,0,0,29,29,29,0,0,0,29,58ZM29,4A25,25,0,1,1,4,29,25,25,0,0,1,29,4Z"/><polygon points="27 22 27 44.4 31 44.4 31 22 41.7 31.1 44.3 28.1 29 15 13.7 28.1 16.3 31.1 27 22"/></svg>');
+          mask-repeat: no-repeat;
+          mask-position: center;
           width: 2em;
           height: 2em;
           position: absolute;
@@ -345,17 +353,145 @@
       }
     }
 
+
+
     .formulate-files {
       list-style-type: none;
       margin: 0;
       padding: 0;
 
+      .formulate-file-progress {
+        background-color: $formulate-gray-d;
+        height: .3em;
+        border-radius: 1.25em;
+        width: 5em;
+        overflow: hidden;
+        position: absolute;
+        right: .75em;
+        transition: height .25s, width .25s;
+        z-index: 2;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          display: block;
+          opacity: 0;
+          transform: scale(.08);
+          background-color: $formulate-white;
+          mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M8.76,56.2c-6.38-6.34,3.26-16,9.64-9.69L38,65.88,80.56,23.29c6.38-6.38,16.07,3.32,9.69,9.69L42.84,80.37a6.83,6.83,0,0,1-9.65,0Z"/></svg>');
+          mask-size: 77%;
+          mask-repeat: no-repeat;
+          mask-position: center;
+          z-index: 3;
+        }
+
+        &[data-just-finished] {
+          width: 1.25em;
+          height: 1.25em;
+
+          &::before {
+            transition: transform .25s .2s, opacity .25s .2s;
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        &[data-is-finished] {
+          transition: height .25s, width .25s, left .25s, top, .25s, border-radius .25s;
+          width: .3em;
+          height: 100%;
+          right: 0;
+          border-radius: 0;
+
+
+          &::before {
+            transition: opacity .1s;
+            opacity: 0;
+          }
+        }
+
+        .formulate-file-progress-inner {
+          background-color: $formulate-green;
+          width: 1%;
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          top: 0;
+          z-index: 2;
+        }
+      }
+
+      .formualte-file-name {
+        padding-left: 1.5em;
+        padding-right: 2em;
+
+        &::before {
+          position: absolute;
+          left: .7em;
+          top: 50%;
+          margin-top: -.7em;
+          background-color: $formulate-gray-dd;
+          content: '';
+          mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.06 83.59"><path d="M55.94,83.59a8.16,8.16,0,0,0,8.12-8.16V19.12a1.77,1.77,0,0,0-.52-1.25L46.21.59A1.69,1.69,0,0,0,45.14.08L44.69,0l-.18,0H8.13A8.18,8.18,0,0,0,0,8.16V75.41a8.16,8.16,0,0,0,8.13,8.16H55.94ZM46.68,6,58.11,17.38H46.68ZM3.52,75.43V8.16A4.64,4.64,0,0,1,8.13,3.52h35V19.16a1.75,1.75,0,0,0,1.76,1.74H60.55V75.43a4.65,4.65,0,0,1-4.61,4.65H8.13A4.65,4.65,0,0,1,3.52,75.43Z"/></svg>');
+          mask-repeat: no-repeat;
+          mask-size: contain;
+          width: 1.25em;
+          height: 1.25em;
+          display: inline-block;
+          margin-right: .5em;
+        }
+      }
+
+      .formulate-file-remove {
+        width: 1.25em;
+        height: 1.25em;
+        border-radius: 1em;
+        border: 1px solid $formulate-gray-dd;
+        background-color: $formulate-gray-dd;
+        mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 59.1 59.2"><path d="M1.6,57.7a5,5,0,0,0,3.5,1.5,4.85,4.85,0,0,0,3.5-1.5l21-21,21,21a5,5,0,0,0,3.5,1.5,4.85,4.85,0,0,0,3.5-1.5,5,5,0,0,0,0-7.1l-21-21,21-21a5,5,0,0,0,0-7.1,5,5,0,0,0-7.1,0l-21,21L8.6,1.7a5,5,0,0,0-7.1,0,5,5,0,0,0,0,7.1l21,21L1.6,50.7A4.83,4.83,0,0,0,1.6,57.7Z"/></svg>');
+        mask-size: .6em;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        cursor: pointer;
+        position: absolute;
+        right: .75em;
+        z-index: 1;
+        transition: transform .25s;
+
+        @media (pointer: fine) {
+          &:hover {
+            transform: scale(1.5);
+          }
+        }
+      }
+
       li {
+        display: block;
+
+        &[data-has-error] {
+          .formulate-file-progress {
+            background-color: $formulate-error-l;
+          }
+        }
+
+        & + li {
+          margin-top: .5em;
+        }
+      }
+
+      .formulate-file {
         @include baseinput;
         display: block;
         width: 100%;
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
 
         @mixin progress {
           appearance: none;
@@ -369,5 +505,21 @@
         }
       }
     }
+
+
+// Image uploads
+// -----------------------------------------------------------------------------
+
+  [data-type="image"] {
+    .formulate-input-upload-area {
+      .formulate-input-upload-area-mask {
+        &::before {
+          mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 71.05"><path d="M82.89,0H7.1A7.12,7.12,0,0,0,0,7.11V64a7.11,7.11,0,0,0,7.1,7.1H82.9A7.11,7.11,0,0,0,90,64V7.11A7.12,7.12,0,0,0,82.89,0ZM69.28,39.35a5.44,5.44,0,0,0-8,0L50.58,50.74,32.38,30.88a5.31,5.31,0,0,0-7.92,0L4.74,52.4V7.11A2.37,2.37,0,0,1,7.11,4.74H82.9a2.37,2.37,0,0,1,2.36,2.37V56.3Z"/><circle cx="67.74" cy="22.26" r="8.53"/></svg>');
+        }
+      }
+    }
+  }
+
+
   }
 }

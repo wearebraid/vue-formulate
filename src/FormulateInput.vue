@@ -149,7 +149,11 @@ export default {
       type: [Function, Object, Boolean],
       default: false
     },
-    immediateUpload: {
+    uploadBehavior: {
+      type: Boolean,
+      default: true
+    },
+    preventWindowDrops: {
       type: Boolean,
       default: true
     }
