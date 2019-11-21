@@ -73,12 +73,22 @@ export default {
       }
     },
     handleFile () {
+      this.isOver = false
       const input = this.$refs.file
       if (input.files.length) {
         this.context.model = this.$formulate.createUpload(input, this.context)
       }
-      if (this.context.uploadBehavior === 'live' && this.context.model instanceof FileUpload) {
-        this.context.model.upload()
+      this.attemptImmediateUpload()
+    },
+    attemptImmediateUpload () {
+      if (this.context.uploadBehavior === 'live' &&
+        this.context.model instanceof FileUpload) {
+        this.context.hasValidationErrors().then(errors => {
+          console.log('validation errors', errors)
+          if (!errors) {
+            this.context.model.upload()
+          }
+        })
       }
     },
     handleDragOver (e) {

@@ -159,6 +159,9 @@ FileUpload.prototype.hasUploader = function hasUploader () {
   return !!this.context.uploader
 };
 
+/**
+ * Check if the given uploader is axios instance.
+ */
 FileUpload.prototype.uploaderIsAxios = function uploaderIsAxios () {
   if (
     this.hasUploader &&
@@ -207,7 +210,7 @@ FileUpload.prototype.upload = function upload () {
       return reject(new Error('No uploader has been defined'))
     }
     Promise.all(this$1.files.map(function (file) {
-      return this$1.getUploader(
+      return file.path ? Promise.resolve(file.path) : this$1.getUploader(
         file.file,
         function (progress) {
           file.progress = progress;
@@ -940,7 +943,8 @@ var context = {
       uploadUrl: this.uploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
       uploadBehavior: this.uploadBehavior,
-      preventWindowDrops: this.preventWindowDrops},
+      preventWindowDrops: this.preventWindowDrops,
+      hasValidationErrors: this.hasValidationErrors},
       this.typeContext))
   },
   nameOrFallback: nameOrFallback,
@@ -1242,8 +1246,8 @@ var script = {
       default: false
     },
     uploadBehavior: {
-      type: Boolean,
-      default: true
+      type: String,
+      default: 'live'
     },
     preventWindowDrops: {
       type: Boolean,
@@ -1256,7 +1260,8 @@ var script = {
       localAttributes: {},
       internalModelProxy: this.formulateValue,
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
-      validationErrors: []
+      validationErrors: [],
+      pendingValidation: Promise.resolve()
     }
   },
   computed: Object.assign({}, context,
@@ -1303,7 +1308,7 @@ var script = {
       var this$1 = this;
 
       var rules = parseRules(this.validation, this.$formulate.rules());
-      Promise.all(
+      this.pendingValidation = Promise.all(
         rules.map(function (ref) {
           var rule = ref[0];
           var args = ref[1];
@@ -1319,7 +1324,20 @@ var script = {
         })
       )
         .then(function (result) { return result.filter(function (result) { return result; }); })
-        .then(function (errorMessages) { this$1.validationErrors = errorMessages; });
+        .then(function (errorMessages) {
+          console.log('setting validation errors');
+          this$1.validationErrors = errorMessages;
+        });
+      return this.pendingValidation
+    },
+    hasValidationErrors: function hasValidationErrors () {
+      var this$1 = this;
+
+      return new Promise(function (resolve) {
+        this$1.$nextTick(function () {
+          this$1.pendingValidation.then(function () { return resolve(!!this$1.validationErrors.length); });
+        });
+      })
     }
   }
 };
@@ -2386,12 +2404,24 @@ var script$7 = {
       }
     },
     handleFile: function handleFile () {
+      this.isOver = false;
       var input = this.$refs.file;
       if (input.files.length) {
         this.context.model = this.$formulate.createUpload(input, this.context);
       }
-      if (this.context.uploadBehavior === 'live' && this.context.model instanceof FileUpload) {
-        this.context.model.upload();
+      this.attemptImmediateUpload();
+    },
+    attemptImmediateUpload: function attemptImmediateUpload () {
+      var this$1 = this;
+
+      if (this.context.uploadBehavior === 'live' &&
+        this.context.model instanceof FileUpload) {
+        this.context.hasValidationErrors().then(function (errors) {
+          console.log('validation errors', errors);
+          if (!errors) {
+            this$1.context.model.upload();
+          }
+        });
       }
     },
     handleDragOver: function handleDragOver (e) {

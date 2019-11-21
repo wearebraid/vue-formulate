@@ -150,8 +150,8 @@ export default {
       default: false
     },
     uploadBehavior: {
-      type: Boolean,
-      default: true
+      type: String,
+      default: 'live'
     },
     preventWindowDrops: {
       type: Boolean,
@@ -164,7 +164,8 @@ export default {
       localAttributes: {},
       internalModelProxy: this.formulateValue,
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
-      validationErrors: []
+      validationErrors: [],
+      pendingValidation: Promise.resolve()
     }
   },
   computed: {
@@ -211,7 +212,7 @@ export default {
     },
     performValidation () {
       const rules = parseRules(this.validation, this.$formulate.rules())
-      Promise.all(
+      this.pendingValidation = Promise.all(
         rules.map(([rule, args]) => {
           return rule(this.context.model, ...args)
             .then(res => res ? false : this.$formulate.validationMessage(rule.name, {
@@ -224,7 +225,18 @@ export default {
         })
       )
         .then(result => result.filter(result => result))
-        .then(errorMessages => { this.validationErrors = errorMessages })
+        .then(errorMessages => {
+          console.log('setting validation errors')
+          this.validationErrors = errorMessages
+        })
+      return this.pendingValidation
+    },
+    hasValidationErrors () {
+      return new Promise(resolve => {
+        this.$nextTick(() => {
+          this.pendingValidation.then(() => resolve(!!this.validationErrors.length))
+        })
+      })
     }
   }
 }

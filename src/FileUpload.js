@@ -50,6 +50,9 @@ class FileUpload {
     return !!this.context.uploader
   }
 
+  /**
+   * Check if the given uploader is axios instance.
+   */
   uploaderIsAxios () {
     if (
       this.hasUploader &&
@@ -92,7 +95,7 @@ class FileUpload {
         return reject(new Error('No uploader has been defined'))
       }
       Promise.all(this.files.map(file => {
-        return this.getUploader(
+        return file.path ? Promise.resolve(file.path) : this.getUploader(
           file.file,
           (progress) => {
             file.progress = progress

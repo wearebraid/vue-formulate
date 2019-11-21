@@ -24,6 +24,7 @@ export default {
       uploader: this.uploader || this.$formulate.getUploader(),
       uploadBehavior: this.uploadBehavior,
       preventWindowDrops: this.preventWindowDrops,
+      hasValidationErrors: this.hasValidationErrors,
       ...this.typeContext
     })
   },
