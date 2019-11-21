@@ -19,7 +19,7 @@ export default {
       labelPosition: this.logicalLabelPosition,
       attributes: this.elementAttributes,
       blurHandler: blurHandler.bind(this),
-      showImage: this.showImage,
+      imageBehavior: this.imageBehavior,
       uploadUrl: this.uploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
       uploadBehavior: this.uploadBehavior,

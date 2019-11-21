@@ -38,7 +38,9 @@ class FileUpload {
         name: file.name || 'file-upload',
         file,
         uuid,
-        removeFile: removeFile.bind(this)
+        path: false,
+        removeFile: removeFile.bind(this),
+        previewData: false
       })
     }
   }
@@ -132,6 +134,20 @@ class FileUpload {
       this.fileList = transfer.files
       this.input.files = this.fileList
     }
+  }
+
+  /**
+   * load image previews for all uploads.
+   */
+  loadPreviews () {
+    this.files.map(file => {
+      console.log(file.type)
+      if (!file.previewData && window && window.FileReader && /^image\//.test(file.file.type)) {
+        const reader = new FileReader()
+        reader.onload = e => Object.assign(file, { previewData: e.target.result })
+        reader.readAsDataURL(file.file)
+      }
+    })
   }
 
   /**

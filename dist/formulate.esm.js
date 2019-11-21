@@ -145,7 +145,9 @@ FileUpload.prototype.addFileList = function addFileList (fileList) {
       name: file.name || 'file-upload',
       file: file,
       uuid: uuid,
-      removeFile: removeFile.bind(this$1)
+      path: false,
+      removeFile: removeFile.bind(this$1),
+      previewData: false
     });
   };
 
@@ -247,6 +249,20 @@ FileUpload.prototype.removeFile = function removeFile (uuid) {
     this.fileList = transfer.files;
     this.input.files = this.fileList;
   }
+};
+
+/**
+ * load image previews for all uploads.
+ */
+FileUpload.prototype.loadPreviews = function loadPreviews () {
+  this.files.map(function (file) {
+    console.log(file.type);
+    if (!file.previewData && window && window.FileReader && /^image\//.test(file.file.type)) {
+      var reader = new FileReader();
+      reader.onload = function (e) { return Object.assign(file, { previewData: e.target.result }); };
+      reader.readAsDataURL(file.file);
+    }
+  });
 };
 
 /**
@@ -939,7 +955,7 @@ var context = {
       labelPosition: this.logicalLabelPosition,
       attributes: this.elementAttributes,
       blurHandler: blurHandler.bind(this),
-      showImage: this.showImage,
+      imageBehavior: this.imageBehavior,
       uploadUrl: this.uploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
       uploadBehavior: this.uploadBehavior,
@@ -1233,9 +1249,9 @@ var script = {
       type: Boolean,
       default: false
     },
-    showImage: {
-      type: Boolean,
-      default: true
+    imageBehavior: {
+      type: String,
+      default: 'preview'
     },
     uploadUrl: {
       type: [String, Boolean],
@@ -1324,10 +1340,7 @@ var script = {
         })
       )
         .then(function (result) { return result.filter(function (result) { return result; }); })
-        .then(function (errorMessages) {
-          console.log('setting validation errors');
-          this$1.validationErrors = errorMessages;
-        });
+        .then(function (errorMessages) { this$1.validationErrors = errorMessages; });
       return this.pendingValidation
     },
     hasValidationErrors: function hasValidationErrors () {
@@ -2259,11 +2272,27 @@ var script$6 = {
     files: {
       type: FileUpload,
       required: true
+    },
+    imagePreview: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
     fileUploads: function fileUploads () {
       return this.files.files || []
+    }
+  },
+  watch: {
+    files: function files () {
+      if (this.imagePreview) {
+        this.files.loadPreviews();
+      }
+    }
+  },
+  mounted: function mounted () {
+    if (this.imagePreview) {
+      this.files.loadPreviews();
     }
   }
 };
@@ -2283,9 +2312,21 @@ var __vue_render__$6 = function() {
         _vm._l(_vm.fileUploads, function(file) {
           return _c(
             "li",
-            { key: file.uuid, attrs: { "data-has-error": !!file.error } },
+            {
+              key: file.uuid,
+              attrs: {
+                "data-has-error": !!file.error,
+                "data-has-preview": _vm.imagePreview && file.previewData
+              }
+            },
             [
               _c("div", { staticClass: "formulate-file" }, [
+                _vm.imagePreview && file.previewData
+                  ? _c("div", { staticClass: "formulate-file-image-preview" }, [
+                      _c("img", { attrs: { src: file.previewData } })
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
                 _c("div", {
                   staticClass: "formualte-file-name",
                   domProps: { textContent: _vm._s(file.name) }
@@ -2417,7 +2458,6 @@ var script$7 = {
       if (this.context.uploadBehavior === 'live' &&
         this.context.model instanceof FileUpload) {
         this.context.hasValidationErrors().then(function (errors) {
-          console.log('validation errors', errors);
           if (!errors) {
             this$1.context.model.upload();
           }
@@ -2490,7 +2530,14 @@ var __vue_render__$7 = function() {
           }),
           _vm._v(" "),
           _vm.hasFiles
-            ? _c("FormulateFiles", { attrs: { files: _vm.context.model } })
+            ? _c("FormulateFiles", {
+                attrs: {
+                  files: _vm.context.model,
+                  "image-preview":
+                    _vm.context.type === "image" &&
+                    _vm.context.imageBehavior === "preview"
+                }
+              })
             : _vm._e()
         ],
         1

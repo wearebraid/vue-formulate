@@ -25,6 +25,7 @@
       <FormulateFiles
         v-if="hasFiles"
         :files="context.model"
+        :image-preview="context.type === 'image' && context.imageBehavior === 'preview'"
       />
     </div>
   </div>
@@ -84,7 +85,6 @@ export default {
       if (this.context.uploadBehavior === 'live' &&
         this.context.model instanceof FileUpload) {
         this.context.hasValidationErrors().then(errors => {
-          console.log('validation errors', errors)
           if (!errors) {
             this.context.model.upload()
           }

@@ -7,8 +7,17 @@
       v-for="file in fileUploads"
       :key="file.uuid"
       :data-has-error="!!file.error"
+      :data-has-preview="imagePreview && file.previewData"
     >
       <div class="formulate-file">
+        <div
+          v-if="imagePreview && file.previewData"
+          class="formulate-file-image-preview"
+        >
+          <img
+            :src="file.previewData"
+          >
+        </div>
         <div
           class="formualte-file-name"
           v-text="file.name"
@@ -48,11 +57,27 @@ export default {
     files: {
       type: FileUpload,
       required: true
+    },
+    imagePreview: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
     fileUploads () {
       return this.files.files || []
+    }
+  },
+  watch: {
+    files () {
+      if (this.imagePreview) {
+        this.files.loadPreviews()
+      }
+    }
+  },
+  mounted () {
+    if (this.imagePreview) {
+      this.files.loadPreviews()
     }
   }
 }

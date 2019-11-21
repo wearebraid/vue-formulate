@@ -137,9 +137,9 @@ export default {
       type: Boolean,
       default: false
     },
-    showImage: {
-      type: Boolean,
-      default: true
+    imageBehavior: {
+      type: String,
+      default: 'preview'
     },
     uploadUrl: {
       type: [String, Boolean],
@@ -225,10 +225,7 @@ export default {
         })
       )
         .then(result => result.filter(result => result))
-        .then(errorMessages => {
-          console.log('setting validation errors')
-          this.validationErrors = errorMessages
-        })
+        .then(errorMessages => { this.validationErrors = errorMessages })
       return this.pendingValidation
     },
     hasValidationErrors () {

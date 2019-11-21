@@ -405,7 +405,7 @@
           width: .3em;
           height: 100%;
           right: 0;
-          border-radius: 0;
+          border-radius: 0 .23em .23em 0;
 
 
           &::before {
@@ -478,6 +478,14 @@
           }
         }
 
+        &[data-has-preview] {
+          .formualte-file-name {
+            &:before {
+              display: none;
+            }
+          }
+        }
+
         & + li {
           margin-top: .5em;
         }
@@ -488,10 +496,9 @@
         display: block;
         width: 100%;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
         position: relative;
-        overflow: hidden;
 
         @mixin progress {
           appearance: none;
@@ -502,6 +509,38 @@
 
         ::-webkit-progress-bar {
           @include progress;
+        }
+      }
+
+      .formulate-file-image-preview {
+        width: 3em;
+        height: 3em;
+        position: relative;
+        z-index: 2;
+        left: -1px;
+        box-shadow: 0 0 0 1px $formulate-gray;
+        transition: transform .25s, box-shadow .25s, background-color .25s;
+
+        @media (pointer: fine) {
+          &:hover {
+            transition-delay: .2s;
+            transform: scale(3);
+            background-color: $formulate-white;
+            box-shadow: 0 0 2px 0 rgba(0, 0, 0, .1);
+          }
+        }
+
+        img {
+          display: block;
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          top: 0;
+          object-fit: contain;
+          transition: all .25s;
         }
       }
     }

@@ -363,6 +363,8 @@
       display: block; }
       .formulate-input[data-classification="file"] .formulate-files li[data-has-error] .formulate-file-progress {
         background-color: #dc2c2c; }
+      .formulate-input[data-classification="file"] .formulate-files li[data-has-preview] .formualte-file-name:before {
+        display: none; }
       .formulate-input[data-classification="file"] .formulate-files li + li {
         margin-top: .5em; }
     .formulate-input[data-classification="file"] .formulate-files .formulate-file {
@@ -382,7 +384,7 @@
       display: block;
       width: 100%;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       position: relative;
       overflow: hidden; }
@@ -396,5 +398,22 @@
         height: .5em;
         border-radius: .5em;
         overflow: hidden; }
+    .formulate-input[data-classification="file"] .formulate-files .formulate-file-image-preview {
+      width: 3em;
+      height: 3em;
+      position: relative;
+      z-index: 2;
+      left: -1px;
+      box-shadow: 0 0 0 1px #efefef; }
+      .formulate-input[data-classification="file"] .formulate-files .formulate-file-image-preview img {
+        display: block;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        object-fit: cover; }
   .formulate-input[data-classification="file"] [data-type="image"] .formulate-input-upload-area .formulate-input-upload-area-mask::before {
     mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 71.05"><path d="M82.89,0H7.1A7.12,7.12,0,0,0,0,7.11V64a7.11,7.11,0,0,0,7.1,7.1H82.9A7.11,7.11,0,0,0,90,64V7.11A7.12,7.12,0,0,0,82.89,0ZM69.28,39.35a5.44,5.44,0,0,0-8,0L50.58,50.74,32.38,30.88a5.31,5.31,0,0,0-7.92,0L4.74,52.4V7.11A2.37,2.37,0,0,1,7.11,4.74H82.9a2.37,2.37,0,0,1,2.36,2.37V56.3Z"/><circle cx="67.74" cy="22.26" r="8.53"/></svg>'); }
