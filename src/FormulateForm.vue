@@ -95,7 +95,7 @@ export default {
     formSubmitted () {
       // perform validation here
       this.showErrors()
-      this.$emit('submit', this.formModel)
+      this.$emit('submit', this.internalFormModelProxy)
     },
     showErrors () {
       for (const fieldName in this.registry) {

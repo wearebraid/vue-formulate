@@ -1638,7 +1638,7 @@ var script$1 = {
     formSubmitted: function formSubmitted () {
       // perform validation here
       this.showErrors();
-      this.$emit('submit', this.formModel);
+      this.$emit('submit', this.internalFormModelProxy);
     },
     showErrors: function showErrors () {
       for (var fieldName in this.registry) {
