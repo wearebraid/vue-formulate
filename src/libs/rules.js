@@ -164,17 +164,18 @@ export default {
   /**
    * Check the minimum value of a particular.
    */
-  min: function (value, minimum = 1) {
+  min: function (value, minimum = 1, force) {
     return Promise.resolve((() => {
-      minimum = Number(minimum)
-      if (!isNaN(value)) {
-        value = Number(value)
-        return value >= minimum
-      }
-      if (typeof value === 'string') {
+      if (Array.isArray(value)) {
+        minimum = !isNaN(minimum) ? Number(minimum) : minimum
         return value.length >= minimum
       }
-      if (Array.isArray(value)) {
+      if ((!isNaN(value) && force !== 'length') || force === 'value') {
+        value = !isNaN(value) ? Number(value) : value
+        return value >= minimum
+      }
+      if (typeof value === 'string' || (force === 'length')) {
+        value = !isNaN(value) ? value.toString() : value
         return value.length >= minimum
       }
       return false

@@ -15,6 +15,7 @@ export default {
       classification: this.classification,
       component: this.component,
       id: this.id || this.defaultId,
+      hasLabel: (this.label && this.classification !== 'button'),
       label: this.label,
       labelPosition: this.logicalLabelPosition,
       attributes: this.elementAttributes,
@@ -125,10 +126,10 @@ function showFieldErrors () {
  * Return the element’s name, or select a fallback.
  */
 function nameOrFallback () {
-  if (this.name === true) {
+  if (this.name === true && this.classification !== 'button') {
     return `${this.type}_${this.elementAttributes.id}`
   }
-  if (this.name === false) {
+  if (this.name === false || (this.classification === 'button' && this.name === true)) {
     return false
   }
   return this.name

@@ -150,6 +150,33 @@
     }
   }
 
+  // Button inputs
+// -----------------------------------------------------------------------------
+
+&[data-classification='button'] {
+  button {
+    @include baseinput;
+    border-color: $formulate-green;
+    background-color: $formulate-green;
+    color: white;
+    min-width: 0;
+    width: auto;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+
+    &[disabled] {
+      background-color: $formulate-gray-d;
+      border-color: $formulate-gray-d;
+    }
+
+    &:active {
+      background-color: $formulate-green-l;
+      border-color: $formulate-green-l;
+    }
+  }
+}
 
 // Select lists
 // -----------------------------------------------------------------------------

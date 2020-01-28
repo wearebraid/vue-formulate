@@ -330,11 +330,20 @@ describe('min', () => {
 
   it('passes when a array length', async () => expect(await rules.min(Array(6), '6')).toBe(true))
 
+  it('passes when string is forced to value', async () => expect(await rules.min('bcd', 'aaa', 'value')).toBe(true))
+
+  it('fails when string is forced to lesser value', async () => expect(await rules.min('a', 'b', 'value')).toBe(false))
+
+  it('passes when a number is forced to length', async () => expect(await rules.min('000', 3, 'length')).toBe(true))
+
+  it('fails when a number is forced to length', async () => expect(await rules.min('44', 3, 'length')).toBe(false))
+
   it('fails when a array length', async () => expect(await rules.min(Array(6), '7')).toBe(false))
 
   it('fails when a string length', async () => expect(await rules.min('bar', 4)).toBe(false))
 
   it('fails when a number', async () => expect(await rules.min(3, '7')).toBe(false))
+
 })
 
 /**

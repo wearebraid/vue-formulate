@@ -8,7 +8,7 @@
   >
     <div class="formulate-input-wrapper">
       <slot
-        v-if="context.label && context.labelPosition === 'before'"
+        v-if="context.hasLabel && context.labelPosition === 'before'"
         name="label"
         v-bind="context"
       >
@@ -18,14 +18,19 @@
           v-text="context.label"
         />
       </slot>
-      <slot v-bind="context">
+      <slot
+        name="element"
+        v-bind="context"
+      >
         <component
           :is="context.component"
           :context="context"
-        />
+        >
+          <slot v-bind="context" />
+        </component>
       </slot>
       <slot
-        v-if="context.label && context.labelPosition === 'after'"
+        v-if="context.hasLabel && context.labelPosition === 'after'"
         name="label"
         v-bind="context.label"
       >
@@ -160,6 +165,9 @@ export default {
   },
   data () {
     return {
+      /**
+       * @todo consider swapping out nanoid for this._uid
+       */
       defaultId: nanoid(9),
       localAttributes: {},
       internalModelProxy: this.formulateValue,

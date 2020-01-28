@@ -11,6 +11,7 @@ import FormulateInputGroup from './FormulateInputGroup.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
 import FormulateInputFile from './inputs/FormulateInputFile.vue'
+import FormulateInputButton from './inputs/FormulateInputButton.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
@@ -32,6 +33,7 @@ class Formulate {
         FormulateInputText,
         FormulateInputFile,
         FormulateInputGroup,
+        FormulateInputButton,
         FormulateInputSelect,
         FormulateInputSlider,
         FormulateInputTextArea

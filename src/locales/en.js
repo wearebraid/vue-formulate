@@ -117,7 +117,7 @@ export default {
    * The (field-level) error message for mime errors.
    */
   mime: function ({ name, args }) {
-    return `${s(name)} must of the the type: ${args[0] || 'No file formats allowed.'}`
+    return `${s(name)} must be of the the type: ${args[0] || 'No file formats allowed.'}`
   },
 
   /**
