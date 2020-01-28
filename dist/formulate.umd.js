@@ -1053,8 +1053,8 @@
    * @return {boolean}
    */
   function showFieldErrors () {
-    if (this.showErrors) {
-      return this.showErrors
+    if (this.showErrors || this.formShouldShowErrors) {
+      return true
     }
     return this.behavioralErrorVisibility
   }
@@ -1184,7 +1184,7 @@
         default: 'text'
       },
       name: {
-        type: [Boolean, String],
+        type: [String, Boolean],
         default: true
       },
       /* eslint-disable */
@@ -1280,6 +1280,7 @@
         localAttributes: {},
         internalModelProxy: this.formulateValue,
         behavioralErrorVisibility: (this.errorBehavior === 'live'),
+        formShouldShowErrors: false,
         validationErrors: [],
         pendingValidation: Promise.resolve()
       }
@@ -1581,7 +1582,8 @@
     data: function data () {
       return {
         registry: {},
-        internalFormModelProxy: {}
+        internalFormModelProxy: {},
+        formShouldShowErrors: false
       }
     },
     computed: {
@@ -1641,7 +1643,13 @@
       },
       formSubmitted: function formSubmitted () {
         // perform validation here
+        this.showErrors();
         this.$emit('submit', this.formModel);
+      },
+      showErrors: function showErrors () {
+        for (var fieldName in this.registry) {
+          this.registry[fieldName].formShouldShowErrors = true;
+        }
       },
       getFormValues: function getFormValues () {
         return this.internalFormModelProxy

@@ -150,12 +150,17 @@
     min-width: 0;
     width: auto;
     font-weight: bold;
-    cursor: pointer; }
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center; }
     .formulate-input[data-classification='button'] button::placeholder {
       color: #a8a8a8; }
     .formulate-input[data-classification='button'] button:focus {
       outline: 0;
       border: 1px solid #41b883; }
+    .formulate-input[data-classification='button'] button[disabled] {
+      background-color: #cecece;
+      border-color: #cecece; }
     .formulate-input[data-classification='button'] button:active {
       background-color: #64c89b;
       border-color: #64c89b; }

@@ -116,8 +116,8 @@ function mergedValidationName () {
  * @return {boolean}
  */
 function showFieldErrors () {
-  if (this.showErrors) {
-    return this.showErrors
+  if (this.showErrors || this.formShouldShowErrors) {
+    return true
   }
   return this.behavioralErrorVisibility
 }

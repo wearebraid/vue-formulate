@@ -1047,8 +1047,8 @@ function mergedValidationName () {
  * @return {boolean}
  */
 function showFieldErrors () {
-  if (this.showErrors) {
-    return this.showErrors
+  if (this.showErrors || this.formShouldShowErrors) {
+    return true
   }
   return this.behavioralErrorVisibility
 }
@@ -1178,7 +1178,7 @@ var script = {
       default: 'text'
     },
     name: {
-      type: [Boolean, String],
+      type: [String, Boolean],
       default: true
     },
     /* eslint-disable */
@@ -1274,6 +1274,7 @@ var script = {
       localAttributes: {},
       internalModelProxy: this.formulateValue,
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
+      formShouldShowErrors: false,
       validationErrors: [],
       pendingValidation: Promise.resolve()
     }
@@ -1575,7 +1576,8 @@ var script$1 = {
   data: function data () {
     return {
       registry: {},
-      internalFormModelProxy: {}
+      internalFormModelProxy: {},
+      formShouldShowErrors: false
     }
   },
   computed: {
@@ -1635,7 +1637,13 @@ var script$1 = {
     },
     formSubmitted: function formSubmitted () {
       // perform validation here
+      this.showErrors();
       this.$emit('submit', this.formModel);
+    },
+    showErrors: function showErrors () {
+      for (var fieldName in this.registry) {
+        this.registry[fieldName].formShouldShowErrors = true;
+      }
     },
     getFormValues: function getFormValues () {
       return this.internalFormModelProxy

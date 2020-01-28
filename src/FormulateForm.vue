@@ -35,7 +35,8 @@ export default {
   data () {
     return {
       registry: {},
-      internalFormModelProxy: {}
+      internalFormModelProxy: {},
+      formShouldShowErrors: false
     }
   },
   computed: {
@@ -93,7 +94,13 @@ export default {
     },
     formSubmitted () {
       // perform validation here
+      this.showErrors()
       this.$emit('submit', this.formModel)
+    },
+    showErrors () {
+      for (const fieldName in this.registry) {
+        this.registry[fieldName].formShouldShowErrors = true
+      }
     },
     getFormValues () {
       return this.internalFormModelProxy

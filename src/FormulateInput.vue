@@ -76,7 +76,7 @@ export default {
       default: 'text'
     },
     name: {
-      type: [Boolean, String],
+      type: [String, Boolean],
       default: true
     },
     /* eslint-disable */
@@ -172,6 +172,7 @@ export default {
       localAttributes: {},
       internalModelProxy: this.formulateValue,
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
+      formShouldShowErrors: false,
       validationErrors: [],
       pendingValidation: Promise.resolve()
     }
