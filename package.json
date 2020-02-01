@@ -5,7 +5,6 @@
   "main": "dist/formulate.umd.js",
   "module": "dist/formulate.esm.js",
   "unpkg": "dist/formulate.min.js",
-  "private": true,
   "engines": {
     "node": ">=11"
   },

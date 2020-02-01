@@ -1272,7 +1272,7 @@ var script = {
        */
       defaultId: nanoid(9),
       localAttributes: {},
-      internalModelProxy: this.formulateValue,
+      internalModelProxy: this.formulateValue || this.value,
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
       validationErrors: [],
