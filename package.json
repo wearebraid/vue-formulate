@@ -5,6 +5,9 @@
   "main": "dist/formulate.umd.js",
   "module": "dist/formulate.esm.js",
   "unpkg": "dist/formulate.min.js",
+  "publishConfig": {
+    "access": "restricted"
+  },
   "engines": {
     "node": ">=11"
   },
