@@ -256,7 +256,6 @@ FileUpload.prototype.removeFile = function removeFile (uuid) {
  */
 FileUpload.prototype.loadPreviews = function loadPreviews () {
   this.files.map(function (file) {
-    console.log(file.type);
     if (!file.previewData && window && window.FileReader && /^image\//.test(file.file.type)) {
       var reader = new FileReader();
       reader.onload = function (e) { return Object.assign(file, { previewData: e.target.result }); };
@@ -277,6 +276,11 @@ FileUpload.prototype.getFileList = function getFileList () {
  */
 FileUpload.prototype.getFiles = function getFiles () {
   return this.files
+};
+
+FileUpload.prototype.toString = function toString () {
+  var descriptor = this.files.length ? this.files.length + ' files' : 'empty';
+  return ("FileUpload(" + descriptor + ")")
 };
 
 /**
@@ -427,20 +431,59 @@ function regexForFormat (format) {
 }
 
 /**
+ * Check if
+ * @param {mixed} data
+ */
+function isValueType (data) {
+  switch (typeof data) {
+    case 'symbol':
+    case 'number':
+    case 'string':
+    case 'boolean':
+    case 'undefined':
+      return true
+    default:
+      if (data === null) {
+        return true
+      }
+      return false
+  }
+}
+
+/**
+ * A simple (somewhat non-comprehensive) cloneDeep function, valid for our use
+ * case of needing to unbind reactive watchers.
+ */
+function cloneDeep (obj) {
+  var newObj = {};
+  for (var key in obj) {
+    if (obj[key] instanceof FileUpload || isValueType(obj[key])) {
+      newObj[key] = obj;
+    } else {
+      newObj[key] = cloneDeep(obj[key]);
+    }
+  }
+  return newObj
+}
+
+/**
  * Library of rules
  */
 var rules = {
   /**
    * Rule: the value must be "yes", "on", "1", or true
    */
-  accepted: function (value) {
+  accepted: function (ref) {
+    var value = ref.value;
+
     return Promise.resolve(['yes', 'on', '1', 1, true, 'true'].includes(value))
   },
 
   /**
    * Rule: checks if a value is after a given date. Defaults to current time
    */
-  after: function (value, compare) {
+  after: function (ref, compare) {
+    var value = ref.value;
     if ( compare === void 0 ) compare = false;
 
     var timestamp = Date.parse(compare || new Date());
@@ -451,7 +494,8 @@ var rules = {
   /**
    * Rule: checks if the value is only alpha
    */
-  alpha: function (value, set) {
+  alpha: function (ref, set) {
+    var value = ref.value;
     if ( set === void 0 ) set = 'default';
 
     var sets = {
@@ -465,7 +509,8 @@ var rules = {
   /**
    * Rule: checks if the value is alpha numeric
    */
-  alphanumeric: function (value, set) {
+  alphanumeric: function (ref, set) {
+    var value = ref.value;
     if ( set === void 0 ) set = 'default';
 
     var sets = {
@@ -479,7 +524,8 @@ var rules = {
   /**
    * Rule: checks if a value is after a given date. Defaults to current time
    */
-  before: function (value, compare) {
+  before: function (ref, compare) {
+    var value = ref.value;
     if ( compare === void 0 ) compare = false;
 
     var timestamp = Date.parse(compare || new Date());
@@ -490,7 +536,8 @@ var rules = {
   /**
    * Rule: checks if the value is between two other values
    */
-  between: function (value, from, to) {
+  between: function (ref, from, to) {
+    var value = ref.value;
     if ( from === void 0 ) from = 0;
     if ( to === void 0 ) to = 10;
 
@@ -512,10 +559,30 @@ var rules = {
   },
 
   /**
+   * Confirm that the value of one field is the same as another, mostly used
+   * for password confirmations.
+   */
+  confirm: function (ref, field) {
+    var value = ref.value;
+    var getFormValues = ref.getFormValues;
+    var name = ref.name;
+
+    return Promise.resolve((function () {
+      var formValues = getFormValues();
+      var confirmationFieldName = field;
+      if (!confirmationFieldName) {
+        confirmationFieldName = /_confirm$/.test(name) ? name.substr(0, name.length - 8) : (name + "_confirm");
+      }
+      return formValues[confirmationFieldName] === value
+    })())
+  },
+
+  /**
    * Rule: ensures the value is a date according to Date.parse(), or a format
    * regex.
    */
-  date: function (value, format) {
+  date: function (ref, format) {
+    var value = ref.value;
     if ( format === void 0 ) format = false;
 
     return Promise.resolve((function () {
@@ -529,7 +596,9 @@ var rules = {
   /**
    * Rule: tests
    */
-  email: function (value) {
+  email: function (ref) {
+    var value = ref.value;
+
     // eslint-disable-next-line
     var isEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     return Promise.resolve(isEmail.test(value))
@@ -538,7 +607,8 @@ var rules = {
   /**
    * Rule: Value is in an array (stack).
    */
-  in: function (value) {
+  in: function (ref) {
+    var value = ref.value;
     var stack = [], len = arguments.length - 1;
     while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
 
@@ -553,7 +623,8 @@ var rules = {
   /**
    * Rule: Match the value against a (stack) of patterns or strings
    */
-  matches: function (value) {
+  matches: function (ref) {
+    var value = ref.value;
     var stack = [], len = arguments.length - 1;
     while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
 
@@ -568,7 +639,8 @@ var rules = {
   /**
    * Check the maximum value of a particular.
    */
-  max: function (value, minimum, force) {
+  max: function (ref, minimum, force) {
+    var value = ref.value;
     if ( minimum === void 0 ) minimum = 10;
 
     return Promise.resolve((function () {
@@ -591,13 +663,14 @@ var rules = {
   /**
    * Check the file type is correct.
    */
-  mime: function (files) {
+  mime: function (ref) {
+    var value = ref.value;
     var types = [], len = arguments.length - 1;
     while ( len-- > 0 ) types[ len ] = arguments[ len + 1 ];
 
     return Promise.resolve((function () {
-      if (files instanceof FileUpload) {
-        var fileList = files.getFileList();
+      if (value instanceof FileUpload) {
+        var fileList = value.getFileList();
         for (var i = 0; i < fileList.length; i++) {
           var file = fileList[i];
           if (!types.includes(file.type)) {
@@ -612,7 +685,8 @@ var rules = {
   /**
    * Check the minimum value of a particular.
    */
-  min: function (value, minimum, force) {
+  min: function (ref, minimum, force) {
+    var value = ref.value;
     if ( minimum === void 0 ) minimum = 1;
 
     return Promise.resolve((function () {
@@ -635,7 +709,8 @@ var rules = {
   /**
    * Rule: Value is not in stack.
    */
-  not: function (value) {
+  not: function (ref) {
+    var value = ref.value;
     var stack = [], len = arguments.length - 1;
     while ( len-- > 0 ) stack[ len ] = arguments[ len + 1 ];
 
@@ -650,14 +725,17 @@ var rules = {
   /**
    * Rule: checks if the value is only alpha numeric
    */
-  number: function (value) {
+  number: function (ref) {
+    var value = ref.value;
+
     return Promise.resolve(!isNaN(value))
   },
 
   /**
    * Rule: must be a value
    */
-  required: function (value, isRequired) {
+  required: function (ref, isRequired) {
+    var value = ref.value;
     if ( isRequired === void 0 ) isRequired = true;
 
     return Promise.resolve((function () {
@@ -680,7 +758,9 @@ var rules = {
   /**
    * Rule: checks if a string is a valid url
    */
-  url: function (value) {
+  url: function (ref) {
+    var value = ref.value;
+
     return Promise.resolve(isUrl(value))
   }
 };
@@ -755,6 +835,16 @@ var en = {
       return ((sentence(name)) + " must be between " + (args[0]) + " and " + (args[1]) + ".")
     }
     return ((sentence(name)) + " must be between " + (args[0]) + " and " + (args[1]) + " characters long.")
+  },
+
+  /**
+   * The confirmation field does not match
+   */
+  confirm: function (ref) {
+    var name = ref.name;
+    var args = ref.args;
+
+    return ((sentence(name)) + " does not match.")
   },
 
   /**
@@ -1328,7 +1418,11 @@ var script = {
           var rule = ref[0];
           var args = ref[1];
 
-          return rule.apply(void 0, [ this$1.context.model ].concat( args ))
+          return rule.apply(void 0, [ {
+            value: this$1.context.model,
+            getFormValues: this$1.getFormValues.bind(this$1),
+            name: this$1.context.name
+          } ].concat( args ))
             .then(function (res) { return res ? false : this$1.$formulate.validationMessage(rule.name, {
               args: args,
               name: this$1.mergedValidationName,
@@ -1535,7 +1629,7 @@ __vue_render__._withStripped = true;
   
 
   
-  var FormulateInput = normalizeComponent(
+  var __vue_component__ = normalizeComponent(
     { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
     __vue_inject_styles__,
     __vue_script__,
@@ -1547,6 +1641,44 @@ __vue_render__._withStripped = true;
     undefined,
     undefined
   );
+
+var FormSubmission = function FormSubmission (form) {
+  this.form = form;
+};
+
+/**
+ * Determine if the form has any validation errors.
+ *
+ * @return {Promise} resolves a boolean
+ */
+FormSubmission.prototype.hasValidationErrors = function hasValidationErrors () {
+  return this.form.hasValidationErrors()
+};
+
+/**
+ * Asynchronously generate the values payload of this form.
+ * @return {Promise} resolves to json
+ */
+FormSubmission.prototype.values = function values () {
+    var this$1 = this;
+
+  return new Promise(function (resolve, reject) {
+    var pending = [];
+    var values = cloneDeep(this$1.form.internalModelProxy);
+    for (var key in values) {
+      if (typeof this$1.form.internalModelProxy[key] === 'object' && this$1.form.internalModelProxy[key] instanceof FileUpload) {
+        pending.push(this$1.form.internalModelProxy[key].upload());
+      }
+    }
+    /**
+     * @todo - how do we get these uploaded path values back into our data?
+     */
+    Promise.all(pending)
+      // .then(file => file.path)
+      .then(function () { return resolve(values); })
+      .catch(function (err) { return reject(err); });
+  })
+};
 
 //
 
@@ -1636,9 +1768,15 @@ var script$1 = {
       }
     },
     formSubmitted: function formSubmitted () {
+      var this$1 = this;
+
       // perform validation here
       this.showErrors();
-      this.$emit('submit', this.internalFormModelProxy);
+      var submission = new FormSubmission(this);
+      this.$emit('submit-raw', submission);
+      submission.hasValidationErrors()
+        .then(function (hasErrors) { return hasErrors ? false : submission.values(); })
+        .then(function (json) { return this$1.$emit('submit', json); });
     },
     showErrors: function showErrors () {
       for (var fieldName in this.registry) {
@@ -1647,6 +1785,15 @@ var script$1 = {
     },
     getFormValues: function getFormValues () {
       return this.internalFormModelProxy
+    },
+    hasValidationErrors: function hasValidationErrors () {
+      var resolvers = [];
+      for (var fieldName in this.registry) {
+        if (typeof this.registry[fieldName].hasValidationErrors === 'function') {
+          resolvers.push(this.registry[fieldName].hasValidationErrors());
+        }
+      }
+      return Promise.all(resolvers).then(function (fields) { return !!fields.find(function (hasErrors) { return hasErrors; }); })
     }
   }
 };
@@ -1692,7 +1839,7 @@ __vue_render__$1._withStripped = true;
   
 
   
-  var FormulateForm = normalizeComponent(
+  var __vue_component__$1 = normalizeComponent(
     { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
     __vue_inject_styles__$1,
     __vue_script__$1,
@@ -1773,7 +1920,7 @@ __vue_render__$2._withStripped = true;
   
 
   
-  var FormulateInputErrors = normalizeComponent(
+  var __vue_component__$2 = normalizeComponent(
     { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
     __vue_inject_styles__$2,
     __vue_script__$2,
@@ -1893,7 +2040,7 @@ __vue_render__$3._withStripped = true;
   
 
   
-  var FormulateInputGroup = normalizeComponent(
+  var __vue_component__$3 = normalizeComponent(
     { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
     __vue_inject_styles__$3,
     __vue_script__$3,
@@ -2095,7 +2242,7 @@ __vue_render__$4._withStripped = true;
   
 
   
-  var FormulateInputBox = normalizeComponent(
+  var __vue_component__$4 = normalizeComponent(
     { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
     __vue_inject_styles__$4,
     __vue_script__$4,
@@ -2259,7 +2406,7 @@ __vue_render__$5._withStripped = true;
   
 
   
-  var FormulateInputText = normalizeComponent(
+  var __vue_component__$5 = normalizeComponent(
     { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
     __vue_inject_styles__$5,
     __vue_script__$5,
@@ -2400,7 +2547,7 @@ __vue_render__$6._withStripped = true;
   
 
   
-  var FormulateFiles = normalizeComponent(
+  var __vue_component__$6 = normalizeComponent(
     { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
     __vue_inject_styles__$6,
     __vue_script__$6,
@@ -2418,7 +2565,7 @@ __vue_render__$6._withStripped = true;
 var script$7 = {
   name: 'FormulateInputFile',
   components: {
-    FormulateFiles: FormulateFiles
+    FormulateFiles: __vue_component__$6
   },
   mixins: [FormulateInputMixin],
   data: function data () {
@@ -2572,7 +2719,7 @@ __vue_render__$7._withStripped = true;
   
 
   
-  var FormulateInputFile = normalizeComponent(
+  var __vue_component__$7 = normalizeComponent(
     { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
     __vue_inject_styles__$7,
     __vue_script__$7,
@@ -2650,7 +2797,7 @@ __vue_render__$8._withStripped = true;
   
 
   
-  var FormulateInputButton = normalizeComponent(
+  var __vue_component__$8 = normalizeComponent(
     { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
     __vue_inject_styles__$8,
     __vue_script__$8,
@@ -2816,7 +2963,7 @@ __vue_render__$9._withStripped = true;
   
 
   
-  var FormulateInputSelect = normalizeComponent(
+  var __vue_component__$9 = normalizeComponent(
     { render: __vue_render__$9, staticRenderFns: __vue_staticRenderFns__$9 },
     __vue_inject_styles__$9,
     __vue_script__$9,
@@ -2980,7 +3127,7 @@ __vue_render__$a._withStripped = true;
   
 
   
-  var FormulateInputSlider = normalizeComponent(
+  var __vue_component__$a = normalizeComponent(
     { render: __vue_render__$a, staticRenderFns: __vue_staticRenderFns__$a },
     __vue_inject_styles__$a,
     __vue_script__$a,
@@ -3065,7 +3212,7 @@ __vue_render__$b._withStripped = true;
   
 
   
-  var FormulateInputTextArea = normalizeComponent(
+  var __vue_component__$b = normalizeComponent(
     { render: __vue_render__$b, staticRenderFns: __vue_staticRenderFns__$b },
     __vue_inject_styles__$b,
     __vue_script__$b,
@@ -3084,17 +3231,17 @@ __vue_render__$b._withStripped = true;
 var Formulate = function Formulate () {
   this.defaults = {
     components: {
-      FormulateForm: FormulateForm,
-      FormulateInput: FormulateInput,
-      FormulateInputErrors: FormulateInputErrors,
-      FormulateInputBox: FormulateInputBox,
-      FormulateInputText: FormulateInputText,
-      FormulateInputFile: FormulateInputFile,
-      FormulateInputGroup: FormulateInputGroup,
-      FormulateInputButton: FormulateInputButton,
-      FormulateInputSelect: FormulateInputSelect,
-      FormulateInputSlider: FormulateInputSlider,
-      FormulateInputTextArea: FormulateInputTextArea
+      FormulateForm: __vue_component__$1,
+      FormulateInput: __vue_component__,
+      FormulateInputErrors: __vue_component__$2,
+      FormulateInputBox: __vue_component__$4,
+      FormulateInputText: __vue_component__$5,
+      FormulateInputFile: __vue_component__$7,
+      FormulateInputGroup: __vue_component__$3,
+      FormulateInputButton: __vue_component__$8,
+      FormulateInputSelect: __vue_component__$9,
+      FormulateInputSlider: __vue_component__$a,
+      FormulateInputTextArea: __vue_component__$b
     },
     library: library,
     rules: rules,
@@ -3206,3 +3353,4 @@ Formulate.prototype.createUpload = function createUpload (fileList, context) {
 var Formulate$1 = new Formulate();
 
 export default Formulate$1;
+export { FileUpload };

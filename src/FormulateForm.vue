@@ -8,6 +8,7 @@
 
 <script>
 import { shallowEqualObjects } from './libs/utils'
+import FormSubmission from './FormSubmission'
 
 export default {
   provide () {
@@ -95,7 +96,11 @@ export default {
     formSubmitted () {
       // perform validation here
       this.showErrors()
-      this.$emit('submit', this.internalFormModelProxy)
+      const submission = new FormSubmission(this)
+      this.$emit('submit-raw', submission)
+      submission.hasValidationErrors()
+        .then(hasErrors => hasErrors ? false : submission.values())
+        .then(json => this.$emit('submit', json))
     },
     showErrors () {
       for (const fieldName in this.registry) {
@@ -104,6 +109,15 @@ export default {
     },
     getFormValues () {
       return this.internalFormModelProxy
+    },
+    hasValidationErrors () {
+      const resolvers = []
+      for (const fieldName in this.registry) {
+        if (typeof this.registry[fieldName].hasValidationErrors === 'function') {
+          resolvers.push(this.registry[fieldName].hasValidationErrors())
+        }
+      }
+      return Promise.all(resolvers).then(fields => !!fields.find(hasErrors => hasErrors))
     }
   }
 }

@@ -56,6 +56,13 @@ export default {
   },
 
   /**
+   * The confirmation field does not match
+   */
+  confirm: function ({ name, args }) {
+    return `${s(name)} does not match.`
+  },
+
+  /**
    * Is not a valid date.
    */
   date: function ({ name, args }) {

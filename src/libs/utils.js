@@ -1,3 +1,5 @@
+import FileUpload from '../FileUpload'
+
 /**
  * Function to map over an object.
  * @param {Object} obj An object to map over
@@ -171,4 +173,40 @@ export function regexForFormat (format) {
   return new RegExp(Object.keys(formats).reduce((regex, format) => {
     return regex.replace(format, formats[format])
   }, escaped))
+}
+
+/**
+ * Check if
+ * @param {mixed} data
+ */
+export function isValueType (data) {
+  switch (typeof data) {
+    case 'symbol':
+    case 'number':
+    case 'string':
+    case 'boolean':
+    case 'undefined':
+      return true
+    default:
+      if (data === null) {
+        return true
+      }
+      return false
+  }
+}
+
+/**
+ * A simple (somewhat non-comprehensive) cloneDeep function, valid for our use
+ * case of needing to unbind reactive watchers.
+ */
+export function cloneDeep (obj) {
+  const newObj = {}
+  for (const key in obj) {
+    if (obj[key] instanceof FileUpload || isValueType(obj[key])) {
+      newObj[key] = obj
+    } else {
+      newObj[key] = cloneDeep(obj[key])
+    }
+  }
+  return newObj
 }

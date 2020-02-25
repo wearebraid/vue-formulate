@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import flushPromises from 'flush-promises'
 import { mount } from '@vue/test-utils'
 import Formulate from '../src/Formulate.js'
 import FormulateInput from '@/FormulateInput.vue'
@@ -113,7 +114,7 @@ describe('FormulateInputText', () => {
   })
 
 
-  it('doesn’t re-context itself if there were no changes', () => {
+  it('doesn’t re-context itself if there were no changes', async () => {
     const wrapper = mount({
       data () {
         return {
@@ -128,9 +129,11 @@ describe('FormulateInputText', () => {
         </div>
       `
     })
+    await flushPromises()
     const firstContext = wrapper.find({ref: "first"}).vm.context
     const secondContext = wrapper.find({ref: "second"}).vm.context
     wrapper.find('input').setValue('new value')
+    await flushPromises()
     expect(firstContext).toBeTruthy()
     expect(wrapper.vm.valueA === 'new value').toBe(true)
     expect(wrapper.vm.valueB === 'second value').toBe(true)
@@ -205,12 +208,13 @@ describe('FormulateInputText', () => {
     expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
   })
 
-  it('shows errors on blur with error-behavior blur', () => {
+  it('shows errors on blur with error-behavior blur', async () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', errors: ['Bad input'] } })
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
     expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(false)
     expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(false)
     wrapper.find('input').trigger('blur')
+    await flushPromises()
     expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(true)
     expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(true)
     expect(wrapper.findAll('.formulate-input-error').length).toBe(1)

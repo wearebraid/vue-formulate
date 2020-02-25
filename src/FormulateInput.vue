@@ -223,7 +223,11 @@ export default {
       const rules = parseRules(this.validation, this.$formulate.rules())
       this.pendingValidation = Promise.all(
         rules.map(([rule, args]) => {
-          return rule(this.context.model, ...args)
+          return rule({
+            value: this.context.model,
+            getFormValues: this.getFormValues.bind(this),
+            name: this.context.name
+          }, ...args)
             .then(res => res ? false : this.$formulate.validationMessage(rule.name, {
               args,
               name: this.mergedValidationName,

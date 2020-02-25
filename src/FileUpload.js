@@ -141,7 +141,6 @@ class FileUpload {
    */
   loadPreviews () {
     this.files.map(file => {
-      console.log(file.type)
       if (!file.previewData && window && window.FileReader && /^image\//.test(file.file.type)) {
         const reader = new FileReader()
         reader.onload = e => Object.assign(file, { previewData: e.target.result })
@@ -162,6 +161,11 @@ class FileUpload {
    */
   getFiles () {
     return this.files
+  }
+
+  toString () {
+    const descriptor = this.files.length ? this.files.length + ' files' : 'empty'
+    return `FileUpload(${descriptor})`
   }
 }
 

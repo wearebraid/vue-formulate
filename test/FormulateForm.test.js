@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { mount, shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
 import Formulate from '../src/Formulate.js'
+import FormSubmission from '../src/FormSubmission.js'
 import FormulateForm from '@/FormulateForm.vue'
 import FormulateInput from '@/FormulateInput.vue'
 
@@ -86,30 +87,34 @@ describe('FormulateForm', () => {
    * @todo in vue-test-utils version 1.0.0-beta.29 has some bugs related to
    * synchronous updating. Some details are here:
    *
+   * @update this test was re-implemented in version 1.0.0-beta.31 and seems to
+   * be workign now with flushPromises(). Leaving these docs here for now.
+   *
    * https://github.com/vuejs/vue-test-utils/issues/1130
    *
    * This test is being commented out until there is a resolution on this issue,
    * and instead being replaced with a mock call.
    */
 
-  // it('updates initial form values when input contains a populated v-model', () => {
-  //   const wrapper = mount({
-  //     data () {
-  //       return {
-  //         formValues: {
-  //           testinput: '',
-  //         },
-  //         fieldValue: '123'
-  //       }
-  //     },
-  //     template: `
-  //       <FormulateForm v-model="formValues">
-  //         <FormulateInput type="text" name="testinput" v-model="fieldValue" />
-  //       </FormulateForm>
-  //     `
-  //   })
-  //   expect(wrapper.vm.formValues).toEqual({ testinput: '123' })
-  // })
+  it('updates initial form values when input contains a populated v-model', async () => {
+    const wrapper = mount({
+      data () {
+        return {
+          formValues: {
+            testinput: '',
+          },
+          fieldValue: '123'
+        }
+      },
+      template: `
+        <FormulateForm v-model="formValues">
+          <FormulateInput type="text" name="testinput" v-model="fieldValue" />
+        </FormulateForm>
+      `
+    })
+    await flushPromises()
+    expect(wrapper.vm.formValues).toEqual({ testinput: '123' })
+  })
 
   // ===========================================================================
 
@@ -124,5 +129,25 @@ describe('FormulateForm', () => {
       }
     })
     expect(wrapper.emitted().input[wrapper.emitted().input.length - 1]).toEqual([{ testinput: 'override-data' }])
+  })
+
+
+  it('it emits an instance of FormSubmission', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: '<FormulateInput type="text" formulate-value="123" name="testinput" />' }
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.emitted('submit-raw')[0][0]).toBeInstanceOf(FormSubmission)
+  })
+
+  it('it resolves hasValidationErrors to true', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' }
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    const submission = wrapper.emitted('submit-raw')[0][0]
+    expect(await submission.hasValidationErrors()).toBe(true)
   })
 })

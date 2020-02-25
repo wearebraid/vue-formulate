@@ -10,10 +10,11 @@ export default {
     globals: {
       'is-plain-object': 'isPlainObject',
       'nanoid': 'nanoid',
-      'is-url': 'isUrl'
+      'is-url': 'isUrl',
+      'clone-deep': 'cloneDeep'
     }
   },
-  external: ['is-plain-object', 'nanoid', 'is-url'],
+  external: ['is-plain-object', 'nanoid', 'is-url', 'clone-deep'],
   plugins: [
     commonjs(),
     vue({

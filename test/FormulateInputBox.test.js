@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import flushPromises from 'flush-promises'
 import { mount } from '@vue/test-utils'
 import Formulate from '../src/Formulate.js'
 import FormulateInput from '@/FormulateInput.vue'
@@ -57,21 +58,25 @@ test('type "radio" auto generate ids if not provided', () => {
  * Test data binding
  */
 
- test('type "checkbox" sets array of values via v-model', () => {
+ test('type "checkbox" sets array of values via v-model', async () => {
   const wrapper = mount({
     data () {
       return {
-        checkboxValues: []
+        checkboxValues: [],
+        options: {foo: 'Foo', bar: 'Bar', fooey: 'Fooey'}
       }
     },
     template: `
       <div>
-        <FormulateInput type="checkbox" v-model="checkboxValues" :options="{foo: 'Foo', bar: 'Bar', fooey: 'Fooey'}" />
+        <FormulateInput type="checkbox" v-model="checkboxValues" :options="options" />
       </div>
     `
   })
   const fooInputs = wrapper.findAll('input[value^="foo"]')
   expect(fooInputs.length).toBe(2)
-  fooInputs.setChecked(true)
+  fooInputs.at(0).setChecked()
+  await flushPromises()
+  fooInputs.at(1).setChecked()
+  await flushPromises()
   expect(wrapper.vm.checkboxValues).toEqual(['foo', 'fooey'])
 })
