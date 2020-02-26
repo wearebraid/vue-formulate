@@ -458,7 +458,7 @@ function cloneDeep (obj) {
   var newObj = {};
   for (var key in obj) {
     if (obj[key] instanceof FileUpload || isValueType(obj[key])) {
-      newObj[key] = obj;
+      newObj[key] = obj[key];
     } else {
       newObj[key] = cloneDeep(obj[key]);
     }
@@ -1664,10 +1664,10 @@ FormSubmission.prototype.values = function values () {
 
   return new Promise(function (resolve, reject) {
     var pending = [];
-    var values = cloneDeep(this$1.form.internalModelProxy);
+    var values = cloneDeep(this$1.form.internalFormModelProxy);
     for (var key in values) {
-      if (typeof this$1.form.internalModelProxy[key] === 'object' && this$1.form.internalModelProxy[key] instanceof FileUpload) {
-        pending.push(this$1.form.internalModelProxy[key].upload());
+      if (typeof this$1.form.internalFormModelProxy[key] === 'object' && this$1.form.internalFormModelProxy[key] instanceof FileUpload) {
+        pending.push(this$1.form.internalFormModelProxy[key].upload());
       }
     }
     /**
@@ -1759,11 +1759,20 @@ var script$1 = {
     },
     register: function register (field, component) {
       this.registry[field] = component;
-      if (!component.$options.propsData.hasOwnProperty('formulateValue') && this.hasFormulateValue && this.formulateValue[field]) {
+      var hasVModelValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'formulateValue');
+      var hasValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'value');
+      if (
+        !hasVModelValue &&
+        this.hasFormulateValue &&
+        this.formulateValue[field]
+      ) {
         // In the case that the form is carrying an initial value and the
         // element is not, set it directly.
         component.context.model = this.formulateValue[field];
-      } else if (component.$options.propsData.hasOwnProperty('formulateValue') && !shallowEqualObjects(component.internalModelProxy, this.formulateValue[field])) {
+      } else if (
+        (hasVModelValue || hasValue) &&
+        !shallowEqualObjects(component.internalModelProxy, this.formulateValue[field])
+      ) {
         this.setFieldValue(field, component.internalModelProxy);
       }
     },
@@ -1774,9 +1783,9 @@ var script$1 = {
       this.showErrors();
       var submission = new FormSubmission(this);
       this.$emit('submit-raw', submission);
-      submission.hasValidationErrors()
+      return submission.hasValidationErrors()
         .then(function (hasErrors) { return hasErrors ? false : submission.values(); })
-        .then(function (json) { return json !== false ? this$1.$emit('submit', json) : null; });
+        .then(function (json) { return json !== false ? this$1.$emit('submit', json) : null; })
     },
     showErrors: function showErrors () {
       for (var fieldName in this.registry) {
