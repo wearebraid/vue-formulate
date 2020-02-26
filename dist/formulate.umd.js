@@ -1782,7 +1782,7 @@
         this.$emit('submit-raw', submission);
         submission.hasValidationErrors()
           .then(function (hasErrors) { return hasErrors ? false : submission.values(); })
-          .then(function (json) { return this$1.$emit('submit', json); });
+          .then(function (json) { return json !== false ? this$1.$emit('submit', json) : null; });
       },
       showErrors: function showErrors () {
         for (var fieldName in this.registry) {

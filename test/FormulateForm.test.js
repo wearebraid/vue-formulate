@@ -61,6 +61,20 @@ describe('FormulateForm', () => {
     expect(wrapper.find('input').element.value).toBe('123')
   })
 
+  it('lets fields set form initial value with value prop', () => {
+    const wrapper = mount({
+      data () {
+        return {
+          formValues: {}
+        }
+      },
+      template: `<FormulateForm v-model="formValues">
+        <FormulateInput name="name" value="123" />
+      </FormulateForm>`
+    })
+    expect(wrapper.vm.formValues).toEqual({ name: '123' })
+  })
+
   it('receives updates to form model when individual fields are edited', () => {
     const wrapper = mount({
       data () {
@@ -132,7 +146,7 @@ describe('FormulateForm', () => {
   })
 
 
-  it('it emits an instance of FormSubmission', async () => {
+  it('emits an instance of FormSubmission', async () => {
     const wrapper = mount(FormulateForm, {
       slots: { default: '<FormulateInput type="text" formulate-value="123" name="testinput" />' }
     })
@@ -141,7 +155,7 @@ describe('FormulateForm', () => {
     expect(wrapper.emitted('submit-raw')[0][0]).toBeInstanceOf(FormSubmission)
   })
 
-  it('it resolves hasValidationErrors to true', async () => {
+  it('resolves hasValidationErrors to true', async () => {
     const wrapper = mount(FormulateForm, {
       slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' }
     })
@@ -149,5 +163,16 @@ describe('FormulateForm', () => {
     await flushPromises()
     const submission = wrapper.emitted('submit-raw')[0][0]
     expect(await submission.hasValidationErrors()).toBe(true)
+  })
+
+  it('resolves submitted form values to an object', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" value="Justin" />' }
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    const submission = await wrapper.vm.formSubmitted()
+    await flushPromises()
+    expect(submission).toEqual({testinput: 'Justin'})
   })
 })

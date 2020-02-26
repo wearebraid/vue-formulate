@@ -85,11 +85,20 @@ export default {
     },
     register (field, component) {
       this.registry[field] = component
-      if (!component.$options.propsData.hasOwnProperty('formulateValue') && this.hasFormulateValue && this.formulateValue[field]) {
+      const hasVModelValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'formulateValue')
+      const hasValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'value')
+      if (
+        !hasVModelValue &&
+        this.hasFormulateValue &&
+        this.formulateValue[field]
+      ) {
         // In the case that the form is carrying an initial value and the
         // element is not, set it directly.
         component.context.model = this.formulateValue[field]
-      } else if (component.$options.propsData.hasOwnProperty('formulateValue') && !shallowEqualObjects(component.internalModelProxy, this.formulateValue[field])) {
+      } else if (
+        (hasVModelValue || hasValue) &&
+        !shallowEqualObjects(component.internalModelProxy, this.formulateValue[field])
+      ) {
         this.setFieldValue(field, component.internalModelProxy)
       }
     },
@@ -98,9 +107,9 @@ export default {
       this.showErrors()
       const submission = new FormSubmission(this)
       this.$emit('submit-raw', submission)
-      submission.hasValidationErrors()
+      return submission.hasValidationErrors()
         .then(hasErrors => hasErrors ? false : submission.values())
-        .then(json => this.$emit('submit', json))
+        .then(json => json !== false ? this.$emit('submit', json) : null)
     },
     showErrors () {
       for (const fieldName in this.registry) {

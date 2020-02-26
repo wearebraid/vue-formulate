@@ -203,7 +203,7 @@ export function cloneDeep (obj) {
   const newObj = {}
   for (const key in obj) {
     if (obj[key] instanceof FileUpload || isValueType(obj[key])) {
-      newObj[key] = obj
+      newObj[key] = obj[key]
     } else {
       newObj[key] = cloneDeep(obj[key])
     }

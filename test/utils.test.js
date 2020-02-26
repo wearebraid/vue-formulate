@@ -1,5 +1,6 @@
-import { parseRules, regexForFormat } from '@/libs/utils'
+import { parseRules, regexForFormat, cloneDeep, isValueType } from '@/libs/utils'
 import rules from '@/libs/rules'
+import FileUpload from '@/FileUpload';
 
 describe('parseRules', () => {
   it('parses single string rules, returning empty arguments array', () => {
@@ -82,4 +83,37 @@ describe('regexForFormat', () => {
   it('allows date like YYYY-MM-DD', () => expect(regexForFormat('YYYY-MM-DD').test('1987-01-31')).toBe(true))
 
   it('fails date like YYYY-MM-DD with out of bounds day', () => expect(regexForFormat('YYYY-MM-DD').test('1987-01-32')).toBe(false))
+})
+
+describe('isValueType', () => {
+  it('passes on strings', () => expect(isValueType('hello')).toBe(true))
+
+  it('passes on numbers', () => expect(isValueType(123)).toBe(true))
+
+  it('passes on booleans', () => expect(isValueType(false)).toBe(true))
+
+  it('passes on symbols', () => expect(isValueType(Symbol(123))).toBe(true))
+
+  it('passes on null', () => expect(isValueType(null)).toBe(true))
+
+  it('passes on undefined', () => expect(isValueType(undefined)).toBe(true))
+
+  it('fails on pojo', () => expect(isValueType({})).toBe(false))
+
+  it('fails on custom type', () => expect(isValueType(FileUpload)).toBe(false))
+})
+
+describe('cloneDeep', () => {
+  it('basic objects stay the same', () => expect(cloneDeep({ a: 123, b: 'hello' })).toEqual({ a: 123, b: 'hello' }))
+
+  it('basic nested objects stay the same', () => {
+    expect(cloneDeep({ a: 123, b: { c: 'hello-world' } }))
+    .toEqual({ a: 123, b: { c: 'hello-world' } })
+  })
+
+  it('simple pojo reference types are re-created', () => {
+    const c = { c: 'hello-world' }
+    const clone = cloneDeep({ a: 123, b: c })
+    expect(clone.b === c).toBe(false)
+  })
 })
