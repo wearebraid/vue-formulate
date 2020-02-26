@@ -108,8 +108,14 @@ export default {
       const submission = new FormSubmission(this)
       this.$emit('submit-raw', submission)
       return submission.hasValidationErrors()
-        .then(hasErrors => hasErrors ? false : submission.values())
-        .then(json => json !== false ? this.$emit('submit', json) : null)
+        .then(hasErrors => hasErrors ? undefined : submission.values())
+        .then(data => {
+          if (typeof data !== 'undefined') {
+            this.$emit('submit', data)
+            return data
+          }
+          return undefined
+        })
     },
     showErrors () {
       for (const fieldName in this.registry) {
