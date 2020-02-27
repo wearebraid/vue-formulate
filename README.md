@@ -1,8 +1,9 @@
-<p align="center"><a href="https://vuejs.org" target="_blank" rel="noopener noreferrer"><img width="100" src="https://assets.wearebraid.com/vue-formualte/logo.png" alt="VueFormulate"></a></p>
+<p align="center"><a href="https://vueformulate.com" target="_blank" rel="noopener noreferrer"><img width="100" src="https://assets.wearebraid.com/vue-formulate/logo.png" alt="VueFormulate"></a></p>
 
 <p align="center">
-  [![Build Status](https://travis-ci.com/wearebraid/vue-formulate-next.svg?token=4eHp5aiDcHwjrb1T8zpy&branch=version-2)](https://travis-ci.com/wearebraid/vue-formulate-next)
-  ![GitHub](https://img.shields.io/github/license/wearebraid/vue-formulate)
+  <a href="https://travis-ci.org/wearebraid/vue-formulate"><img src="https://travis-ci.org/wearebraid/vue-formulate.svg?branch=master"></a>
+  <a href="https://www.npmjs.com/package/@braid/vue-formulate"><img alt="npm" src="https://img.shields.io/npm/v/@braid/vue-formulate"></a>
+  <a href="https://github.com/wearebraid/vue-formulate"><img alt="GitHub" src="https://img.shields.io/github/license/wearebraid/vue-formulate"></a>
 </p>
 
 [Documentation Website](https://vueformulate.com)
