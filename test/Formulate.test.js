@@ -1,6 +1,6 @@
 import Formulate from '../src/Formulate.js'
 
-test('can extend simple object', () => {
+test('can merge simple object', () => {
   let a = {
     optionA: true,
     optionB: '1234'
@@ -8,14 +8,27 @@ test('can extend simple object', () => {
   let b = {
     optionA: false
   }
-  expect(Formulate.extend(a, b)).toEqual({
+  expect(Formulate.merge(a, b)).toEqual({
     optionA: false,
     optionB: '1234'
   })
 })
 
+test('can add to simple array', () => {
+  let a = {
+    optionA: true,
+    optionB: ['first', 'second']
+  }
+  let b = {
+    optionB: ['third']
+  }
+  expect(Formulate.merge(a, b, true)).toEqual({
+    optionA: true,
+    optionB: ['first', 'second', 'third']
+  })
+})
 
-test('can extend recursively', () => {
+test('can merge recursively', () => {
   let a = {
     optionA: true,
     optionC: {
@@ -33,7 +46,7 @@ test('can extend recursively', () => {
       second: '789',
     }
   }
-  expect(Formulate.extend(a, b)).toEqual({
+  expect(Formulate.merge(a, b)).toEqual({
     optionA: true,
     optionC: {
       first: '1234',
@@ -68,4 +81,21 @@ test('installs on vue instance', () => {
   Formulate.install(Vue, { extended: true })
   expect(Vue.prototype.$formulate).toBe(Formulate)
   expect(registry).toEqual(components)
+})
+
+test('can extend instance in a plugin', () => {
+  function Vue () {}
+  Vue.component = function (name, instance) {}
+  const plugin = function (i) {
+    i.extend({
+      rules: {
+        testRule: () => false
+      }
+    })
+  }
+  Formulate.install(Vue, {
+    plugins: [ plugin ]
+  })
+
+  expect(typeof Vue.prototype.$formulate.options.rules.testRule).toBe('function')
 })

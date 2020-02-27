@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "npm run build:umd & npm run build:es & npm run build:unpkg & npm run build:css",
-    "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --use cssnano > dist/snow.min.css",
+    "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --no-map --use cssnano > dist/snow.min.css",
     "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/formulate.umd.js",
     "build:es": "rollup --config build/rollup.config.js --format es --file dist/formulate.esm.js",
     "build:unpkg": "rollup --config build/rollup.config.js --format iife --file dist/formulate.min.js",

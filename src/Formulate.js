@@ -24,6 +24,7 @@ class Formulate {
    * Instantiate our base options.
    */
   constructor () {
+    this.options = {}
     this.defaults = {
       components: {
         FormulateForm,
@@ -43,6 +44,7 @@ class Formulate {
       locale: 'en',
       uploader: fauxUploader,
       uploadJustCompleteDuration: 1000,
+      plugins: [],
       locales: {
         en
       }
@@ -54,32 +56,54 @@ class Formulate {
    */
   install (Vue, options) {
     Vue.prototype.$formulate = this
-    this.options = this.extend(this.defaults, options || {})
+    this.options = this.merge(this.defaults, options || {})
+    if (Array.isArray(this.options.plugins) && this.options.plugins.length) {
+      this.options.plugins
+        .forEach(plugin => (typeof plugin === 'function') ? plugin(this) : null)
+    }
     for (var componentName in this.options.components) {
       Vue.component(componentName, this.options.components[componentName])
     }
-    Object.freeze(this)
   }
 
   /**
-   * Create a new object by copying properties of base and extendWith.
-   * @param {Object} base
+   * Given a set of options, apply them to the pre-existing options.
    * @param {Object} extendWith
    */
-  extend (base, extendWith) {
+  extend (extendWith) {
+    if (typeof extendWith === 'object') {
+      this.options = this.merge(this.options, extendWith)
+      return this
+    }
+    throw new Error(`VueFormulate extend() should be passed an object (was ${typeof extendWith})`)
+  }
+
+  /**
+   * Create a new object by copying properties of base and mergeWith.
+   * Note: arrays don't overwrite - they push
+   *
+   * @param {Object} base
+   * @param {Object} mergeWith
+   * @param {boolean} concatArrays
+   */
+  merge (base, mergeWith, concatArrays = true) {
     var merged = {}
     for (var key in base) {
-      if (extendWith.hasOwnProperty(key)) {
-        merged[key] = isPlainObject(extendWith[key]) && isPlainObject(base[key])
-          ? this.extend(base[key], extendWith[key])
-          : extendWith[key]
+      if (mergeWith.hasOwnProperty(key)) {
+        if (isPlainObject(mergeWith[key]) && isPlainObject(base[key])) {
+          merged[key] = this.merge(base[key], mergeWith[key], concatArrays)
+        } else if (concatArrays && Array.isArray(base[key]) && Array.isArray(mergeWith[key])) {
+          merged[key] = base[key].concat(mergeWith[key])
+        } else {
+          merged[key] = mergeWith[key]
+        }
       } else {
         merged[key] = base[key]
       }
     }
-    for (var prop in extendWith) {
+    for (var prop in mergeWith) {
       if (!merged.hasOwnProperty(prop)) {
-        merged[prop] = extendWith[prop]
+        merged[prop] = mergeWith[prop]
       }
     }
     return merged
