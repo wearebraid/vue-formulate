@@ -111,8 +111,8 @@ class Formulate {
    * Get validation rules.
    * @return {object} object of validation functions
    */
-  rules () {
-    return this.options.rules
+  rules (rules = {}) {
+    return { ...this.options.rules, ...rules }
   }
 
   /**

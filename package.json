@@ -1,6 +1,6 @@
 {
   "name": "@braid/vue-formulate",
-  "version": "2.0.0-alpha.2",
+  "version": "2.0.0-alpha.3",
   "description": "The easiest way to build forms in Vue.",
   "main": "dist/formulate.umd.js",
   "module": "dist/formulate.esm.js",
@@ -82,6 +82,7 @@
     "clone-deep": "^4.0.1",
     "is-plain-object": "^3.0.0",
     "is-url": "^1.2.4",
-    "nanoid": "^2.1.11"
+    "nanoid": "^2.1.11",
+    "rollup-plugin-terser": "^5.2.0"
   }
 }

@@ -53,14 +53,14 @@ function typeContext () {
         optionGroups: this.optionGroups ? map(this.optionGroups, (k, v) => createOptionList.call(this, v)) : false,
         placeholder: this.$attrs.placeholder || false
       }
-    case 'group':
+    case 'slider':
+      return { showValue: !!this.showValue }
+    default:
       if (this.options) {
         return {
           options: createOptionList.call(this, this.options)
         }
       }
-      break
-    default:
       return {}
   }
 }

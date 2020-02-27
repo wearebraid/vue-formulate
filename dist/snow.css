@@ -49,6 +49,22 @@
     .formulate-input[data-classification='text'] input:focus {
       outline: 0;
       border: 1px solid #41b883; }
+  .formulate-input[data-classification='text'] .formulate-input-element--search {
+    position: relative; }
+    .formulate-input[data-classification='text'] .formulate-input-element--search::before {
+      content: '';
+      width: 2em;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72.99 72.9"><path fill="%236d6d6d" d="M71.77,66,53.87,48.1A29.94,29.94,0,1,0,30,60a29.52,29.52,0,0,0,18.1-6.1l18,17.8A4,4,0,0,0,69,72.9a4.18,4.18,0,0,0,2.9-1.2A4.09,4.09,0,0,0,71.77,66ZM30.07,51.9a21.9,21.9,0,1,1,15.5-37.4A21.37,21.37,0,0,1,52,30a22,22,0,0,1-6.4,15.5A21.54,21.54,0,0,1,30.07,51.9Z"/></svg>');
+      background-size: 1em 1em;
+      background-repeat: no-repeat;
+      background-position: center;
+      pointer-events: none; }
+    .formulate-input[data-classification='text'] .formulate-input-element--search input {
+      padding-left: 2em; }
   .formulate-input[data-classification='text'] input[type="color"] {
     height: 1.1em;
     box-sizing: content-box; }
@@ -72,6 +88,18 @@
       border-radius: .2em;
       border: 0;
       flex: auto; }
+  .formulate-input[data-classification='slider'] .formulate-input-element--range {
+    display: flex;
+    align-items: center; }
+  .formulate-input[data-classification='slider'] .formulate-input-element-range-value {
+    font-size: .9em;
+    line-height: 1;
+    margin-left: .5em;
+    background-color: #efefef;
+    padding: .25em .3em;
+    border-radius: .25em;
+    color: #6d6d6d;
+    font-variant-numeric: tabular-nums; }
   .formulate-input[data-classification='slider'] input {
     appearance: none;
     width: 100%;

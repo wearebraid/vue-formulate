@@ -9,6 +9,11 @@
       v-bind="attributes"
       @blur="context.blurHandler"
     >
+    <div
+      v-if="context.showValue"
+      class="formulate-input-element-range-value"
+      v-text="context.model"
+    />
   </div>
 </template>
 

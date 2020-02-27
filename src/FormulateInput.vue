@@ -161,6 +161,18 @@ export default {
     preventWindowDrops: {
       type: Boolean,
       default: true
+    },
+    showValue: {
+      type: [String, Boolean],
+      default: false
+    },
+    validationMessages: {
+      type: Object,
+      default: () => ({})
+    },
+    validationRules: {
+      type: Object,
+      default: () => ({})
     }
   },
   data () {
@@ -220,26 +232,42 @@ export default {
       }
     },
     performValidation () {
-      const rules = parseRules(this.validation, this.$formulate.rules())
+      const rules = parseRules(this.validation, this.$formulate.rules(this.validationRules))
       this.pendingValidation = Promise.all(
         rules.map(([rule, args]) => {
-          return rule({
+          var res = rule({
             value: this.context.model,
             getFormValues: this.getFormValues.bind(this),
             name: this.context.name
           }, ...args)
-            .then(res => res ? false : this.$formulate.validationMessage(rule.name, {
-              args,
-              name: this.mergedValidationName,
-              value: this.context.model,
-              vm: this,
-              formValues: this.getFormValues()
-            }))
+          res = (res instanceof Promise) ? res : Promise.resolve(res)
+          return res.then(res => res ? false : this.getValidationMessage(rule, args))
         })
       )
         .then(result => result.filter(result => result))
         .then(errorMessages => { this.validationErrors = errorMessages })
       return this.pendingValidation
+    },
+    getValidationMessage (rule, args) {
+      return this.getValidationFunction(rule)({
+        args,
+        name: this.mergedValidationName,
+        value: this.context.model,
+        vm: this,
+        formValues: this.getFormValues()
+      })
+    },
+    getValidationFunction (rule) {
+      const ruleName = rule.name.substr(0, 1) === '_' ? rule.name.substr(1) : rule.name
+      if (this.validationMessages && typeof this.validationMessages === 'object' && typeof this.validationMessages[ruleName] !== 'undefined') {
+        switch (typeof this.validationMessages[ruleName]) {
+          case 'function':
+            return this.validationMessages[ruleName]
+          case 'string':
+            return () => this.validationMessages[ruleName]
+        }
+      }
+      return (context) => this.$formulate.validationMessage(rule.name, context)
     },
     hasValidationErrors () {
       return new Promise(resolve => {

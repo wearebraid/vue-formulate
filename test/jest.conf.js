@@ -20,5 +20,5 @@ module.exports = {
   collectCoverageFrom: [
     "src/*.{js,vue}",
   ],
-  verbose: true
+  // verbose: true
 }
