@@ -41,11 +41,12 @@ $formulate-white: #ffffff;
   display: block;
   width: 100%;
   font-weight: 400;
-  line-height: 1.1em;
+  line-height: 1.2em;
   margin: 0;
 
   &::placeholder {
     color: $formulate-gray-dd;
+    line-height: normal;
   }
 
   &:focus {

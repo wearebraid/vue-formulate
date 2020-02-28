@@ -55,6 +55,7 @@
   &[data-classification='text'] {
     input {
       @include baseinput;
+      min-height: 1em;
     }
 
     .formulate-input-element--search {
