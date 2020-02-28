@@ -115,9 +115,9 @@ export default {
     }
     const force = Array.isArray(args) && args[1] ? args[1] : false
     if ((!isNaN(value) && force !== 'length') || force === 'value') {
-      return `${s(name)} must be less than ${args[0]}.`
+      return `${s(name)} must be less than or equal to ${args[0]}.`
     }
-    return `${s(name)} must be less than ${args[0]} characters long.`
+    return `${s(name)} must be less than or equal to ${args[0]} characters long.`
   },
 
   /**
