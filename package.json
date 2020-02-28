@@ -1,12 +1,12 @@
 {
   "name": "@braid/vue-formulate",
-  "version": "2.0.0-alpha.4",
+  "version": "2.0.0",
   "description": "The easiest way to build forms in Vue.",
   "main": "dist/formulate.umd.js",
   "module": "dist/formulate.esm.js",
   "unpkg": "dist/formulate.min.js",
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "engines": {
     "node": ">=11"
