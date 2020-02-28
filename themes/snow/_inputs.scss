@@ -55,7 +55,15 @@
   &[data-classification='text'] {
     input {
       @include baseinput;
-      min-height: 1em;
+    }
+
+    .formulate-input-element--date,
+    .formulate-input-element--month,
+    .formulate-input-element--week,
+    .formulate-input-element--datetime-local {
+      input {
+        min-height: 2.2em; // shim for some browsers that collapse height like ios
+      }
     }
 
     .formulate-input-element--search {
