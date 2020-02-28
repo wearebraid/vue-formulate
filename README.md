@@ -4,7 +4,7 @@
   <a href="https://travis-ci.org/wearebraid/vue-formulate"><img src="https://travis-ci.org/wearebraid/vue-formulate.svg?branch=master"></a>
   <a href="https://www.npmjs.com/package/@braid/vue-formulate"><img alt="npm" src="https://img.shields.io/npm/v/@braid/vue-formulate"></a>
   <a href="https://github.com/wearebraid/vue-formulate"><img alt="GitHub" src="https://img.shields.io/github/license/wearebraid/vue-formulate"></a>
-  <a href=""><img src="https://img.badgesize.io/wearebraid/vue-formulate/master/dist/index.js.svg?compression=gzip&label=gzip"></a>
+  <a href=""><img src="https://img.badgesize.io/wearebraid/vue-formulate/master/dist/formulate.min.js.svg?compression=gzip&label=gzip"></a>
 </p>
 
 <p align="center">
