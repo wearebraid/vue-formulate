@@ -8,14 +8,14 @@ export default {
   input: 'src/Formulate.js', // Path relative to package.json
   output: {
     name: 'Formulate',
-    exports: 'named'
-    // globals: {
-    //   'is-plain-object': 'isPlainObject',
-    //   'nanoid': 'nanoid',
-    //   'is-url': 'isUrl'
-    // }
+    exports: 'named',
+    globals: {
+      'is-plain-object': 'isPlainObject',
+      'nanoid/non-secure': 'nanoid',
+      'is-url': 'isUrl'
+    }
   },
-  // external: ['is-plain-object', 'nanoid', 'is-url'],
+  external: ['nanoid/non-secure'],
   plugins: [
     commonjs(),
     autoExternal(),

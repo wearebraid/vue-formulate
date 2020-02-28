@@ -1,4 +1,4 @@
-import nanoid from 'nanoid'
+import nanoid from 'nanoid/non-secure'
 
 /**
  * The file upload class holds and represents a file’s upload state durring

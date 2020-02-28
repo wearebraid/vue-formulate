@@ -171,6 +171,7 @@ class Formulate {
 }
 
 export default new Formulate()
+
 export {
   FileUpload
 }
