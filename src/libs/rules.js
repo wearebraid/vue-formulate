@@ -140,19 +140,19 @@ export default {
   /**
    * Check the maximum value of a particular.
    */
-  max: function ({ value }, minimum = 10, force) {
+  max: function ({ value }, maximum = 10, force) {
     return Promise.resolve((() => {
       if (Array.isArray(value)) {
-        minimum = !isNaN(minimum) ? Number(minimum) : minimum
-        return value.length <= minimum
+        maximum = !isNaN(maximum) ? Number(maximum) : maximum
+        return value.length <= maximum
       }
       if ((!isNaN(value) && force !== 'length') || force === 'value') {
         value = !isNaN(value) ? Number(value) : value
-        return value <= minimum
+        return value <= maximum
       }
       if (typeof value === 'string' || (force === 'length')) {
         value = !isNaN(value) ? value.toString() : value
-        return value.length <= minimum
+        return value.length <= maximum
       }
       return false
     })())
