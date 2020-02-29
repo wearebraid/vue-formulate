@@ -31,6 +31,10 @@ export default {
     formulateValue: {
       type: Object,
       default: () => ({})
+    },
+    values: {
+      type: [Object, Boolean],
+      default: false
     }
   },
   data () {
@@ -41,14 +45,33 @@ export default {
     }
   },
   computed: {
-    hasFormulateValue () {
-      return this.formulateValue && typeof this.formulateValue === 'object'
+    hasInitialValue () {
+      return (
+        (this.formulateValue && typeof this.formulateValue === 'object') ||
+        (this.values && typeof this.values === 'object')
+      )
     },
     isVmodeled () {
       return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
         this._events &&
         Array.isArray(this._events.input) &&
         this._events.input.length)
+    },
+    initialValues () {
+      if (
+        Object.prototype.hasOwnProperty.call(this.$options.propsData, 'formulateValue') &&
+        typeof this.formulateValue === 'object'
+      ) {
+        // If there is a v-model on the form, use those values as first priority
+        return Object.assign({}, this.formulateValue) // @todo - use a deep clone to detach reference types
+      } else if (
+        Object.prototype.hasOwnProperty.call(this.$options.propsData, 'values') &&
+        typeof this.values === 'object'
+      ) {
+        // If there are values, use them as secondary priority
+        return Object.assign({}, this.values)
+      }
+      return {}
     }
   },
   watch: {
@@ -74,8 +97,8 @@ export default {
     }
   },
   created () {
-    if (this.$options.propsData.hasOwnProperty('formulateValue')) {
-      this.internalFormModelProxy = Object.assign({}, this.formulateValue)
+    if (this.hasInitialValue) {
+      this.internalFormModelProxy = this.initialValues
     }
   },
   methods: {
@@ -89,15 +112,15 @@ export default {
       const hasValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'value')
       if (
         !hasVModelValue &&
-        this.hasFormulateValue &&
-        this.formulateValue[field]
+        this.hasInitialValue &&
+        this.initialValues[field]
       ) {
         // In the case that the form is carrying an initial value and the
         // element is not, set it directly.
-        component.context.model = this.formulateValue[field]
+        component.context.model = this.initialValues[field]
       } else if (
         (hasVModelValue || hasValue) &&
-        !shallowEqualObjects(component.internalModelProxy, this.formulateValue[field])
+        !shallowEqualObjects(component.internalModelProxy, this.initialValues[field])
       ) {
         this.setFieldValue(field, component.internalModelProxy)
       }

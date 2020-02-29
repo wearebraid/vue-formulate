@@ -173,4 +173,15 @@ describe('FormulateForm', () => {
     const submission = await wrapper.vm.formSubmitted()
     expect(submission).toEqual({testinput: 'Justin'})
   })
+
+  it('accepts a values prop and uses it to set the initial values', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { values: { name: 'Dave Barnett', candy: true } },
+      slots: { default: `<FormulateInput type="text" name="name" validation="required" /><FormulateInput type="checkbox" name="candy" />` }
+    })
+    await flushPromises()
+    // expect(wrapper.vm.internalFormModelProxy).toEqual({ name: 'Dave Barnett', candy: true })
+    expect(wrapper.find('input[type="text"]').element.value).toBe('Dave Barnett')
+    expect(wrapper.find('input[type="checkbox"]').element.checked).toBe(true)
+  })
 })
