@@ -8,7 +8,7 @@ export default {
   input: 'src/Formulate.js', // Path relative to package.json
   output: {
     name: 'Formulate',
-    exports: 'named',
+    exports: 'default',
     globals: {
       'is-plain-object': 'isPlainObject',
       'nanoid/non-secure': 'nanoid',
