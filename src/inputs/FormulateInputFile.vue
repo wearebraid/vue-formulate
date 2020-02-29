@@ -78,8 +78,9 @@ export default {
       const input = this.$refs.file
       if (input.files.length) {
         this.context.model = this.$formulate.createUpload(input, this.context)
+        // nextTick required for attemptImmediateUpload to pass instanceof reliably
+        this.$nextTick(() => this.attemptImmediateUpload())
       }
-      this.attemptImmediateUpload()
     },
     attemptImmediateUpload () {
       if (this.context.uploadBehavior === 'live' &&

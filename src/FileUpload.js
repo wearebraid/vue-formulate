@@ -17,6 +17,7 @@ class FileUpload {
     this.options = options
     this.addFileList(this.fileList)
     this.context = context
+    this.results = false
   }
 
   /**
@@ -92,6 +93,9 @@ class FileUpload {
    * Perform the file upload.
    */
   upload () {
+    if (this.results) {
+      return Promise.resolve(this.results)
+    }
     return new Promise((resolve, reject) => {
       if (!this.hasUploader) {
         return reject(new Error('No uploader has been defined'))
@@ -117,7 +121,10 @@ class FileUpload {
           this.options
         )
       }))
-        .then(results => resolve(results))
+        .then(results => {
+          this.results = results
+          resolve(results)
+        })
         .catch(err => { throw new Error(err) })
     })
   }
@@ -165,7 +172,7 @@ class FileUpload {
 
   toString () {
     const descriptor = this.files.length ? this.files.length + ' files' : 'empty'
-    return `FileUpload(${descriptor})`
+    return this.results ? JSON.stringify(this.results, null, '  ') : `FileUpload(${descriptor})`
   }
 }
 

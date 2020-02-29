@@ -29,14 +29,12 @@ export default class FormSubmission {
       const values = cloneDeep(this.form.internalFormModelProxy)
       for (const key in values) {
         if (typeof this.form.internalFormModelProxy[key] === 'object' && this.form.internalFormModelProxy[key] instanceof FileUpload) {
-          pending.push(this.form.internalFormModelProxy[key].upload())
+          pending.push(
+            this.form.internalFormModelProxy[key].upload().then(data => Object.assign(values, { [key]: data }))
+          )
         }
       }
-      /**
-       * @todo - how do we get these uploaded path values back into our data?
-       */
       Promise.all(pending)
-        // .then(file => file.path)
         .then(() => resolve(values))
         .catch(err => reject(err))
     })
