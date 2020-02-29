@@ -13,7 +13,7 @@
 
 ### What is Vue Formulate?
 
-Vue Formualte is the easiest way to build forms using Vue. Key features include
+Vue Formulate is the easiest way to build forms using Vue. Key features include
 form and field validation, file uploads, form generation and a single-element
 fields with labels, help text, error messages, placeholders and lots more.
 
