@@ -21,7 +21,7 @@ export default {
       attributes: this.elementAttributes,
       blurHandler: blurHandler.bind(this),
       imageBehavior: this.imageBehavior,
-      uploadUrl: this.uploadUrl,
+      uploadUrl: this.mergedUploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
       uploadBehavior: this.uploadBehavior,
       preventWindowDrops: this.preventWindowDrops,
@@ -37,7 +37,8 @@ export default {
   mergedErrors,
   hasErrors,
   showFieldErrors,
-  mergedValidationName
+  mergedValidationName,
+  mergedUploadUrl
 }
 
 /**
@@ -109,6 +110,14 @@ function mergedValidationName () {
     return this.label
   }
   return this.type
+}
+
+/**
+ * Use the uploadURL on the input if it exists, otherwise use the uploadURL
+ * that is defined as a plugin option.
+ */
+function mergedUploadUrl () {
+  return this.uploadUrl || this.$formulate.getUploadUrl()
 }
 
 /**

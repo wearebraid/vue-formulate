@@ -43,6 +43,7 @@ class Formulate {
       rules,
       locale: 'en',
       uploader: fauxUploader,
+      uploadUrl: false,
       uploadJustCompleteDuration: 1000,
       plugins: [],
       locales: {
@@ -160,6 +161,13 @@ class Formulate {
    */
   getUploader () {
     return this.options.uploader || false
+  }
+
+  /**
+   * Get the global upload url.
+   */
+  getUploadUrl () {
+    return this.options.uploadUrl || false
   }
 
   /**
