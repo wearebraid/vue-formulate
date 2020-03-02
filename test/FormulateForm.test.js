@@ -210,4 +210,15 @@ describe('FormulateForm', () => {
     expect(wrapper.find('input[type="text"]').element.value).toBe('Dave Barnett')
     expect(wrapper.find('input[type="checkbox"]').element.checked).toBe(true)
   })
+
+  it('shows error messages when it includes a checkbox with options', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { formulateValue: { box3: [] } },
+      slots: { default: '<FormulateInput type="checkbox" name="box3" validation="required" :options="{first: \'First\', second: \'Second\', third: \'Third\'}" />' }
+    })
+    wrapper.trigger('submit')
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-error').exists()).toBe(true)
+  })
 })

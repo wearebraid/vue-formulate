@@ -108,7 +108,17 @@ export default {
       Object.assign(this.internalFormModelProxy, { [field]: value })
       this.$emit('input', Object.assign({}, this.internalFormModelProxy))
     },
+    getUniqueRegistryName (base, count = 0) {
+      if (Object.prototype.hasOwnProperty.call(this.registry, base + (count || ''))) {
+        return this.getUniqueRegistryName(base, count + 1)
+      }
+      return base + (count || '')
+    },
     register (field, component) {
+      // Don't re-register fields... @todo come up with another way of handling this that doesn't break multi option
+      if (Object.prototype.hasOwnProperty.call(this.registry, field)) {
+        return false
+      }
       this.registry[field] = component
       const hasVModelValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'formulateValue')
       const hasValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'value')

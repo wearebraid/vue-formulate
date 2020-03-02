@@ -140,27 +140,27 @@ describe('FormulateInputBox', () => {
     expect(wrapper.vm.radioValue).toBe('')
   })
 
-  // it('does not pre-set internal value of FormulateForm when type "radio" with options', async () => {
-  //   const wrapper = mount({
-  //     data () {
-  //       return {
-  //         radioValue: '',
-  //         formValues: {},
-  //         options: {foo: 'Foo', bar: 'Bar', fooey: 'Fooey'}
-  //       }
-  //     },
-  //     template: `
-  //       <FormulateForm
-  //         v-model="formValues"
-  //       >
-  //         <FormulateInput type="radio" v-model="radioValue" name="foobar" :options="options" />
-  //       </FormulateForm>
-  //     `
-  //   })
-  //   await wrapper.vm.$nextTick()
-  //   await flushPromises()
-  //   expect(wrapper.vm.formValues.foobar).toBe(undefined)
-  // })
+  it('does not pre-set internal value of FormulateForm when type "radio" with options', async () => {
+    const wrapper = mount({
+      data () {
+        return {
+          radioValue: '',
+          formValues: {},
+          options: {foo: 'Foo', bar: 'Bar', fooey: 'Fooey'}
+        }
+      },
+      template: `
+        <FormulateForm
+          v-model="formValues"
+        >
+          <FormulateInput type="radio" v-model="radioValue" name="foobar" :options="options" />
+        </FormulateForm>
+      `
+    })
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+    expect(wrapper.vm.formValues.foobar).toBe('')
+  })
 
   it('does precheck the correct input when radio with options', async () => {
     const wrapper = mount({
