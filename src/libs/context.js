@@ -1,5 +1,5 @@
 import nanoid from 'nanoid/non-secure'
-import { map, arrayify } from './utils'
+import { map, arrayify, shallowEqualObjects } from './utils'
 
 /**
  * For a single instance of an input, export all of the context needed to fully
@@ -19,9 +19,10 @@ export default {
       label: this.label,
       labelPosition: this.logicalLabelPosition,
       attributes: this.elementAttributes,
+      performValidation: this.performValidation.bind(this),
       blurHandler: blurHandler.bind(this),
       imageBehavior: this.imageBehavior,
-      uploadUrl: this.uploadUrl,
+      uploadUrl: this.mergedUploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
       uploadBehavior: this.uploadBehavior,
       preventWindowDrops: this.preventWindowDrops,
@@ -37,7 +38,8 @@ export default {
   mergedErrors,
   hasErrors,
   showFieldErrors,
-  mergedValidationName
+  mergedValidationName,
+  mergedUploadUrl
 }
 
 /**
@@ -109,6 +111,14 @@ function mergedValidationName () {
     return this.label
   }
   return this.type
+}
+
+/**
+ * Use the uploadURL on the input if it exists, otherwise use the uploadURL
+ * that is defined as a plugin option.
+ */
+function mergedUploadUrl () {
+  return this.uploadUrl || this.$formulate.getUploadUrl()
 }
 
 /**
@@ -220,7 +230,9 @@ function modelGetter () {
  * Set the value from a model.
  **/
 function modelSetter (value) {
-  this.internalModelProxy = value
+  if (!shallowEqualObjects(value, this.internalModelProxy)) {
+    this.internalModelProxy = value
+  }
   this.$emit('input', value)
   if (this.context.name && typeof this.formulateFormSetter === 'function') {
     this.formulateFormSetter(this.context.name, value)

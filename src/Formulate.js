@@ -43,6 +43,8 @@ class Formulate {
       rules,
       locale: 'en',
       uploader: fauxUploader,
+      uploadUrl: false,
+      fileUrlKey: 'url',
       uploadJustCompleteDuration: 1000,
       plugins: [],
       locales: {
@@ -160,6 +162,21 @@ class Formulate {
    */
   getUploader () {
     return this.options.uploader || false
+  }
+
+  /**
+   * Get the global upload url.
+   */
+  getUploadUrl () {
+    return this.options.uploadUrl || false
+  }
+
+  /**
+   * When re-hydrating a file uploader with an array, get the sub-object key to
+   * access the url of the file. Usually this is just "url".
+   */
+  getFileUrlKey () {
+    return this.options.fileUrlKey || 'url'
   }
 
   /**

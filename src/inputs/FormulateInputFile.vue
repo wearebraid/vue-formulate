@@ -52,6 +52,15 @@ export default {
       return !!(this.context.model instanceof FileUpload && this.context.model.files.length)
     }
   },
+  created () {
+    if (Array.isArray(this.context.model)) {
+      if (typeof this.context.model[0][this.$formulate.getFileUrlKey()] === 'string') {
+        this.context.model = this.$formulate.createUpload({
+          files: this.context.model
+        }, this.context)
+      }
+    }
+  },
   mounted () {
     // Add a listener to the window to prevent drag/drops that miss the dropzone
     // from opening the file and navigating the user away from the page.

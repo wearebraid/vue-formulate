@@ -151,9 +151,9 @@ describe('FormulateInputText', () => {
     expect(wrapper.find('input').element.value).toBe('initial val')
   })
 
-  it('uses the v-model value as the initial value when value prop is provided', () => {
+  it('uses the value prop as the initial value when v-model provided', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text', formulateValue: 'initial val', value: 'initial other val' } })
-    expect(wrapper.find('input').element.value).toBe('initial val')
+    expect(wrapper.find('input').element.value).toBe('initial other val')
   })
 
   it('uses a proxy model internally if it doesnt have a v-model', () => {

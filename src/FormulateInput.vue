@@ -173,16 +173,17 @@ export default {
     validationRules: {
       type: Object,
       default: () => ({})
+    },
+    checked: {
+      type: [String, Boolean],
+      default: false
     }
   },
   data () {
     return {
-      /**
-       * @todo consider swapping out nanoid for this._uid
-       */
       defaultId: nanoid(9),
       localAttributes: {},
-      internalModelProxy: this.formulateValue || this.value,
+      internalModelProxy: this.getInitialValue(),
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
       validationErrors: [],
@@ -219,6 +220,7 @@ export default {
     }
   },
   created () {
+    this.applyInitialValue()
     if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
       this.formulateFormRegister(this.nameOrFallback, this)
     }
@@ -226,6 +228,30 @@ export default {
     this.performValidation()
   },
   methods: {
+    getInitialValue () {
+      // Manually request classification, pre-computed props
+      var classification = this.$formulate.classify(this.type)
+      classification = (classification === 'box' && this.options) ? 'group' : classification
+      if (classification === 'box' && this.checked) {
+        return this.value || true
+      } else if (Object.prototype.hasOwnProperty.call(this.$options.propsData, 'value') && classification !== 'box') {
+        return this.value
+      } else if (Object.prototype.hasOwnProperty.call(this.$options.propsData, 'formulateValue')) {
+        return this.formulateValue
+      }
+      return ''
+    },
+    applyInitialValue () {
+      // This should only be run immediately on created and ensures that the
+      // proxy and the model are both the same before any additional registration.
+      if (
+        !shallowEqualObjects(this.context.model, this.internalModelProxy) &&
+        // we dont' want to set the model if we are a sub-box of a multi-box field
+        (Object.prototype.hasOwnProperty(this.$options.propsData, 'options') && this.classification === 'box')
+      ) {
+        this.context.model = this.internalModelProxy
+      }
+    },
     updateLocalAttributes (value) {
       if (!shallowEqualObjects(value, this.localAttributes)) {
         this.localAttributes = value

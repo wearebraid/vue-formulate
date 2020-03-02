@@ -24,6 +24,10 @@ describe('required', () => {
   it('passes with empty value if second argument is false', async () => expect(await rules.required({ value: '' }, false)).toBe(true))
 
   it('passes with empty value if second argument is false string', async () => expect(await rules.required({ value: '' }, 'false')).toBe(true))
+
+  it('passes with FileUpload', async () => expect(await rules.required({ value: new FileUpload({ files: [{ name: 'j.png' }] }) })).toBe(true))
+
+  it('fails with empty FileUpload', async () => expect(await rules.required({ value: new FileUpload({ files: [] }) })).toBe(false))
 })
 
 

@@ -397,7 +397,8 @@
         z-index: 2; }
     .formulate-input[data-classification="file"] .formulate-files .formualte-file-name {
       padding-left: 1.5em;
-      padding-right: 2em; }
+      padding-right: 2em;
+      max-width: 100%; }
       .formulate-input[data-classification="file"] .formulate-files .formualte-file-name::before {
         position: absolute;
         left: .7em;

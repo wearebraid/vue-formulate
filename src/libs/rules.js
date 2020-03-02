@@ -164,9 +164,9 @@ export default {
   mime: function ({ value }, ...types) {
     return Promise.resolve((() => {
       if (value instanceof FileUpload) {
-        const fileList = value.getFileList()
+        const fileList = value.getFiles()
         for (let i = 0; i < fileList.length; i++) {
-          const file = fileList[i]
+          const file = fileList[i].file
           if (!types.includes(file.type)) {
             return false
           }
@@ -226,6 +226,9 @@ export default {
       }
       if (Array.isArray(value)) {
         return !!value.length
+      }
+      if (value instanceof FileUpload) {
+        return value.getFiles().length > 0
       }
       if (typeof value === 'string') {
         return !!value
