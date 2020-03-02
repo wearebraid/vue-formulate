@@ -19,7 +19,7 @@
           >
         </div>
         <div
-          class="formualte-file-name"
+          class="formulate-file-name"
           v-text="file.name"
         />
         <div
