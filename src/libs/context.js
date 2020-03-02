@@ -1,5 +1,5 @@
 import nanoid from 'nanoid/non-secure'
-import { map, arrayify } from './utils'
+import { map, arrayify, shallowEqualObjects } from './utils'
 
 /**
  * For a single instance of an input, export all of the context needed to fully
@@ -220,7 +220,9 @@ function modelGetter () {
  * Set the value from a model.
  **/
 function modelSetter (value) {
-  this.internalModelProxy = value
+  if (!shallowEqualObjects(value, this.internalModelProxy)) {
+    this.internalModelProxy = value
+  }
   this.$emit('input', value)
   if (this.context.name && typeof this.formulateFormSetter === 'function') {
     this.formulateFormSetter(this.context.name, value)

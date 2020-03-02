@@ -46,11 +46,12 @@ describe('FormulateForm', () => {
     expect(Object.keys(wrapper.vm.registry)).toEqual(['subinput1', 'subinput2'])
   })
 
-  it('can set a field’s initial value', () => {
+  it('can set a field’s initial value', async () => {
     const wrapper = mount(FormulateForm, {
       propsData: { formulateValue: { testinput: 'has initial value' } },
       slots: { default: '<FormulateInput type="text" name="testinput" />' }
     })
+    await flushPromises()
     expect(wrapper.find('input').element.value).toBe('has initial value')
   })
 
@@ -75,6 +76,31 @@ describe('FormulateForm', () => {
     })
     expect(wrapper.vm.formValues).toEqual({ name: '123' })
   })
+
+  it('can set initial checked attribute on single checkboxes', () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { formulateValue: { box1: true } },
+      slots: { default: '<FormulateInput type="checkbox" name="box1" />' }
+    })
+    expect(wrapper.find('input[type="checkbox"]').is(':checked')).toBe(true)
+  });
+
+  it('can set initial unchecked attribute on single checkboxes', () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { formulateValue: { box1: false } },
+      slots: { default: '<FormulateInput type="checkbox" name="box1" />' }
+    })
+    expect(wrapper.find('input[type="checkbox"]').is(':checked')).toBe(false)
+  });
+
+  it('can set checkbox initial value with options', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { formulateValue: { box2: ['second', 'third'] } },
+      slots: { default: '<FormulateInput type="checkbox" name="box2" :options="{first: \'First\', second: \'Second\', third: \'Third\'}" />' }
+    })
+    await flushPromises()
+    expect(wrapper.findAll('input').length).toBe(3)
+  });
 
   it('receives updates to form model when individual fields are edited', () => {
     const wrapper = mount({

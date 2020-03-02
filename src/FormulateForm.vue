@@ -92,16 +92,18 @@ export default {
           }
         }
       },
-      deep: true,
-      immediate: false
+      deep: true
     }
   },
   created () {
-    if (this.hasInitialValue) {
-      this.internalFormModelProxy = this.initialValues
-    }
+    this.applyInitialValues()
   },
   methods: {
+    applyInitialValues () {
+      if (this.hasInitialValue) {
+        this.internalFormModelProxy = this.initialValues
+      }
+    },
     setFieldValue (field, value) {
       Object.assign(this.internalFormModelProxy, { [field]: value })
       this.$emit('input', Object.assign({}, this.internalFormModelProxy))
