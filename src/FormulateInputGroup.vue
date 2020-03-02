@@ -36,6 +36,7 @@ export default {
         attributes: { id, ...groupApplicableAttributes },
         classification,
         blurHandler,
+        performValidation,
         hasValidationErrors,
         component,
         hasLabel,

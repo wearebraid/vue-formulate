@@ -1,4 +1,5 @@
 import nanoid from 'nanoid/non-secure'
+import mimes from './libs/mimes'
 
 /**
  * The file upload class holds and represents a file’s upload state durring
@@ -15,9 +16,35 @@ class FileUpload {
     this.fileList = input.files
     this.files = []
     this.options = options
-    this.addFileList(this.fileList)
-    this.context = context
     this.results = false
+    this.context = context
+    if (Array.isArray(this.fileList)) {
+      this.rehydrateFileList(this.fileList)
+    } else {
+      this.addFileList(this.fileList)
+    }
+  }
+
+  /**
+   * Given a pre-existing array of files, create a faux FileList.
+   * @param {array} items expects an array of objects [{ url: '/uploads/file.pdf' }]
+   * @param {string} pathKey the object-key to access the url (defaults to "url")
+   */
+  rehydrateFileList (items) {
+    const fauxFileList = items.reduce((fileList, item) => {
+      const key = this.options ? this.options.fileUrlKey : 'url'
+      const url = item[key]
+      const ext = (url && url.lastIndexOf('.') !== -1) ? url.substr(url.lastIndexOf('.') + 1) : false
+      const mime = mimes[ext] || false
+      fileList.push(Object.assign({}, item, url ? {
+        name: url.substr((url.lastIndexOf('/') + 1) || 0),
+        type: item.type ? item.type : mime,
+        previewData: url
+      } : {}))
+      return fileList
+    }, [])
+    this.results = items
+    this.addFileList(fauxFileList)
   }
 
   /**
@@ -41,7 +68,7 @@ class FileUpload {
         uuid,
         path: false,
         removeFile: removeFile.bind(this),
-        previewData: false
+        previewData: file.previewData || false
       })
     }
   }
@@ -54,15 +81,18 @@ class FileUpload {
   }
 
   /**
-   * Check if the given uploader is axios instance.
+   * Check if the given uploader is axios instance. This isn't a great way of
+   * testing if it is or not, but AFIK there isn't a better way right now:
+   *
+   * https://github.com/axios/axios/issues/737
    */
   uploaderIsAxios () {
     if (
       this.hasUploader &&
-      typeof this.hasUploader.request === 'function' &&
-      typeof this.hasUploader.get === 'function' &&
-      typeof this.hasUploader.delete === 'function' &&
-      typeof this.hasUploader.post === 'function'
+      typeof this.context.uploader.request === 'function' &&
+      typeof this.context.uploader.get === 'function' &&
+      typeof this.context.uploader.delete === 'function' &&
+      typeof this.context.uploader.post === 'function'
     ) {
       return true
     }
@@ -76,14 +106,19 @@ class FileUpload {
     if (this.uploaderIsAxios()) {
       const formData = new FormData()
       formData.append(this.context.name || 'file', args[0])
-      return this.uploader.post(this.context.uploadUrl, formData, {
+      if (this.context.uploadUrl === false) {
+        throw new Error('No uploadURL specified: https://vueformulate.com/guide/inputs/file/#props')
+      }
+      return this.context.uploader.post(this.context.uploadUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
         onUploadProgress: progressEvent => {
+          // args[1] here is the upload progress handler function
           args[1](Math.round((progressEvent.loaded * 100) / progressEvent.total))
         }
       })
+        .then(res => res.data)
         .catch(err => args[2](err))
     }
     return this.context.uploader(...args)
@@ -135,7 +170,8 @@ class FileUpload {
    */
   removeFile (uuid) {
     this.files = this.files.filter(file => file.uuid !== uuid)
-    if (window) {
+    this.context.performValidation()
+    if (window && this.fileList instanceof FileList) {
       const transfer = new DataTransfer()
       this.files.map(file => transfer.items.add(file.file))
       this.fileList = transfer.files
