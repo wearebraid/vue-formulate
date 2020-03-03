@@ -7,6 +7,7 @@
       v-model="context.model"
       v-bind="optionContext"
       class="formulate-input-group-item"
+      @blur="context.blurHandler"
     />
   </div>
 </template>
