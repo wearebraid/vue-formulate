@@ -90,6 +90,16 @@ export default {
   },
 
   /**
+   * Value ends with specified key(s)
+   */
+  ends_with: function ({ name, value }) {
+    if (!value) {
+      return 'This field isn’t valid.'
+    }
+    return `“${value}” does not end with a valid value.`
+  },
+
+  /**
    * Value is an allowed value.
    */
   in: function ({ name, value }) {
@@ -160,6 +170,16 @@ export default {
    */
   required: function ({ name }) {
     return `${s(name)} is required.`
+  },
+
+  /**
+   * Value starts with specified key(s)
+   */
+  starts_with: function ({ name, value }) {
+    if (!value) {
+      return 'This field isn’t valid.'
+    }
+    return `“${value}” does not begin with a valid value.`
   },
 
   /**
