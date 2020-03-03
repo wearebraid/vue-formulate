@@ -94,9 +94,9 @@ export default {
    */
   endsWith: function ({ name, value }) {
     if (!value) {
-      return 'This field isn’t valid.'
+      return `This field doesn’t end with a valid value.`
     }
-    return `“${value}” does not end with a valid value.`
+    return `“${value}” doesn’t end with a valid value.`
   },
 
   /**
@@ -177,9 +177,9 @@ export default {
    */
   startsWith: function ({ name, value }) {
     if (!value) {
-      return 'This field isn’t valid.'
+      return `This field doesn’t start with a valid value.`
     }
-    return `“${value}” does not start with a valid value.`
+    return `“${value}” doesn’t start with a valid value.`
   },
 
   /**
