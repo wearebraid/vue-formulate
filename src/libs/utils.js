@@ -135,7 +135,7 @@ export function parseRules (validation, rules) {
 }
 
 /**
- * Given a string or function, parse it and return the an array in the format
+ * Given a string or function, parse it and return an array in the format
  * [fn, [...arguments]]
  * @param {string|function} rule
  */
@@ -144,7 +144,7 @@ function parseRule (rule, rules) {
     return [rule, []]
   }
   if (Array.isArray(rule) && rule.length) {
-    rule = rule.map(r => snakeCaseToCamelCase(r)) // light clone
+    rule[0] = snakeCaseToCamelCase(rule[0])
     if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
       return [rules[rule.shift()], rule]
     }

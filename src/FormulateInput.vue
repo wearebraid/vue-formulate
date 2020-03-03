@@ -206,12 +206,12 @@ export default {
       })
       return parsedValidationRules
     },
-    parsedValidationMessages () {
-      const parsedValidationMessages = {}
+    messages () {
+      const messages = {}
       Object.keys(this.validationMessages).forEach((key) => {
-        parsedValidationMessages[snakeCaseToCamelCase(key)] = this.validationMessages[key]
+        messages[snakeCaseToCamelCase(key)] = this.validationMessages[key]
       })
-      return parsedValidationMessages
+      return messages
     }
   },
   watch: {
@@ -300,12 +300,12 @@ export default {
     getValidationFunction (rule) {
       let ruleName = rule.name.substr(0, 1) === '_' ? rule.name.substr(1) : rule.name
       ruleName = snakeCaseToCamelCase(ruleName)
-      if (this.parsedValidationMessages && typeof this.parsedValidationMessages === 'object' && typeof this.parsedValidationMessages[ruleName] !== 'undefined') {
-        switch (typeof this.parsedValidationMessages[ruleName]) {
+      if (this.messages && typeof this.messages === 'object' && typeof this.messages[ruleName] !== 'undefined') {
+        switch (typeof this.messages[ruleName]) {
           case 'function':
-            return this.parsedValidationMessages[ruleName]
+            return this.messages[ruleName]
           case 'string':
-            return () => this.parsedValidationMessages[ruleName]
+            return () => this.messages[ruleName]
         }
       }
       return (context) => this.$formulate.validationMessage(rule.name, context)

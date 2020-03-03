@@ -135,7 +135,7 @@ describe('snakeCaseToCamelCase', () => {
     expect(snakeCaseToCamelCase('__unlikely__thing__')).toBe('__unlikely__thing__')
   })
 
-  it('has no effect hyphenated words', () => {
+  it('has no effect on hyphenated words', () => {
     expect(snakeCaseToCamelCase('not-a-good-name')).toBe('not-a-good-name')
   })
 })
