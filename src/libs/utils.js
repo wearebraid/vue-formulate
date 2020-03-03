@@ -75,9 +75,9 @@ export function shallowEqualObjects (objA, objB) {
  * Given a string, convert snake_case to camelCase
  * @param {String} string
  */
-export function snakeCaseToCamelCase (string) {
+export function snakeToCamel (string) {
   if (typeof string === 'string') {
-    return string.replace(/([_][a-z])/ig, ($1) => {
+    return string.replace(/([_][a-z0-9])/ig, ($1) => {
       if (string.indexOf($1) !== 0 && string[string.indexOf($1) - 1] !== '_') {
         return $1.toUpperCase().replace('_', '')
       }
@@ -144,7 +144,7 @@ function parseRule (rule, rules) {
     return [rule, []]
   }
   if (Array.isArray(rule) && rule.length) {
-    rule = rule.map(r => snakeCaseToCamelCase(r)) // light clone
+    rule = rule.map(r => snakeToCamel(r)) // light clone
     if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
       return [rules[rule.shift()], rule]
     }
@@ -154,7 +154,7 @@ function parseRule (rule, rules) {
   }
   if (typeof rule === 'string') {
     const segments = rule.split(':')
-    const functionName = snakeCaseToCamelCase(segments.shift())
+    const functionName = snakeToCamel(segments.shift())
     if (rules.hasOwnProperty(functionName)) {
       return [rules[functionName], segments.length ? segments.join(':').split(',') : []]
     } else {

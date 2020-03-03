@@ -55,7 +55,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, snakeCaseToCamelCase } from './libs/utils'
+import { shallowEqualObjects, parseRules, snakeToCamel } from './libs/utils'
 import nanoid from 'nanoid/non-secure'
 
 export default {
@@ -202,14 +202,14 @@ export default {
     parsedValidationRules () {
       const parsedValidationRules = {}
       Object.keys(this.validationRules).forEach((key) => {
-        parsedValidationRules[snakeCaseToCamelCase(key)] = this.validationRules[key]
+        parsedValidationRules[snakeToCamel(key)] = this.validationRules[key]
       })
       return parsedValidationRules
     },
     parsedValidationMessages () {
       const parsedValidationMessages = {}
       Object.keys(this.validationMessages).forEach((key) => {
-        parsedValidationMessages[snakeCaseToCamelCase(key)] = this.validationMessages[key]
+        parsedValidationMessages[snakeToCamel(key)] = this.validationMessages[key]
       })
       return parsedValidationMessages
     }
@@ -299,7 +299,7 @@ export default {
     },
     getValidationFunction (rule) {
       let ruleName = rule.name.substr(0, 1) === '_' ? rule.name.substr(1) : rule.name
-      ruleName = snakeCaseToCamelCase(ruleName)
+      ruleName = snakeToCamel(ruleName)
       if (this.parsedValidationMessages && typeof this.parsedValidationMessages === 'object' && typeof this.parsedValidationMessages[ruleName] !== 'undefined') {
         switch (typeof this.parsedValidationMessages[ruleName]) {
           case 'function':
