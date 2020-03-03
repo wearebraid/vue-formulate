@@ -1,4 +1,4 @@
-import { parseRules, regexForFormat, cloneDeep, isValueType, snakeCaseToCamelCase } from '@/libs/utils'
+import { parseRules, regexForFormat, cloneDeep, isValueType, snakeToCamel } from '@/libs/utils'
 import rules from '@/libs/rules'
 import FileUpload from '@/FileUpload';
 
@@ -118,24 +118,28 @@ describe('cloneDeep', () => {
   })
 })
 
-describe('snakeCaseToCamelCase', () => {
+describe('snakeToCamel', () => {
   it('converts underscore separated words to camelCase', () => {
-    expect(snakeCaseToCamelCase('this_is_snake_case')).toBe('thisIsSnakeCase')
+    expect(snakeToCamel('this_is_snake_case')).toBe('thisIsSnakeCase')
+  })
+
+  it('converts underscore separated words to camelCase even if they start with a number', () => {
+    expect(snakeToCamel('this_is_snake_case_2nd_example')).toBe('thisIsSnakeCase2ndExample')
   })
 
   it('has no effect on already camelCase words', () => {
-    expect(snakeCaseToCamelCase('thisIsCamelCase')).toBe('thisIsCamelCase')
+    expect(snakeToCamel('thisIsCamelCase')).toBe('thisIsCamelCase')
   })
 
   it('does not capitalize the first word or strip first underscore if a phrase starts with an underscore', () => {
-    expect(snakeCaseToCamelCase('_this_starts_with_an_underscore')).toBe('_thisStartsWithAnUnderscore')
+    expect(snakeToCamel('_this_starts_with_an_underscore')).toBe('_thisStartsWithAnUnderscore')
   })
 
   it('ignores double underscores anywhere in a word', () => {
-    expect(snakeCaseToCamelCase('__unlikely__thing__')).toBe('__unlikely__thing__')
+    expect(snakeToCamel('__unlikely__thing__')).toBe('__unlikely__thing__')
   })
 
-  it('has no effect on hyphenated words', () => {
-    expect(snakeCaseToCamelCase('not-a-good-name')).toBe('not-a-good-name')
+  it('has no effect hyphenated words', () => {
+    expect(snakeToCamel('not-a-good-name')).toBe('not-a-good-name')
   })
 })
