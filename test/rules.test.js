@@ -209,6 +209,9 @@ describe('email', () => {
   it('fails string without invalid name', async () => expect(await rules.email({ value: '1*(123)2345@localhost' })).toBe(false))
 })
 
+/**
+ * Checks if value ends with a one of the specified Strings.
+ */
 describe('endsWith', () => {
   it('fails when value ending is not in stack of single value', async () => {
     expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, '@gmail.com')).toBe(false)
@@ -428,6 +431,31 @@ describe('required', () => {
   it('passes with FileUpload', async () => expect(await rules.required({ value: new FileUpload({ files: [{ name: 'j.png' }] }) })).toBe(true))
 
   it('fails with empty FileUpload', async () => expect(await rules.required({ value: new FileUpload({ files: [] }) })).toBe(false))
+})
+
+/**
+ * Checks if value starts with a one of the specified Strings.
+ */
+describe('startsWith', () => {
+  it('fails when value starting is not in stack of single value', async () => {
+    expect(await rules.startsWith({ value: 'taco tuesday' }, 'pizza')).toBe(false)
+  })
+
+  it('fails when value starting is not in stack of multiple values', async () => {
+    expect(await rules.startsWith({ value: 'taco tuesday' }, 'pizza', 'coffee')).toBe(false)
+  })
+
+  it('passes when stack consists of zero values', async () => {
+    expect(await rules.startsWith({ value: 'taco tuesday' })).toBe(true)
+  })
+
+  it('passes when value starting is in stack of single value', async () => {
+    expect(await rules.startsWith({ value: 'taco tuesday' }, 'taco')).toBe(true)
+  })
+
+  it('passes when value starting is in stack of multiple values', async () => {
+    expect(await rules.startsWith({ value: 'taco tuesday' }, 'pizza', 'taco', 'coffee')).toBe(true)
+  })
 })
 
 /**

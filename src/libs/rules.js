@@ -113,6 +113,9 @@ export default {
     return Promise.resolve(isEmail.test(value))
   },
 
+  /**
+   * Rule: Value ends with one of the given Strings
+   */
   endsWith: function ({ value }, ...stack) {
     return Promise.resolve((() => {
       if (stack.length) {
@@ -246,6 +249,20 @@ export default {
       }
       if (typeof value === 'object') {
         return (!value) ? false : !!Object.keys(value).length
+      }
+      return true
+    })())
+  },
+
+  /**
+   * Rule: Value starts with one of the given Strings
+   */
+  startsWith: function ({ value }, ...stack) {
+    return Promise.resolve((() => {
+      if (stack.length) {
+        return stack.find(item => {
+          return value.startsWith(item)
+        }) !== undefined
       }
       return true
     })())

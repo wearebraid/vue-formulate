@@ -90,7 +90,7 @@ export default {
   },
 
   /**
-   * Value ends with specified key(s)
+   * Ends with specified value
    */
   endsWith: function ({ name, value }) {
     if (!value) {
@@ -173,13 +173,13 @@ export default {
   },
 
   /**
-   * Value starts with specified key(s)
+   * Starts with specified value
    */
-  starts_with: function ({ name, value }) {
+  startsWith: function ({ name, value }) {
     if (!value) {
       return 'This field isn’t valid.'
     }
-    return `“${value}” does not begin with a valid value.`
+    return `“${value}” does not start with a valid value.`
   },
 
   /**
