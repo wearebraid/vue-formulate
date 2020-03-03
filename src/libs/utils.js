@@ -72,6 +72,19 @@ export function shallowEqualObjects (objA, objB) {
 }
 
 /**
+ * Given a string, convert snake_case to camelCase
+ * @param {String} string
+ */
+export function snakeCaseToCamelCase (string) {
+  return string.replace(/([_][a-z])/ig, ($1) => {
+    if (string.indexOf($1) !== 0 && string[string.indexOf($1) - 1] !== '_') {
+      return $1.toUpperCase().replace('_', '')
+    }
+    return $1
+  })
+}
+
+/**
  * Given a string, object, falsey, or array - return an array.
  * @param {mixed} item
  */
@@ -138,7 +151,7 @@ function parseRule (rule, rules) {
   }
   if (typeof rule === 'string') {
     const segments = rule.split(':')
-    const functionName = segments.shift()
+    const functionName = snakeCaseToCamelCase(segments.shift())
     if (rules.hasOwnProperty(functionName)) {
       return [rules[functionName], segments.length ? segments.join(':').split(',') : []]
     } else {
