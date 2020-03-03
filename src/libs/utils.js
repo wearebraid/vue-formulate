@@ -76,12 +76,15 @@ export function shallowEqualObjects (objA, objB) {
  * @param {String} string
  */
 export function snakeCaseToCamelCase (string) {
-  return string.replace(/([_][a-z])/ig, ($1) => {
-    if (string.indexOf($1) !== 0 && string[string.indexOf($1) - 1] !== '_') {
-      return $1.toUpperCase().replace('_', '')
-    }
-    return $1
-  })
+  if (typeof string === 'string') {
+    return string.replace(/([_][a-z])/ig, ($1) => {
+      if (string.indexOf($1) !== 0 && string[string.indexOf($1) - 1] !== '_') {
+        return $1.toUpperCase().replace('_', '')
+      }
+      return $1
+    })
+  }
+  return string
 }
 
 /**

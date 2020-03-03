@@ -118,12 +118,14 @@ export default {
    */
   endsWith: function ({ value }, ...stack) {
     return Promise.resolve((() => {
-      if (stack.length) {
+      if (typeof value === 'string' && stack.length) {
         return stack.find(item => {
           return value.endsWith(item)
         }) !== undefined
+      } else if (typeof value === 'string' && stack.length === 0) {
+        return true
       }
-      return true
+      return false
     })())
   },
 
@@ -259,12 +261,14 @@ export default {
    */
   startsWith: function ({ value }, ...stack) {
     return Promise.resolve((() => {
-      if (stack.length) {
+      if (typeof value === 'string' && stack.length) {
         return stack.find(item => {
           return value.startsWith(item)
         }) !== undefined
+      } else if (typeof value === 'string' && stack.length === 0) {
+        return true
       }
-      return true
+      return false
     })())
   },
 

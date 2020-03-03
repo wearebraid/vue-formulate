@@ -221,6 +221,18 @@ describe('endsWith', () => {
     expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, '@gmail.com', '@yahoo.com')).toBe(false)
   })
 
+  it('fails when passed value is not a string', async () => {
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com'}, ['@gmail.com', '@wearebraid.com'])).toBe(false)
+  })
+
+  it('fails when passed value is not a string', async () => {
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com'}, {value: '@wearebraid.com'})).toBe(false)
+  })
+
+  it('passes when a string value is present and matched even if non-string values also exist as arguments', async () => {
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com'}, {value: 'bad data'}, ['no bueno'], '@wearebraid.com')).toBe(true)
+  })
+
   it('passes when stack consists of zero values', async () => {
     expect(await rules.endsWith({ value: 'andrew@wearebraid.com' })).toBe(true)
   })
@@ -443,6 +455,18 @@ describe('startsWith', () => {
 
   it('fails when value starting is not in stack of multiple values', async () => {
     expect(await rules.startsWith({ value: 'taco tuesday' }, 'pizza', 'coffee')).toBe(false)
+  })
+
+  it('fails when passed value is not a string', async () => {
+    expect(await rules.startsWith({ value: 'taco tuesday'}, ['taco', 'pizza'])).toBe(false)
+  })
+
+  it('fails when passed value is not a string', async () => {
+    expect(await rules.startsWith({ value: 'taco tuesday'}, {value: 'taco'})).toBe(false)
+  })
+
+  it('passes when a string value is present and matched even if non-string values also exist as arguments', async () => {
+    expect(await rules.startsWith({ value: 'taco tuesday'}, {value: 'taco'}, ['taco'], 'taco')).toBe(true)
   })
 
   it('passes when stack consists of zero values', async () => {
