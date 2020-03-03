@@ -1,4 +1,4 @@
-import { parseRules, regexForFormat, cloneDeep, isValueType } from '@/libs/utils'
+import { parseRules, regexForFormat, cloneDeep, isValueType, snakeCaseToCamelCase } from '@/libs/utils'
 import rules from '@/libs/rules'
 import FileUpload from '@/FileUpload';
 
@@ -115,5 +115,27 @@ describe('cloneDeep', () => {
     const c = { c: 'hello-world' }
     const clone = cloneDeep({ a: 123, b: c })
     expect(clone.b === c).toBe(false)
+  })
+})
+
+describe('snakeCaseToCamelCase', () => {
+  it('converts underscore separated words to camelCase', () => {
+    expect(snakeCaseToCamelCase('this_is_snake_case')).toBe('thisIsSnakeCase')
+  })
+
+  it('has no effect on already camelCase words', () => {
+    expect(snakeCaseToCamelCase('thisIsCamelCase')).toBe('thisIsCamelCase')
+  })
+
+  it('does not capitalize the first word or strip first underscore if a phrase starts with an underscore', () => {
+    expect(snakeCaseToCamelCase('_this_starts_with_an_underscore')).toBe('_thisStartsWithAnUnderscore')
+  })
+
+  it('ignores double underscores anywhere in a word', () => {
+    expect(snakeCaseToCamelCase('__unlikely__thing__')).toBe('__unlikely__thing__')
+  })
+
+  it('has no effect hyphenated words', () => {
+    expect(snakeCaseToCamelCase('not-a-good-name')).toBe('not-a-good-name')
   })
 })
