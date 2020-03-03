@@ -206,9 +206,29 @@ describe('email', () => {
 
   it('fails string without tld', async () => expect(await rules.email({ value: '12345@localhost' })).toBe(false))
 
-  it('fails string without tld', async () => expect(await rules.email({ value: '12345@localhost' })).toBe(false))
-
   it('fails string without invalid name', async () => expect(await rules.email({ value: '1*(123)2345@localhost' })).toBe(false))
+})
+
+describe('endsWith', () => {
+  it('fails when value ending is not in stack of single value', async () => {
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, '@gmail.com')).toBe(false)
+  })
+
+  it('fails when value ending is not in stack of multiple values', async () => {
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, '@gmail.com', '@yahoo.com')).toBe(false)
+  })
+
+  it('passes when stack consists of zero values', async () => {
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com' })).toBe(true)
+  })
+
+  it('passes when value ending is in stack of single value', async () => {
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, '@wearebraid.com')).toBe(true)
+  })
+
+  it('passes when value ending is in stack of multiple values', async () => {
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, '@yahoo.com', '@wearebraid.com', '@gmail.com')).toBe(true)
+  })
 })
 
 /**

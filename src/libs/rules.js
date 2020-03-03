@@ -113,6 +113,17 @@ export default {
     return Promise.resolve(isEmail.test(value))
   },
 
+  endsWith: function ({ value }, ...stack) {
+    return Promise.resolve((() => {
+      if (stack.length) {
+        return stack.find(item => {
+          return value.endsWith(item)
+        }) !== undefined
+      }
+      return true
+    })())
+  },
+
   /**
    * Rule: Value is in an array (stack).
    */
@@ -135,27 +146,6 @@ export default {
       }
       return pattern === value
     }))
-  },
-
-  /**
-   * Check the maximum value of a particular.
-   */
-  max: function ({ value }, maximum = 10, force) {
-    return Promise.resolve((() => {
-      if (Array.isArray(value)) {
-        maximum = !isNaN(maximum) ? Number(maximum) : maximum
-        return value.length <= maximum
-      }
-      if ((!isNaN(value) && force !== 'length') || force === 'value') {
-        value = !isNaN(value) ? Number(value) : value
-        return value <= maximum
-      }
-      if (typeof value === 'string' || (force === 'length')) {
-        value = !isNaN(value) ? value.toString() : value
-        return value.length <= maximum
-      }
-      return false
-    })())
   },
 
   /**
@@ -192,6 +182,27 @@ export default {
       if (typeof value === 'string' || (force === 'length')) {
         value = !isNaN(value) ? value.toString() : value
         return value.length >= minimum
+      }
+      return false
+    })())
+  },
+
+  /**
+   * Check the maximum value of a particular.
+   */
+  max: function ({ value }, maximum = 10, force) {
+    return Promise.resolve((() => {
+      if (Array.isArray(value)) {
+        maximum = !isNaN(maximum) ? Number(maximum) : maximum
+        return value.length <= maximum
+      }
+      if ((!isNaN(value) && force !== 'length') || force === 'value') {
+        value = !isNaN(value) ? Number(value) : value
+        return value <= maximum
+      }
+      if (typeof value === 'string' || (force === 'length')) {
+        value = !isNaN(value) ? value.toString() : value
+        return value.length <= maximum
       }
       return false
     })())

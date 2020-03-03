@@ -92,7 +92,7 @@ export default {
   /**
    * Value ends with specified key(s)
    */
-  ends_with: function ({ name, value }) {
+  endsWith: function ({ name, value }) {
     if (!value) {
       return 'This field isn’t valid.'
     }
