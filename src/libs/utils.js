@@ -141,7 +141,7 @@ function parseRule (rule, rules) {
     return [rule, []]
   }
   if (Array.isArray(rule) && rule.length) {
-    rule = rule.map(r => r) // light clone
+    rule = rule.map(r => snakeCaseToCamelCase(r)) // light clone
     if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
       return [rules[rule.shift()], rule]
     }
