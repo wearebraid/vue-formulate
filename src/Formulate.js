@@ -194,7 +194,6 @@ class Formulate {
   handle (err, formName) {
     const e = this.options.errorHandler(err)
     if (formName && this.registry.has(formName)) {
-      console.log('found registration', formName)
       this.registry.get(formName).applyErrors(e)
     }
     return e

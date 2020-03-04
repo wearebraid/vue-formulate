@@ -222,11 +222,85 @@ describe('FormulateForm', () => {
     expect(wrapper.find('.formulate-input-error').exists()).toBe(true)
   })
 
-  it('automatically registers with plugin', async () => {
+  it('automatically registers with root plugin', async () => {
     const wrapper = mount(FormulateForm, {
       propsData: { formulateValue: { box3: [] }, name: 'login' }
     })
     expect(wrapper.vm.$formulate.registry.has('login')).toBe(true)
     expect(wrapper.vm.$formulate.registry.get('login')).toBe(wrapper.vm)
+  })
+
+  it('errors are displayed on correctly named components', async () => {
+    const wrapper = mount({
+      template: `
+      <div>
+        <FormulateForm
+          name="login"
+        />
+        <FormulateForm
+          name="register"
+        />
+      </div>
+      `
+    })
+    expect(wrapper.vm.$formulate.registry.has('login') && wrapper.vm.$formulate.registry.has('register')).toBe(true)
+    wrapper.vm.$formulate.handle({ formErrors: ['This is an error message'] }, 'login')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-form').length).toBe(2)
+    expect(wrapper.find('.formulate-form--login .formulate-form-errors').exists()).toBe(true)
+    expect(wrapper.find('.formulate-form--register .formulate-form-errors').exists()).toBe(false)
+  })
+
+  it('hides root FormError if another form error exists and renders in new location', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          name="login"
+        >
+          <h1>Login</h1>
+          <FormulateErrors />
+          <FormulateInput name="username" validation="required" error-behavior="live" />
+        </FormulateForm>
+      `
+    })
+    wrapper.vm.$formulate.handle({ formErrors: ['This is an error message'] }, 'login')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-form-errors').length).toBe(1)
+    // Ensure that we moved the position of the errors
+    expect(wrapper.find('h1 + *').is('.formulate-form-errors')).toBe(true)
+  })
+
+  it('allows rendering multiple locations', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          name="login"
+        >
+          <h1>Login</h1>
+          <FormulateErrors />
+          <FormulateInput name="username" validation="required" error-behavior="live" />
+          <FormulateErrors />
+        </FormulateForm>
+      `
+    })
+    wrapper.vm.$formulate.handle({ formErrors: ['This is an error message'] }, 'login')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-form-errors').length).toBe(2)
+  })
+
+  it('receives a form-errors prop and displays it', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { formErrors: ['first', 'second'] }
+    })
+    expect(wrapper.findAll('.formulate-form-error').length).toBe(2)
+  })
+
+  it('it aggregates form-errors prop with form-named errors', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { formErrors: ['first', 'second'], name: 'login' }
+    })
+    wrapper.vm.$formulate.handle({ formErrors: ['third'] }, 'login')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-form-error').length).toBe(3)
   })
 })

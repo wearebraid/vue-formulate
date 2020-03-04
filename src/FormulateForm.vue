@@ -1,11 +1,12 @@
 <template>
   <form
+    :class="classes"
     @submit.prevent="formSubmitted"
   >
     <FormulateErrors
       v-if="!errorObservers.length"
       type="form"
-      :errors="formErrors"
+      :errors="mergedFormErrors"
       :prevent-registration="true"
     />
     <slot />
@@ -47,6 +48,10 @@ export default {
     errors: {
       type: [Object, Boolean],
       default: false
+    },
+    formErrors: {
+      type: Array,
+      default: () => ([])
     }
   },
   data () {
@@ -55,7 +60,7 @@ export default {
       internalFormModelProxy: {},
       formShouldShowErrors: false,
       errorObservers: [],
-      formErrors: [],
+      namedErrors: [],
       fieldErrors: {}
     }
   },
@@ -87,6 +92,16 @@ export default {
         return Object.assign({}, this.values)
       }
       return {}
+    },
+    classes () {
+      const classes = { 'formulate-form': true }
+      if (this.name) {
+        classes[`formulate-form--${this.name}`] = true
+      }
+      return classes
+    },
+    mergedFormErrors () {
+      return this.formErrors.concat(this.namedErrors)
     }
   },
   watch: {
@@ -109,7 +124,7 @@ export default {
       },
       deep: true
     },
-    formErrors (errors) {
+    mergedFormErrors (errors) {
       this.errorObservers.forEach(observer => observer(errors))
     }
   },
@@ -128,7 +143,7 @@ export default {
     },
     applyErrors ({ formErrors, fieldErrors }) {
       // given an object of errors, apply them to this form
-      this.formErrors = formErrors
+      this.namedErrors = formErrors
       this.fieldErrors = fieldErrors
     },
     addErrorObserver (observer) {
@@ -137,7 +152,6 @@ export default {
       }
     },
     removeErrorObserver (observer) {
-      console.log('remove error observer')
       this.errorObservers = this.errorObservers.filter(fn => fn !== observer)
     },
     setFieldValue (field, value) {
