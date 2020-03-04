@@ -221,4 +221,12 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-input-error').exists()).toBe(true)
   })
+
+  it('automatically registers with plugin', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { formulateValue: { box3: [] }, name: 'login' }
+    })
+    expect(wrapper.vm.$formulate.registry.has('login')).toBe(true)
+    expect(wrapper.vm.$formulate.registry.get('login')).toBe(wrapper.vm)
+  })
 })

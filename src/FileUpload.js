@@ -1,5 +1,4 @@
 import nanoid from 'nanoid/non-secure'
-import mimes from './libs/mimes'
 
 /**
  * The file upload class holds and represents a file’s upload state durring
@@ -11,11 +10,11 @@ class FileUpload {
    * @param {FileList} fileList
    * @param {object} context
    */
-  constructor (input, context, options) {
+  constructor (input, context, options = {}) {
     this.input = input
     this.fileList = input.files
     this.files = []
-    this.options = options
+    this.options = { ...{ mimes: {} }, ...options }
     this.results = false
     this.context = context
     if (Array.isArray(this.fileList)) {
@@ -35,7 +34,7 @@ class FileUpload {
       const key = this.options ? this.options.fileUrlKey : 'url'
       const url = item[key]
       const ext = (url && url.lastIndexOf('.') !== -1) ? url.substr(url.lastIndexOf('.') + 1) : false
-      const mime = mimes[ext] || false
+      const mime = this.options.mimes[ext] || false
       fileList.push(Object.assign({}, item, url ? {
         name: url.substr((url.lastIndexOf('/') + 1) || 0),
         type: item.type ? item.type : mime,

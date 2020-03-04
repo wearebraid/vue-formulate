@@ -15,14 +15,15 @@
     "./sfc": "src/Formulate.js"
   },
   "scripts": {
-    "build": "npm run build:umd & npm run build:es & npm run build:unpkg & npm run build:css",
-    "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --no-map --use cssnano > dist/snow.min.css",
+    "build": "npm run build:esm & npm run build:umd & npm run build:iife & npm run build:css & wait && echo \"Build complete:\nesm: $(gzip -c dist/formulate.esm.js | wc -c)b gzip\numd: $(gzip -c dist/formulate.umd.js | wc -c)b gzip\nmin: $(gzip -c dist/formulate.min.js | wc -c)b gzip\"",
+    "build:esm": "rollup --config build/rollup.config.js --format es --file dist/formulate.esm.js",
     "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/formulate.umd.js",
-    "build:es": "rollup --config build/rollup.config.js --format es --file dist/formulate.esm.js",
-    "build:unpkg": "rollup --config build/rollup.iife.config.js --format iife --file dist/formulate.min.js",
+    "build:iife": "rollup --config build/rollup.iife.config.js --format iife --file dist/formulate.min.js",
+    "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --no-map --use cssnano > dist/snow.min.css",
     "test": "NODE_ENV=test jest --config test/jest.conf.js",
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
-    "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage"
+    "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
+    "build:size": "gzip -c dist/formulate.esm.js | wc -c"
   },
   "repository": {
     "type": "git",

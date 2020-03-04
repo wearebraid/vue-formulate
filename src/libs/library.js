@@ -1,108 +1,51 @@
+/**
+ * library.js
+ *
+ * Note: We're shipping front end code here, file size is critical. This file is
+ * overly terse for that reason alone, we wouldn't necessarily recommend this.
+ */
+const fi = 'FormulateInput'
+const add = (n, c) => ({
+  classification: n,
+  component: fi + (c || (n[0].toUpperCase() + n.substr(1)))
+})
 export default {
   // === SINGLE LINE TEXT STYLE INPUTS
-  text: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  email: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  number: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  color: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  date: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  hidden: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  month: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  password: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  search: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  tel: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  time: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  url: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  week: {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
-  'datetime-local': {
-    classification: 'text',
-    component: 'FormulateInputText'
-  },
+  ...[
+    'text',
+    'email',
+    'number',
+    'color',
+    'date',
+    'hidden',
+    'month',
+    'password',
+    'search',
+    'tel',
+    'time',
+    'url',
+    'week',
+    'datetime-local'
+  ].reduce((lib, type) => ({ ...lib, [type]: add('text') }), {}),
 
   // === SLIDER INPUTS
-  range: {
-    classification: 'slider',
-    component: 'FormulateInputSlider'
-  },
+  range: add('slider'),
 
   // === MULTI LINE TEXT INPUTS
-  textarea: {
-    classification: 'textarea',
-    component: 'FormulateInputTextArea'
-  },
+  textarea: add('textarea', 'TextArea'),
 
   // === BOX STYLE INPUTS
-  checkbox: {
-    classification: 'box',
-    component: 'FormulateInputBox'
-  },
-  radio: {
-    classification: 'box',
-    component: 'FormulateInputBox'
-  },
+  checkbox: add('box'),
+  radio: add('box'),
 
   // === BUTTON STYLE INPUTS
-  submit: {
-    classification: 'button',
-    component: 'FormulateInputButton'
-  },
-  button: {
-    classification: 'button',
-    component: 'FormulateInputButton'
-  },
+  submit: add('button'),
+  button: add('button'),
 
   // === SELECT STYLE INPUTS
-  select: {
-    classification: 'select',
-    component: 'FormulateInputSelect'
-  },
+  select: add('select'),
 
   // === FILE TYPE
-
-  file: {
-    classification: 'file',
-    component: 'FormulateInputFile'
-  },
-  image: {
-    classification: 'file',
-    component: 'FormulateInputFile'
-  }
+  file: add('file'),
+  image: add('file')
 }

@@ -2,6 +2,12 @@
   <form
     @submit.prevent="formSubmitted"
   >
+    <FormulateErrors
+      v-if="!errorObservers.length"
+      type="form"
+      :errors="formErrors"
+      :prevent-registration="true"
+    />
     <slot />
   </form>
 </template>
@@ -15,7 +21,9 @@ export default {
     return {
       formulateFormSetter: this.setFieldValue,
       formulateFormRegister: this.register,
-      getFormValues: this.getFormValues
+      getFormValues: this.getFormValues,
+      observeErrors: this.addErrorObserver,
+      removeErrorObserver: this.removeErrorObserver
     }
   },
   name: 'FormulateForm',
@@ -35,13 +43,20 @@ export default {
     values: {
       type: [Object, Boolean],
       default: false
+    },
+    errors: {
+      type: [Object, Boolean],
+      default: false
     }
   },
   data () {
     return {
       registry: {},
       internalFormModelProxy: {},
-      formShouldShowErrors: false
+      formShouldShowErrors: false,
+      errorObservers: [],
+      formErrors: [],
+      fieldErrors: {}
     }
   },
   computed: {
@@ -93,16 +108,37 @@ export default {
         }
       },
       deep: true
+    },
+    formErrors (errors) {
+      this.errorObservers.forEach(observer => observer(errors))
     }
   },
   created () {
+    this.$formulate.register(this)
     this.applyInitialValues()
+  },
+  destroyed () {
+    this.$formulate.deregister(this)
   },
   methods: {
     applyInitialValues () {
       if (this.hasInitialValue) {
         this.internalFormModelProxy = this.initialValues
       }
+    },
+    applyErrors ({ formErrors, fieldErrors }) {
+      // given an object of errors, apply them to this form
+      this.formErrors = formErrors
+      this.fieldErrors = fieldErrors
+    },
+    addErrorObserver (observer) {
+      if (!this.errorObservers.find(obs => observer === obs)) {
+        this.errorObservers.push(observer)
+      }
+    },
+    removeErrorObserver (observer) {
+      console.log('remove error observer')
+      this.errorObservers = this.errorObservers.filter(fn => fn !== observer)
     },
     setFieldValue (field, value) {
       Object.assign(this.internalFormModelProxy, { [field]: value })
@@ -135,6 +171,11 @@ export default {
         !shallowEqualObjects(component.internalModelProxy, this.initialValues[field])
       ) {
         this.setFieldValue(field, component.internalModelProxy)
+      }
+    },
+    registerErrorComponent (component) {
+      if (!this.errorComponents.includes(component)) {
+        this.errorComponents.push(component)
       }
     },
     formSubmitted () {

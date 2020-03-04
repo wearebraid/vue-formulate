@@ -46,9 +46,11 @@
       class="formulate-input-help"
       v-text="help"
     />
-    <FormulateInputErrors
+    <FormulateErrors
       v-if="showFieldErrors"
+      :type="`input`"
       :errors="mergedErrors"
+      :prevent-registration="true"
     />
   </div>
 </template>
