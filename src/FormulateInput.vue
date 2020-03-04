@@ -55,7 +55,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules } from './libs/utils'
+import { shallowEqualObjects, parseRules, snakeToCamel } from './libs/utils'
 import nanoid from 'nanoid/non-secure'
 
 export default {
@@ -198,6 +198,20 @@ export default {
     },
     component () {
       return (this.classification === 'group') ? 'FormulateInputGroup' : this.$formulate.component(this.type)
+    },
+    parsedValidationRules () {
+      const parsedValidationRules = {}
+      Object.keys(this.validationRules).forEach((key) => {
+        parsedValidationRules[snakeToCamel(key)] = this.validationRules[key]
+      })
+      return parsedValidationRules
+    },
+    messages () {
+      const messages = {}
+      Object.keys(this.validationMessages).forEach((key) => {
+        messages[snakeToCamel(key)] = this.validationMessages[key]
+      })
+      return messages
     }
   },
   watch: {
@@ -258,7 +272,7 @@ export default {
       }
     },
     performValidation () {
-      const rules = parseRules(this.validation, this.$formulate.rules(this.validationRules))
+      const rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
       this.pendingValidation = Promise.all(
         rules.map(([rule, args]) => {
           var res = rule({
@@ -284,13 +298,14 @@ export default {
       })
     },
     getValidationFunction (rule) {
-      const ruleName = rule.name.substr(0, 1) === '_' ? rule.name.substr(1) : rule.name
-      if (this.validationMessages && typeof this.validationMessages === 'object' && typeof this.validationMessages[ruleName] !== 'undefined') {
-        switch (typeof this.validationMessages[ruleName]) {
+      let ruleName = rule.name.substr(0, 1) === '_' ? rule.name.substr(1) : rule.name
+      ruleName = snakeToCamel(ruleName)
+      if (this.messages && typeof this.messages === 'object' && typeof this.messages[ruleName] !== 'undefined') {
+        switch (typeof this.messages[ruleName]) {
           case 'function':
-            return this.validationMessages[ruleName]
+            return this.messages[ruleName]
           case 'string':
-            return () => this.validationMessages[ruleName]
+            return () => this.messages[ruleName]
         }
       }
       return (context) => this.$formulate.validationMessage(rule.name, context)
