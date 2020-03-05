@@ -632,7 +632,27 @@
       }
     }
   }
+  }
+}
 
+.formulate-form-errors {
+  margin: .75em 0;
+  padding: 0;
+  list-style-type: none;
 
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .formulate-form-error {
+    color: $formulate-error;
+    font-size: .9em;
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: .25em;
   }
 }

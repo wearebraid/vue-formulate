@@ -3,6 +3,7 @@ import rules from './libs/rules'
 import en from './locales/en'
 import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
+import { arrayify } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import fauxUploader from './libs/faux-uploader'
 import FormulateInput from './FormulateInput.vue'
@@ -190,11 +191,16 @@ class Formulate {
    * and hydrate a form with the resulting errors.
    *
    * @param {error} err
+   * @param {string} formName
+   * @param {error}
    */
-  handle (err, formName) {
-    const e = this.options.errorHandler(err)
+  handle (err, formName, skip = false) {
+    const e = skip ? err : this.options.errorHandler(err)
     if (formName && this.registry.has(formName)) {
-      this.registry.get(formName).applyErrors(e)
+      this.registry.get(formName).applyErrors({
+        formErrors: arrayify(e.formErrors),
+        inputErrors: e.inputErrors || {}
+      })
     }
     return e
   }

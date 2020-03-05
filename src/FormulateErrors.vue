@@ -1,20 +1,22 @@
 <template>
   <ul
-    v-if="mergedErrors.length"
+    v-if="visibleErrors.length"
     :class="`formulate-${type}-errors`"
   >
-    <!-- eslint-disable -->
+    <!-- eslint-disable vue/no-v-html -->
     <li
-      v-for="error in mergedErrors"
+      v-for="error in visibleErrors"
       :key="error"
-      v-html="error"
       :class="`formulate-${type}-error`"
+      v-html="error"
     />
-    <!-- eslint-enable -->
+    <!-- eslint-enable vue/no-v-html -->
   </ul>
 </template>
 
 <script>
+import { arrayify } from './libs/utils'
+
 export default {
   inject: {
     observeErrors: {
@@ -25,9 +27,17 @@ export default {
     }
   },
   props: {
-    errors: {
-      type: [Boolean, Array],
+    showValidationErrors: {
+      type: Boolean,
       default: false
+    },
+    errors: {
+      type: [Array, Boolean],
+      default: false
+    },
+    validationErrors: {
+      type: [Array],
+      default: () => ([])
     },
     type: {
       type: String,
@@ -36,22 +46,29 @@ export default {
     preventRegistration: {
       type: Boolean,
       default: false
+    },
+    fieldName: {
+      type: [String, Boolean],
+      default: false
     }
   },
   data () {
     return {
       boundSetErrors: this.setErrors.bind(this),
-      formErrors: []
+      localErrors: []
     }
   },
   computed: {
     mergedErrors () {
-      return (this.errors || []).concat(this.formErrors)
+      return arrayify(this.errors).concat(this.localErrors)
+    },
+    visibleErrors () {
+      return Array.from(new Set(this.mergedErrors.concat(this.showValidationErrors ? this.validationErrors : [])))
     }
   },
   created () {
-    if (!this.preventRegistration && typeof this.observeErrors === 'function') {
-      this.observeErrors(this.boundSetErrors)
+    if (!this.preventRegistration && typeof this.observeErrors === 'function' && (this.type === 'form' || this.fieldName)) {
+      this.observeErrors({ callback: this.boundSetErrors, type: this.type, field: this.fieldName })
     }
   },
   destroyed () {
@@ -61,7 +78,7 @@ export default {
   },
   methods: {
     setErrors (errors) {
-      this.formErrors = errors
+      this.localErrors = arrayify(errors)
     }
   }
 }

@@ -290,8 +290,12 @@ describe('FormulateForm', () => {
 
   it('receives a form-errors prop and displays it', async () => {
     const wrapper = mount(FormulateForm, {
-      propsData: { formErrors: ['first', 'second'] }
+      propsData: { formErrors: ['first', 'second'] },
+      slots: {
+        default: '<FormulateInput name="name" />'
+      }
     })
+    await flushPromises()
     expect(wrapper.findAll('.formulate-form-error').length).toBe(2)
   })
 
@@ -302,5 +306,87 @@ describe('FormulateForm', () => {
     wrapper.vm.$formulate.handle({ formErrors: ['third'] }, 'login')
     await flushPromises()
     expect(wrapper.findAll('.formulate-form-error').length).toBe(3)
+  })
+
+  it('displays field errors on inputs with errors prop', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { errors: { sipple: ['This field has an error'] }},
+      slots: {
+        default: '<FormulateInput name="sipple" />'
+      }
+    })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.formulate-input .formulate-input-error').exists()).toBe(true)
+  })
+
+  it('is able to display multiple errors on multiple elements', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          :errors="{inputA: ['first', 'second'], inputB: 'only one here', inputC: ['and one here']}"
+        >
+          <FormulateInput name="inputA" />
+          <FormulateInput name="inputB" type="textarea" />
+          <FormulateInput name="inputC" type="checkbox" />
+        </FormulateForm>
+        `
+    })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(4)
+  })
+
+  it('it can set multiple field errors with handle()', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm name="register">
+          <FormulateInput name="inputA" />
+          <FormulateInput name="inputB" type="textarea" />
+          <FormulateInput name="inputC" type="checkbox" />
+        </FormulateForm>
+        `
+    })
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(0)
+    wrapper.vm.$formulate.handle({ inputErrors: {inputA: ['first', 'second'], inputB: 'only one here', inputC: ['and one here']} }, "register")
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(4)
+  })
+
+  it('only sets 1 error when used on a FormulateGroup input', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          name="register"
+          :errors="{order: 'this didnt work'}"
+        >
+          <FormulateInput name="order" type="checkbox" :options="{first: 'First', last: 'Last', middle: 'Middle'}" />
+        </FormulateForm>
+        `
+    })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
+  })
+
+  it('properly de-registers an observer when removed', async () => {
+    const wrapper = mount({
+      data () {
+        return {
+          hasField: true
+        }
+      },
+      template: `
+        <FormulateForm
+          name="register"
+          :errors="{order: 'this didnt work'}"
+        >
+          <FormulateInput v-if="hasField" name="order" type="checkbox" :options="{first: 'First', last: 'Last', middle: 'Middle'}" />
+        </FormulateForm>
+        `
+    })
+    await flushPromises()
+    expect(wrapper.find(FormulateForm).vm.errorObservers.length).toBe(1)
+    wrapper.setData({ hasField: false })
+    await flushPromises()
+    expect(wrapper.find(FormulateForm).vm.errorObservers.length).toBe(0)
   })
 })

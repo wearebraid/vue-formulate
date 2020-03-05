@@ -4,7 +4,7 @@
     @submit.prevent="formSubmitted"
   >
     <FormulateErrors
-      v-if="!errorObservers.length"
+      v-if="!hasFormErrorObservers"
       type="form"
       :errors="mergedFormErrors"
       :prevent-registration="true"
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { shallowEqualObjects } from './libs/utils'
+import { shallowEqualObjects, arrayify } from './libs/utils'
 import FormSubmission from './FormSubmission'
 
 export default {
@@ -61,7 +61,7 @@ export default {
       formShouldShowErrors: false,
       errorObservers: [],
       namedErrors: [],
-      fieldErrors: {}
+      namedFieldErrors: {}
     }
   },
   computed: {
@@ -102,6 +102,21 @@ export default {
     },
     mergedFormErrors () {
       return this.formErrors.concat(this.namedErrors)
+    },
+    mergedFieldErrors () {
+      const errors = {}
+      if (this.errors) {
+        for (const fieldName in this.errors) {
+          errors[fieldName] = arrayify(this.errors[fieldName])
+        }
+      }
+      for (const fieldName in this.namedFieldErrors) {
+        errors[fieldName] = arrayify(this.namedFieldErrors[fieldName])
+      }
+      return errors
+    },
+    hasFormErrorObservers () {
+      return !!this.errorObservers.filter(o => o.type === 'form').length
     }
   },
   watch: {
@@ -125,7 +140,17 @@ export default {
       deep: true
     },
     mergedFormErrors (errors) {
-      this.errorObservers.forEach(observer => observer(errors))
+      this.errorObservers
+        .filter(o => o.type === 'form')
+        .forEach(o => o.callback(errors))
+    },
+    mergedFieldErrors: {
+      handler (errors) {
+        this.errorObservers
+          .filter(o => o.type === 'input')
+          .forEach(o => o.callback(errors[o.field] || []))
+      },
+      immediate: true
     }
   },
   created () {
@@ -141,18 +166,23 @@ export default {
         this.internalFormModelProxy = this.initialValues
       }
     },
-    applyErrors ({ formErrors, fieldErrors }) {
+    applyErrors ({ formErrors, inputErrors }) {
       // given an object of errors, apply them to this form
       this.namedErrors = formErrors
-      this.fieldErrors = fieldErrors
+      this.namedFieldErrors = inputErrors
     },
     addErrorObserver (observer) {
-      if (!this.errorObservers.find(obs => observer === obs)) {
+      if (!this.errorObservers.find(obs => observer.callback === obs.callback)) {
         this.errorObservers.push(observer)
+        if (observer.type === 'form') {
+          observer.callback(this.mergedFormErrors)
+        } else if (Object.prototype.hasOwnProperty.call(this.mergedFieldErrors, observer.field)) {
+          observer.callback(this.mergedFieldErrors[observer.field])
+        }
       }
     },
     removeErrorObserver (observer) {
-      this.errorObservers = this.errorObservers.filter(fn => fn !== observer)
+      this.errorObservers = this.errorObservers.filter(obs => obs.callback !== observer)
     },
     setFieldValue (field, value) {
       Object.assign(this.internalFormModelProxy, { [field]: value })

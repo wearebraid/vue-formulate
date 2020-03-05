@@ -1,37 +1,10 @@
-const a = 'application/'
-const m = 'vnd.openxmlformats-officedocument.'
-const t = 'text/'
 const i = 'image/'
-const s = 'audio'
 export default {
-  'aac': s + 'aac',
-  'css': t + 'css',
-  'csv': t + 'csv',
-  'doc': a + 'msword',
-  'docx': a + `${m}wordprocessingml.document`,
-  'gz': a + 'gzip',
+  'csv': 'text/csv',
   'gif': i + 'gif',
-  'html': t + 'html',
-  'ico': i + 'vnd.microsoft.icon',
-  'ics': t + 'calendar',
   'jpg': i + 'jpeg',
   'jpeg': i + 'jpeg',
-  'js': t + 'javascript',
-  'json': a + 'json',
-  'mp3': s + 'mpeg',
   'png': i + 'png',
-  'pdf': a + 'pdf',
-  'ppt': a + 'vnd.ms-powerpoint',
-  'pptx': a + `${m}presentationml.presentation`,
-  'svg': i + 'svg+xml',
-  'tar': a + 'x-tar',
-  'tif': i + 'tiff',
-  'tiff': i + 'tiff',
-  'txt': t + 'plain',
-  'webp': i + 'webp',
-  'xls': a + 'vnd.ms-excel',
-  'xlsx': a + `${m}spreadsheetml.sheet`,
-  'xml': t + 'xml',
-  'zip': a + 'zip',
-  '7z': a + 'x-7z-compressed'
+  'pdf': 'application/pdf',
+  'svg': i + 'svg+xml'
 }
