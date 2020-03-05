@@ -8,7 +8,7 @@ export default {
    * Valid accepted value.
    */
   accepted: function ({ name }) {
-    return `Sie müssen ${name} zustimmen.`
+    return `${name} erfordert Zustimmung.`
   },
 
   /**
@@ -86,15 +86,26 @@ export default {
     if (!value) {
       return 'Bitte eine gültige E-Mail-Adresse eingeben.'
     }
-    return `“${value}” ist keine gültige E-Mail-Adresse.`
+    return `„${value}“ ist keine gültige E-Mail-Adresse.`
   },
+
+   /**
+   * Ends with specified value
+   */
+  endsWith: function ({ name, value }) {
+    if (!value) {
+      return `Dieses Feld endet nicht mit einem gültigen Wert`
+    }
+    return `„${value}” endet nicht mit einem gültigen Wert.`
+  },
+
 
   /**
    * Value is an allowed value.
    */
   in: function ({ name, value }) {
     if (typeof value === 'string' && value) {
-      return `“${s(value)}” ist kein gültiger Wert für ${name}.`
+      return `„${s(value)}“ ist kein gültiger Wert für ${name}.`
     }
     return `Dies ist kein gültiger Wert für ${name}.`
   },
@@ -145,7 +156,7 @@ export default {
    * The field is not an allowed value
    */
   not: function ({ name, value }) {
-    return `“${value}” ist kein erlaubter Wert für ${name}.`
+    return `„${value}“ ist kein erlaubter Wert für ${name}.`
   },
 
   /**
@@ -162,6 +173,16 @@ export default {
     return `${s(name)} ist ein Pflichtfeld.`
   },
 
+  /**
+   * Starts with specified value
+   */
+  startsWith: function ({ name, value }) {
+    if (!value) {
+      return `Dieses Feld beginnt nicht mit einem gültigen Wert`
+    }
+    return `„${value}” beginnt nicht mit einem gültigen Wert`
+  },
+  
   /**
    * Value is not a url.
    */
