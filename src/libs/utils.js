@@ -80,17 +80,6 @@ export function arrayify (item) {
 }
 
 /**
- * How to add an item.
- * @param {string} item
- */
-export function sentence (item) {
-  if (typeof item === 'string') {
-    return item[0].toUpperCase() + item.substr(1)
-  }
-  return item
-}
-
-/**
  * Given an array or string return an array of callables.
  * @param {array|string} validation
  * @param {array} rules and array of functions
@@ -197,4 +186,18 @@ export function cloneDeep (obj) {
     }
   }
   return newObj
+}
+
+/**
+ * Given a locale string, parse the options.
+ * @param {string} locale
+ */
+export function parseLocale (locale) {
+  const segments = locale.split('-')
+  return segments.reduce((options, segment) => {
+    if (options.length) {
+      options.unshift(`${options[0]}-${segment}`)
+    }
+    return options.length ? options : [segment]
+  }, [])
 }

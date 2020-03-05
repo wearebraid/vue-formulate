@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
-import Formulate from '../src/Formulate.js'
-import FormulateInput from '../src/FormulateInput.vue'
-import FormulateInputSlider from '../src/inputs/FormulateInputSlider.vue'
+import Formulate from '@/Formulate.js'
+import FormulateInput from '@/FormulateInput.vue'
+import FormulateInputSlider from '@/inputs/FormulateInputSlider.vue'
 
 Vue.use(Formulate)
 

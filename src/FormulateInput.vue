@@ -316,7 +316,7 @@ export default {
             return () => this.messages[ruleName]
         }
       }
-      return (context) => this.$formulate.validationMessage(rule.name, context)
+      return (context) => this.$formulate.validationMessage(rule.name, context, this)
     },
     hasValidationErrors () {
       return new Promise(resolve => {

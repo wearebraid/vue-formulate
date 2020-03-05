@@ -1,4 +1,5 @@
-import { sentence as s } from '../libs/utils'
+import { sentence as s } from '../libs/locales'
+
 /**
  * Validation error message generators.
  */
@@ -89,7 +90,7 @@ export default {
     return `„${value}“ ist keine gültige E-Mail-Adresse.`
   },
 
-   /**
+  /**
    * Ends with specified value
    */
   endsWith: function ({ name, value }) {
@@ -98,7 +99,6 @@ export default {
     }
     return `„${value}” endet nicht mit einem gültigen Wert.`
   },
-
 
   /**
    * Value is an allowed value.
@@ -182,7 +182,7 @@ export default {
     }
     return `„${value}” beginnt nicht mit einem gültigen Wert`
   },
-  
+
   /**
    * Value is not a url.
    */
@@ -190,5 +190,3 @@ export default {
     return `${s(name)} muss eine gültige URL sein.`
   }
 }
-
-

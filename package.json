@@ -2,9 +2,9 @@
   "name": "@braid/vue-formulate",
   "version": "2.1.1",
   "description": "The easiest way to build forms in Vue.",
-  "main": "dist/formulate.umd.js",
-  "module": "dist/formulate.esm.js",
-  "unpkg": "dist/formulate.min.js",
+  "main": "formulate.umd.js",
+  "module": "formulate.esm.js",
+  "unpkg": "formulate.min.js",
   "publishConfig": {
     "access": "public"
   },
@@ -15,15 +15,18 @@
     "./sfc": "src/Formulate.js"
   },
   "scripts": {
-    "build": "npm run build:esm & npm run build:umd & npm run build:iife & npm run build:css & wait && echo \"Build complete:\nesm: $(gzip -c dist/formulate.esm.js | wc -c)b gzip\numd: $(gzip -c dist/formulate.umd.js | wc -c)b gzip\nmin: $(gzip -c dist/formulate.min.js | wc -c)b gzip\"",
+    "build": "npm run build:esm & npm run build:umd & npm run build:iife & npm run build:css & npm run build:locales & wait && echo \"Build complete:\nesm: $(gzip -c dist/formulate.esm.js | wc -c)b gzip\numd: $(gzip -c dist/formulate.umd.js | wc -c)b gzip\nmin: $(gzip -c dist/formulate.min.js | wc -c)b gzip\"",
     "build:esm": "rollup --config build/rollup.config.js --format es --file dist/formulate.esm.js",
     "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/formulate.umd.js",
     "build:iife": "rollup --config build/rollup.iife.config.js --format iife --file dist/formulate.min.js",
+    "build:locales": "./build/locales.sh",
     "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --no-map --use cssnano > dist/snow.min.css",
     "test": "NODE_ENV=test jest --config test/jest.conf.js",
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
     "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
-    "build:size": "gzip -c dist/formulate.esm.js | wc -c"
+    "build:size": "gzip -c dist/formulate.esm.js | wc -c",
+    "prepublishOnly": "echo \"Error: Don't run 'npm publish' in root. Use 'npm run release' instead.\" && exit 1",
+    "release": "cp -rf src dist/src && cp -rf LICENSE.txt dist/LICENSE.txt && cp -rf package.json dist/package.json && cp -rf README.md dist/README.md"
   },
   "repository": {
     "type": "git",
@@ -55,6 +58,7 @@
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.9.0",
     "cssnano": "^4.1.10",
+    "cypress": "^4.1.0",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.20.1",
@@ -73,6 +77,7 @@
     "rollup-plugin-buble": "^0.19.8",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-internal": "^1.0.4",
+    "rollup-plugin-multi-input": "^1.1.1",
     "rollup-plugin-terser": "^5.2.0",
     "rollup-plugin-vue": "^5.1.6",
     "typescript": "^3.8.2",

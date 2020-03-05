@@ -1,4 +1,5 @@
-import { sentence as s } from '../libs/utils'
+import { sentence as s } from '../libs/locales'
+
 /**
  * Validation error message generators.
  */

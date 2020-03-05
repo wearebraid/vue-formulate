@@ -3,7 +3,7 @@ import rules from './libs/rules'
 import en from './locales/en'
 import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
-import { arrayify } from './libs/utils'
+import { arrayify, parseLocale } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import fauxUploader from './libs/faux-uploader'
 import FormulateInput from './FormulateInput.vue'
@@ -44,7 +44,7 @@ class Formulate {
       library,
       rules,
       mimes,
-      locale: 'en',
+      locale: false,
       uploader: fauxUploader,
       uploadUrl: false,
       fileUrlKey: 'url',
@@ -147,10 +147,46 @@ class Formulate {
   }
 
   /**
+   * Attempt to get the vue-i18n configured locale.
+   */
+  i18n (vm) {
+    if (vm.$i18n && vm.$i18n.locale) {
+      return vm.$i18n.locale
+    }
+    return false
+  }
+
+  /**
+   * Select the proper locale to use.
+   */
+  getLocale (vm) {
+    if (!this.selectedLocale) {
+      this.selectedLocale = [
+        this.options.locale,
+        this.i18n(vm),
+        'en'
+      ].reduce((selection, locale) => {
+        if (selection) {
+          return selection
+        }
+        if (locale) {
+          const option = parseLocale(locale)
+            .find(locale => Object.prototype.hasOwnProperty.call(this.options.locales, locale))
+          if (option) {
+            selection = option
+          }
+        }
+        return selection
+      }, false)
+    }
+    return this.selectedLocale
+  }
+
+  /**
    * Get the validation message for a particular error.
    */
-  validationMessage (rule, validationContext) {
-    const generators = this.options.locales[this.options.locale]
+  validationMessage (rule, validationContext, vm) {
+    const generators = this.options.locales[this.getLocale(vm)]
     if (generators.hasOwnProperty(rule)) {
       return generators[rule](validationContext)
     } else if (rule[0] === '_' && generators.hasOwnProperty(rule.substr(1))) {

@@ -6,15 +6,17 @@ import { terser } from 'rollup-plugin-terser'
 
 export default {
   input: 'src/Formulate.js', // Path relative to package.json
-  output: {
-    name: 'Formulate',
-    exports: 'default',
-    globals: {
-      'is-plain-object': 'isPlainObject',
-      'nanoid/non-secure': 'nanoid',
-      'is-url': 'isUrl'
+  output: [
+    {
+      name: 'Formulate',
+      exports: 'default',
+      globals: {
+        'is-plain-object': 'isPlainObject',
+        'nanoid/non-secure': 'nanoid',
+        'is-url': 'isUrl'
+      }
     }
-  },
+  ],
   external: ['nanoid/non-secure'],
   plugins: [
     commonjs(),
