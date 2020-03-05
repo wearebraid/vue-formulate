@@ -8,6 +8,7 @@
       v-bind="optionContext"
       :disable-errors="true"
       class="formulate-input-group-item"
+      @blur="context.blurHandler"
     />
   </div>
 </template>

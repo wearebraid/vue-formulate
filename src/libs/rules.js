@@ -114,6 +114,22 @@ export default {
   },
 
   /**
+   * Rule: Value ends with one of the given Strings
+   */
+  endsWith: function ({ value }, ...stack) {
+    return Promise.resolve((() => {
+      if (typeof value === 'string' && stack.length) {
+        return stack.find(item => {
+          return value.endsWith(item)
+        }) !== undefined
+      } else if (typeof value === 'string' && stack.length === 0) {
+        return true
+      }
+      return false
+    })())
+  },
+
+  /**
    * Rule: Value is in an array (stack).
    */
   in: function ({ value }, ...stack) {
@@ -135,27 +151,6 @@ export default {
       }
       return pattern === value
     }))
-  },
-
-  /**
-   * Check the maximum value of a particular.
-   */
-  max: function ({ value }, maximum = 10, force) {
-    return Promise.resolve((() => {
-      if (Array.isArray(value)) {
-        maximum = !isNaN(maximum) ? Number(maximum) : maximum
-        return value.length <= maximum
-      }
-      if ((!isNaN(value) && force !== 'length') || force === 'value') {
-        value = !isNaN(value) ? Number(value) : value
-        return value <= maximum
-      }
-      if (typeof value === 'string' || (force === 'length')) {
-        value = !isNaN(value) ? value.toString() : value
-        return value.length <= maximum
-      }
-      return false
-    })())
   },
 
   /**
@@ -192,6 +187,27 @@ export default {
       if (typeof value === 'string' || (force === 'length')) {
         value = !isNaN(value) ? value.toString() : value
         return value.length >= minimum
+      }
+      return false
+    })())
+  },
+
+  /**
+   * Check the maximum value of a particular.
+   */
+  max: function ({ value }, maximum = 10, force) {
+    return Promise.resolve((() => {
+      if (Array.isArray(value)) {
+        maximum = !isNaN(maximum) ? Number(maximum) : maximum
+        return value.length <= maximum
+      }
+      if ((!isNaN(value) && force !== 'length') || force === 'value') {
+        value = !isNaN(value) ? Number(value) : value
+        return value <= maximum
+      }
+      if (typeof value === 'string' || (force === 'length')) {
+        value = !isNaN(value) ? value.toString() : value
+        return value.length <= maximum
       }
       return false
     })())
@@ -237,6 +253,22 @@ export default {
         return (!value) ? false : !!Object.keys(value).length
       }
       return true
+    })())
+  },
+
+  /**
+   * Rule: Value starts with one of the given Strings
+   */
+  startsWith: function ({ value }, ...stack) {
+    return Promise.resolve((() => {
+      if (typeof value === 'string' && stack.length) {
+        return stack.find(item => {
+          return value.startsWith(item)
+        }) !== undefined
+      } else if (typeof value === 'string' && stack.length === 0) {
+        return true
+      }
+      return false
     })())
   },
 

@@ -214,6 +214,7 @@ function hasVisibleErrors () {
  * Bound into the context object.
  */
 function blurHandler () {
+  this.$emit('blur')
   if (this.errorBehavior === 'blur') {
     this.behavioralErrorVisibility = true
   }
