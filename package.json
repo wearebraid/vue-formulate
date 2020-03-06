@@ -2,9 +2,9 @@
   "name": "@braid/vue-formulate",
   "version": "2.1.1",
   "description": "The easiest way to build forms in Vue.",
-  "main": "formulate.umd.js",
-  "module": "formulate.esm.js",
-  "unpkg": "formulate.min.js",
+  "main": "dist/formulate.umd.js",
+  "module": "dist/formulate.esm.js",
+  "unpkg": "dist/formulate.min.js",
   "publishConfig": {
     "access": "public"
   },
@@ -15,18 +15,15 @@
     "./sfc": "src/Formulate.js"
   },
   "scripts": {
-    "build": "npm run build:esm & npm run build:umd & npm run build:iife & npm run build:css & npm run build:locales & wait && echo \"Build complete:\nesm: $(gzip -c dist/formulate.esm.js | wc -c)b gzip\numd: $(gzip -c dist/formulate.umd.js | wc -c)b gzip\nmin: $(gzip -c dist/formulate.min.js | wc -c)b gzip\"",
+    "build": "npm run build:esm & npm run build:umd & npm run build:iife & npm run build:css & wait && echo \"Build complete:\nesm: $(gzip -c dist/formulate.esm.js | wc -c)b gzip\numd: $(gzip -c dist/formulate.umd.js | wc -c)b gzip\nmin: $(gzip -c dist/formulate.min.js | wc -c)b gzip\"",
     "build:esm": "rollup --config build/rollup.config.js --format es --file dist/formulate.esm.js",
     "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/formulate.umd.js",
     "build:iife": "rollup --config build/rollup.iife.config.js --format iife --file dist/formulate.min.js",
-    "build:locales": "./build/locales.sh",
     "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --no-map --use cssnano > dist/snow.min.css",
     "test": "NODE_ENV=test jest --config test/jest.conf.js",
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
     "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
-    "build:size": "gzip -c dist/formulate.esm.js | wc -c",
-    "prepublishOnly": "echo \"Error: Don't run 'npm publish' in root. Use 'npm run release' instead.\" && exit 1",
-    "release": "cp -rf src dist/src && cp -rf LICENSE.txt dist/LICENSE.txt && cp -rf package.json dist/package.json && cp -rf README.md dist/README.md"
+    "build:size": "gzip -c dist/formulate.esm.js | wc -c"
   },
   "repository": {
     "type": "git",
@@ -50,6 +47,8 @@
     "@babel/core": "^7.8.4",
     "@babel/plugin-transform-modules-commonjs": "^7.8.3",
     "@babel/preset-env": "^7.8.4",
+    "@rollup/plugin-buble": "^0.21.1",
+    "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-node-resolve": "^7.1.1",
     "@vue/component-compiler-utils": "^3.1.1",
     "@vue/test-utils": "^1.0.0-beta.31",
@@ -74,8 +73,6 @@
     "postcss-cli": "^6.1.3",
     "rollup": "^1.31.1",
     "rollup-plugin-auto-external": "^2.0.0",
-    "rollup-plugin-buble": "^0.19.8",
-    "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-internal": "^1.0.4",
     "rollup-plugin-multi-input": "^1.1.1",
     "rollup-plugin-terser": "^5.2.0",
@@ -89,6 +86,7 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
+    "@braid/vue-formulate-i18n": "^1.0.0",
     "is-plain-object": "^3.0.0",
     "is-url": "^1.2.4",
     "nanoid": "^2.1.11"
