@@ -6,6 +6,7 @@
       :key="optionContext.id"
       v-model="context.model"
       v-bind="optionContext"
+      :disable-errors="true"
       class="formulate-input-group-item"
       @blur="context.blurHandler"
     />

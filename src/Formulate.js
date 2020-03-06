@@ -1,12 +1,14 @@
 import library from './libs/library'
 import rules from './libs/rules'
 import en from './locales/en'
+import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
+import { arrayify } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import fauxUploader from './libs/faux-uploader'
 import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
-import FormulateInputErrors from './FormulateInputErrors.vue'
+import FormulateErrors from './FormulateErrors.vue'
 import FormulateInputGroup from './FormulateInputGroup.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
@@ -29,7 +31,7 @@ class Formulate {
       components: {
         FormulateForm,
         FormulateInput,
-        FormulateInputErrors,
+        FormulateErrors,
         FormulateInputBox,
         FormulateInputText,
         FormulateInputFile,
@@ -41,16 +43,19 @@ class Formulate {
       },
       library,
       rules,
+      mimes,
       locale: 'en',
       uploader: fauxUploader,
       uploadUrl: false,
       fileUrlKey: 'url',
       uploadJustCompleteDuration: 1000,
+      errorHandler: (err) => err,
       plugins: [],
       locales: {
         en
       }
     }
+    this.registry = new Map()
   }
 
   /**
@@ -155,6 +160,49 @@ class Formulate {
       return generators.default(validationContext)
     }
     return 'This field does not have a valid value'
+  }
+
+  /**
+   * Given an instance of a FormulateForm register it.
+   * @param {vm} form
+   */
+  register (form) {
+    if (form.$options.name === 'FormulateForm' && form.name) {
+      this.registry.set(form.name, form)
+    }
+  }
+
+  /**
+   * Given an instance of a form, remove it from the registry.
+   * @param {vm} form
+   */
+  deregister (form) {
+    if (
+      form.$options.name === 'FormulateForm' &&
+      form.name &&
+      this.registry.has(form.name)
+    ) {
+      this.registry.delete(form.name)
+    }
+  }
+
+  /**
+   * Given an array, this function will attempt to make sense of the given error
+   * and hydrate a form with the resulting errors.
+   *
+   * @param {error} err
+   * @param {string} formName
+   * @param {error}
+   */
+  handle (err, formName, skip = false) {
+    const e = skip ? err : this.options.errorHandler(err)
+    if (formName && this.registry.has(formName)) {
+      this.registry.get(formName).applyErrors({
+        formErrors: arrayify(e.formErrors),
+        inputErrors: e.inputErrors || {}
+      })
+    }
+    return e
   }
 
   /**

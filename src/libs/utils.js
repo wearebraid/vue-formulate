@@ -14,34 +14,6 @@ export function map (original, callback) {
 }
 
 /**
- * Function to filter an object's properties
- * @param {Object} original
- * @param {Function} callback
- */
-export function filter (original, callback) {
-  let obj = {}
-  for (let key in original) {
-    if (callback(key, original[key])) {
-      obj[key] = original[key]
-    }
-  }
-  return obj
-}
-
-/**
- * Function to reduce an object's properties
- * @param {Object} original
- * @param {Function} callback
- * @param {*} accumulator
- */
-export function reduce (original, callback, accumulator) {
-  for (let key in original) {
-    accumulator = callback(accumulator, key, original[key])
-  }
-  return accumulator
-}
-
-/**
  * Shallow equal.
  * @param {} objA
  * @param {*} objB
@@ -144,6 +116,7 @@ function parseRule (rule, rules) {
     return [rule, []]
   }
   if (Array.isArray(rule) && rule.length) {
+    rule = rule.map(r => r) // light clone
     rule[0] = snakeToCamel(rule[0])
     if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
       return [rules[rule.shift()], rule]

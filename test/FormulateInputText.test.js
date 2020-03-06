@@ -172,8 +172,8 @@ describe('FormulateInputText', () => {
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(false)
   })
 
-  it('accepts a single string as an error prop', () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', error: 'This is an error' } })
+  it('accepts a single string as an error prop', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', error: 'This is an error' } })
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
   })
 
@@ -192,16 +192,23 @@ describe('FormulateInputText', () => {
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
   })
 
-  it('does not initially show error-behavior blur errors', () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', errors: ['Bad input'] } })
+  it('Should always show explicitly set errors, but not validation errors', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', validation: 'required', errorBehavior: 'blur', errors: ['Bad input'] } })
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
-    expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(false)
-    expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(false)
+    expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(true)
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
   })
 
+  it('Should show no errors when there are no errors', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text' } })
+    expect(wrapper.find('[data-has-errors]').exists()).toBe(false)
+    expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(false)
+    expect(wrapper.findAll('.formulate-input-error').exists()).toBe(false)
+  })
 
-  it('allows error-behavior blur to be overridden with show-errors', () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', showErrors: true, errors: ['Bad input'] } })
+  it('allows error-behavior blur to be overridden with show-errors', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', showErrors: true, validation: 'required' } })
+    await flushPromises()
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
     expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(true)
     expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(true)
@@ -209,14 +216,29 @@ describe('FormulateInputText', () => {
   })
 
   it('shows errors on blur with error-behavior blur', async () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', errors: ['Bad input'] } })
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'blur', validation: 'required' } })
+    await wrapper.vm.$nextTick()
+    await flushPromises()
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
     expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(false)
-    expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(false)
+    expect(wrapper.findAll('.formulate-input-error').exists()).toBe(false)
+    expect(wrapper.vm.showValidationErrors).toBe(false)
     wrapper.find('input').trigger('blur')
     await flushPromises()
+    expect(wrapper.vm.showValidationErrors).toBe(true)
     expect(wrapper.find('[data-is-showing-errors]').exists()).toBe(true)
-    expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(true)
-    expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
+    // expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(true)
+    // expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
+  })
+
+  it('continues to show errors if validation fires more than one time', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'date', errorBehavior: 'live', validation: [['after', '01/01/2021']] , value: '01/01/1999' } })
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+    expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
+    wrapper.find('input').trigger('input')
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+    expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
   })
 })

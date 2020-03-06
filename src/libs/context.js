@@ -30,16 +30,21 @@ export default {
       ...this.typeContext
     })
   },
+  // Used in sub-context
   nameOrFallback,
   typeContext,
   elementAttributes,
   logicalLabelPosition,
+  mergedUploadUrl,
+
+  // These items are not passed as context
   isVmodeled,
-  mergedErrors,
-  hasErrors,
-  showFieldErrors,
   mergedValidationName,
-  mergedUploadUrl
+  explicitErrors,
+  allErrors,
+  hasErrors,
+  hasVisibleErrors,
+  showValidationErrors
 }
 
 /**
@@ -125,7 +130,7 @@ function mergedUploadUrl () {
  * Determines if the field should show it's error (if it has one)
  * @return {boolean}
  */
-function showFieldErrors () {
+function showValidationErrors () {
   if (this.showErrors || this.formShouldShowErrors) {
     return true
   }
@@ -176,20 +181,33 @@ function createOptionList (options) {
 }
 
 /**
- * The merged errors computed property.
+ * These are errors we that have been explicity passed to us.
  */
-function mergedErrors () {
+function explicitErrors () {
   return arrayify(this.errors)
     .concat(arrayify(this.error))
-    .concat(arrayify(this.validationErrors))
-    .reduce((errors, err) => !errors.includes(err) ? errors.concat(err) : errors, [])
 }
 
 /**
- * Does this computed property have errors.
+ * The merged errors computed property.
+ */
+function allErrors () {
+  return this.explicitErrors
+    .concat(arrayify(this.validationErrors))
+}
+
+/**
+ * Does this computed property have errors
  */
 function hasErrors () {
-  return !!this.mergedErrors.length
+  return !!this.allErrors.length
+}
+
+/**
+ * Checks if form has actively visible errors.
+ */
+function hasVisibleErrors () {
+  return ((this.validationErrors && this.showValidationErrors) || !!this.explicitErrors.length)
 }
 
 /**

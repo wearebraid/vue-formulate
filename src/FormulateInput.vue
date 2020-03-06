@@ -3,7 +3,7 @@
     class="formulate-input"
     :data-classification="classification"
     :data-has-errors="hasErrors"
-    :data-is-showing-errors="hasErrors && showFieldErrors"
+    :data-is-showing-errors="hasVisibleErrors"
     :data-type="type"
   >
     <div class="formulate-input-wrapper">
@@ -46,9 +46,13 @@
       class="formulate-input-help"
       v-text="help"
     />
-    <FormulateInputErrors
-      v-if="showFieldErrors"
-      :errors="mergedErrors"
+    <FormulateErrors
+      v-if="!disableErrors"
+      :type="`input`"
+      :errors="explicitErrors"
+      :field-name="nameOrFallback"
+      :validation-errors="validationErrors"
+      :show-validation-errors="showValidationErrors"
     />
   </div>
 </template>
@@ -176,6 +180,10 @@ export default {
     },
     checked: {
       type: [String, Boolean],
+      default: false
+    },
+    disableErrors: {
+      type: Boolean,
       default: false
     }
   },
