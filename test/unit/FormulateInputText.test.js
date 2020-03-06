@@ -230,4 +230,15 @@ describe('FormulateInputText', () => {
     // expect(wrapper.findAll('.formulate-input-errors').exists()).toBe(true)
     // expect(wrapper.findAll('.formulate-input-error').length).toBe(1)
   })
+
+  it('continues to show errors if validation fires more than one time', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'date', errorBehavior: 'live', validation: [['after', '01/01/2021']] , value: '01/01/1999' } })
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+    expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
+    wrapper.find('input').trigger('input')
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+    expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
+  })
 })
