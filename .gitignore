@@ -3,4 +3,3 @@ coverage
 .cache
 .DS_Store
 .vscode
-dist/
