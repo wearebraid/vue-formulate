@@ -61,11 +61,13 @@ class Formulate {
    */
   install (Vue, options) {
     Vue.prototype.$formulate = this
-    this.options = this.merge(this.defaults, options || {})
-    if (Array.isArray(this.options.plugins) && this.options.plugins.length) {
-      this.options.plugins
-        .forEach(plugin => (typeof plugin === 'function') ? plugin(this) : null)
+    this.options = this.defaults
+    var plugins = this.defaults.plugins
+    if (options && Array.isArray(options.plugins) && options.plugins.length) {
+      plugins = plugins.concat(options.plugins)
     }
+    plugins.forEach(plugin => (typeof plugin === 'function') ? plugin(this) : null)
+    this.extend(options || {})
     for (var componentName in this.options.components) {
       Vue.component(componentName, this.options.components[componentName])
     }
