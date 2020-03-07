@@ -1,6 +1,7 @@
 import library from './libs/library'
 import rules from './libs/rules'
 import en from './locales/en'
+import pt from './locales/pt'
 import FileUpload from './FileUpload'
 import isPlainObject from 'is-plain-object'
 import fauxUploader from './libs/faux-uploader'
@@ -48,7 +49,8 @@ class Formulate {
       uploadJustCompleteDuration: 1000,
       plugins: [],
       locales: {
-        en
+        en,
+        pt
       }
     }
   }
