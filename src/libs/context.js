@@ -134,6 +134,9 @@ function showValidationErrors () {
   if (this.showErrors || this.formShouldShowErrors) {
     return true
   }
+  if (this.classification === 'file' && this.uploadBehavior === 'live' && this.context.model) {
+    return true
+  }
   return this.behavioralErrorVisibility
 }
 
