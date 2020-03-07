@@ -1,13 +1,20 @@
 <template>
   <form
+    :class="classes"
     @submit.prevent="formSubmitted"
   >
+    <FormulateErrors
+      v-if="!hasFormErrorObservers"
+      type="form"
+      :errors="mergedFormErrors"
+      :prevent-registration="true"
+    />
     <slot />
   </form>
 </template>
 
 <script>
-import { shallowEqualObjects } from './libs/utils'
+import { shallowEqualObjects, arrayify } from './libs/utils'
 import FormSubmission from './FormSubmission'
 
 export default {
@@ -15,7 +22,9 @@ export default {
     return {
       formulateFormSetter: this.setFieldValue,
       formulateFormRegister: this.register,
-      getFormValues: this.getFormValues
+      getFormValues: this.getFormValues,
+      observeErrors: this.addErrorObserver,
+      removeErrorObserver: this.removeErrorObserver
     }
   },
   name: 'FormulateForm',
@@ -35,13 +44,24 @@ export default {
     values: {
       type: [Object, Boolean],
       default: false
+    },
+    errors: {
+      type: [Object, Boolean],
+      default: false
+    },
+    formErrors: {
+      type: Array,
+      default: () => ([])
     }
   },
   data () {
     return {
       registry: {},
       internalFormModelProxy: {},
-      formShouldShowErrors: false
+      formShouldShowErrors: false,
+      errorObservers: [],
+      namedErrors: [],
+      namedFieldErrors: {}
     }
   },
   computed: {
@@ -72,6 +92,31 @@ export default {
         return Object.assign({}, this.values)
       }
       return {}
+    },
+    classes () {
+      const classes = { 'formulate-form': true }
+      if (this.name) {
+        classes[`formulate-form--${this.name}`] = true
+      }
+      return classes
+    },
+    mergedFormErrors () {
+      return this.formErrors.concat(this.namedErrors)
+    },
+    mergedFieldErrors () {
+      const errors = {}
+      if (this.errors) {
+        for (const fieldName in this.errors) {
+          errors[fieldName] = arrayify(this.errors[fieldName])
+        }
+      }
+      for (const fieldName in this.namedFieldErrors) {
+        errors[fieldName] = arrayify(this.namedFieldErrors[fieldName])
+      }
+      return errors
+    },
+    hasFormErrorObservers () {
+      return !!this.errorObservers.filter(o => o.type === 'form').length
     }
   },
   watch: {
@@ -93,16 +138,51 @@ export default {
         }
       },
       deep: true
+    },
+    mergedFormErrors (errors) {
+      this.errorObservers
+        .filter(o => o.type === 'form')
+        .forEach(o => o.callback(errors))
+    },
+    mergedFieldErrors: {
+      handler (errors) {
+        this.errorObservers
+          .filter(o => o.type === 'input')
+          .forEach(o => o.callback(errors[o.field] || []))
+      },
+      immediate: true
     }
   },
   created () {
+    this.$formulate.register(this)
     this.applyInitialValues()
+  },
+  destroyed () {
+    this.$formulate.deregister(this)
   },
   methods: {
     applyInitialValues () {
       if (this.hasInitialValue) {
         this.internalFormModelProxy = this.initialValues
       }
+    },
+    applyErrors ({ formErrors, inputErrors }) {
+      // given an object of errors, apply them to this form
+      this.namedErrors = formErrors
+      this.namedFieldErrors = inputErrors
+    },
+    addErrorObserver (observer) {
+      if (!this.errorObservers.find(obs => observer.callback === obs.callback)) {
+        this.errorObservers.push(observer)
+        if (observer.type === 'form') {
+          observer.callback(this.mergedFormErrors)
+        } else if (Object.prototype.hasOwnProperty.call(this.mergedFieldErrors, observer.field)) {
+          observer.callback(this.mergedFieldErrors[observer.field])
+        }
+      }
+    },
+    removeErrorObserver (observer) {
+      this.errorObservers = this.errorObservers.filter(obs => obs.callback !== observer)
     },
     setFieldValue (field, value) {
       Object.assign(this.internalFormModelProxy, { [field]: value })
@@ -135,6 +215,11 @@ export default {
         !shallowEqualObjects(component.internalModelProxy, this.initialValues[field])
       ) {
         this.setFieldValue(field, component.internalModelProxy)
+      }
+    },
+    registerErrorComponent (component) {
+      if (!this.errorComponents.includes(component)) {
+        this.errorComponents.push(component)
       }
     },
     formSubmitted () {

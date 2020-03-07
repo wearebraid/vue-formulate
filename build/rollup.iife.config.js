@@ -1,7 +1,7 @@
 import resolve from '@rollup/plugin-node-resolve'
-import commonjs from 'rollup-plugin-commonjs' // Convert CommonJS modules to ES6
+import commonjs from '@rollup/plugin-commonjs' // Convert CommonJS modules to ES6
+import buble from '@rollup/plugin-buble' // Transpile/polyfill with reasonable browser support
 import vue from 'rollup-plugin-vue' // Handle .vue SFC files
-import buble from 'rollup-plugin-buble' // Transpile/polyfill with reasonable browser support
 import internal from 'rollup-plugin-internal'
 import { terser } from 'rollup-plugin-terser'
 
@@ -14,7 +14,8 @@ export default {
     globals: {
       'is-plain-object': 'isPlainObject',
       'nanoid/non-secure': 'nanoid',
-      'is-url': 'isUrl'
+      'is-url': 'isUrl',
+      '@braid/vue-formulate-i18n': 'VueFormulateI18n'
     }
   },
   plugins: [
@@ -23,7 +24,7 @@ export default {
       preferBuiltins: false
     }),
     commonjs(),
-    internal(['is-plain-object', 'nanoid/non-secure', 'is-url']),
+    internal(['is-plain-object', 'nanoid/non-secure', 'is-url', '@braid/vue-formulate-i18n']),
     vue({
       css: true, // Dynamically inject css as a <style> tag
       compileTemplate: true // Explicitly convert template to render function

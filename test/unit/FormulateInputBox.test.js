@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import flushPromises from 'flush-promises'
 import { mount } from '@vue/test-utils'
-import Formulate from '../src/Formulate.js'
+import Formulate from '../../src/Formulate.js'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateInputBox from '@/inputs/FormulateInputBox.vue'
 import FormulateInputGroup from '@/FormulateInputGroup.vue'
@@ -180,5 +180,25 @@ describe('FormulateInputBox', () => {
     const checkboxes = wrapper.findAll('input[type="radio"]:checked')
     expect(checkboxes.length).toBe(1)
     expect(checkboxes.at(0).element.value).toBe('fooey')
+  })
+
+  it('shows validation errors when blurred', async () => {
+    const wrapper = mount({
+      data () {
+        return {
+          radioValue: 'fooey',
+          options: {foo: 'Foo', bar: 'Bar', fooey: 'Fooey', gooey: 'Gooey'}
+        }
+      },
+      template: `
+        <div>
+          <FormulateInput type="radio" v-model="radioValue" :options="options" validation="in:gooey" />
+        </div>
+      `
+    })
+    wrapper.find('input[value="fooey"]').trigger('blur')
+    await wrapper.vm.$nextTick()
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-error').exists()).toBe(true)
   })
 })

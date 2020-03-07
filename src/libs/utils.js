@@ -14,34 +14,6 @@ export function map (original, callback) {
 }
 
 /**
- * Function to filter an object's properties
- * @param {Object} original
- * @param {Function} callback
- */
-export function filter (original, callback) {
-  let obj = {}
-  for (let key in original) {
-    if (callback(key, original[key])) {
-      obj[key] = original[key]
-    }
-  }
-  return obj
-}
-
-/**
- * Function to reduce an object's properties
- * @param {Object} original
- * @param {Function} callback
- * @param {*} accumulator
- */
-export function reduce (original, callback, accumulator) {
-  for (let key in original) {
-    accumulator = callback(accumulator, key, original[key])
-  }
-  return accumulator
-}
-
-/**
  * Shallow equal.
  * @param {} objA
  * @param {*} objB
@@ -72,6 +44,22 @@ export function shallowEqualObjects (objA, objB) {
 }
 
 /**
+ * Given a string, convert snake_case to camelCase
+ * @param {String} string
+ */
+export function snakeToCamel (string) {
+  if (typeof string === 'string') {
+    return string.replace(/([_][a-z0-9])/ig, ($1) => {
+      if (string.indexOf($1) !== 0 && string[string.indexOf($1) - 1] !== '_') {
+        return $1.toUpperCase().replace('_', '')
+      }
+      return $1
+    })
+  }
+  return string
+}
+
+/**
  * Given a string, object, falsey, or array - return an array.
  * @param {mixed} item
  */
@@ -92,17 +80,6 @@ export function arrayify (item) {
 }
 
 /**
- * How to add an item.
- * @param {string} item
- */
-export function sentence (item) {
-  if (typeof item === 'string') {
-    return item[0].toUpperCase() + item.substr(1)
-  }
-  return item
-}
-
-/**
  * Given an array or string return an array of callables.
  * @param {array|string} validation
  * @param {array} rules and array of functions
@@ -119,7 +96,7 @@ export function parseRules (validation, rules) {
 }
 
 /**
- * Given a string or function, parse it and return the an array in the format
+ * Given a string or function, parse it and return an array in the format
  * [fn, [...arguments]]
  * @param {string|function} rule
  */
@@ -129,6 +106,7 @@ function parseRule (rule, rules) {
   }
   if (Array.isArray(rule) && rule.length) {
     rule = rule.map(r => r) // light clone
+    rule[0] = snakeToCamel(rule[0])
     if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
       return [rules[rule.shift()], rule]
     }
@@ -138,7 +116,7 @@ function parseRule (rule, rules) {
   }
   if (typeof rule === 'string') {
     const segments = rule.split(':')
-    const functionName = segments.shift()
+    const functionName = snakeToCamel(segments.shift())
     if (rules.hasOwnProperty(functionName)) {
       return [rules[functionName], segments.length ? segments.join(':').split(',') : []]
     } else {
@@ -209,4 +187,18 @@ export function cloneDeep (obj) {
     }
   }
   return newObj
+}
+
+/**
+ * Given a locale string, parse the options.
+ * @param {string} locale
+ */
+export function parseLocale (locale) {
+  const segments = locale.split('-')
+  return segments.reduce((options, segment) => {
+    if (options.length) {
+      options.unshift(`${options[0]}-${segment}`)
+    }
+    return options.length ? options : [segment]
+  }, [])
 }

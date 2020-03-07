@@ -1,12 +1,14 @@
 import library from './libs/library'
 import rules from './libs/rules'
-import en from './locales/en'
+import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
+import { arrayify, parseLocale } from './libs/utils'
 import isPlainObject from 'is-plain-object'
+import { en } from '@braid/vue-formulate-i18n'
 import fauxUploader from './libs/faux-uploader'
 import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
-import FormulateInputErrors from './FormulateInputErrors.vue'
+import FormulateErrors from './FormulateErrors.vue'
 import FormulateInputGroup from './FormulateInputGroup.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
@@ -29,7 +31,7 @@ class Formulate {
       components: {
         FormulateForm,
         FormulateInput,
-        FormulateInputErrors,
+        FormulateErrors,
         FormulateInputBox,
         FormulateInputText,
         FormulateInputFile,
@@ -41,16 +43,17 @@ class Formulate {
       },
       library,
       rules,
-      locale: 'en',
+      mimes,
+      locale: false,
       uploader: fauxUploader,
       uploadUrl: false,
       fileUrlKey: 'url',
       uploadJustCompleteDuration: 1000,
-      plugins: [],
-      locales: {
-        en
-      }
+      errorHandler: (err) => err,
+      plugins: [ en ],
+      locales: {}
     }
+    this.registry = new Map()
   }
 
   /**
@@ -58,11 +61,13 @@ class Formulate {
    */
   install (Vue, options) {
     Vue.prototype.$formulate = this
-    this.options = this.merge(this.defaults, options || {})
-    if (Array.isArray(this.options.plugins) && this.options.plugins.length) {
-      this.options.plugins
-        .forEach(plugin => (typeof plugin === 'function') ? plugin(this) : null)
+    this.options = this.defaults
+    var plugins = this.defaults.plugins
+    if (options && Array.isArray(options.plugins) && options.plugins.length) {
+      plugins = plugins.concat(options.plugins)
     }
+    plugins.forEach(plugin => (typeof plugin === 'function') ? plugin(this) : null)
+    this.extend(options || {})
     for (var componentName in this.options.components) {
       Vue.component(componentName, this.options.components[componentName])
     }
@@ -142,10 +147,46 @@ class Formulate {
   }
 
   /**
+   * Attempt to get the vue-i18n configured locale.
+   */
+  i18n (vm) {
+    if (vm.$i18n && vm.$i18n.locale) {
+      return vm.$i18n.locale
+    }
+    return false
+  }
+
+  /**
+   * Select the proper locale to use.
+   */
+  getLocale (vm) {
+    if (!this.selectedLocale) {
+      this.selectedLocale = [
+        this.options.locale,
+        this.i18n(vm),
+        'en'
+      ].reduce((selection, locale) => {
+        if (selection) {
+          return selection
+        }
+        if (locale) {
+          const option = parseLocale(locale)
+            .find(locale => Object.prototype.hasOwnProperty.call(this.options.locales, locale))
+          if (option) {
+            selection = option
+          }
+        }
+        return selection
+      }, false)
+    }
+    return this.selectedLocale
+  }
+
+  /**
    * Get the validation message for a particular error.
    */
-  validationMessage (rule, validationContext) {
-    const generators = this.options.locales[this.options.locale]
+  validationMessage (rule, validationContext, vm) {
+    const generators = this.options.locales[this.getLocale(vm)]
     if (generators.hasOwnProperty(rule)) {
       return generators[rule](validationContext)
     } else if (rule[0] === '_' && generators.hasOwnProperty(rule.substr(1))) {
@@ -155,6 +196,49 @@ class Formulate {
       return generators.default(validationContext)
     }
     return 'This field does not have a valid value'
+  }
+
+  /**
+   * Given an instance of a FormulateForm register it.
+   * @param {vm} form
+   */
+  register (form) {
+    if (form.$options.name === 'FormulateForm' && form.name) {
+      this.registry.set(form.name, form)
+    }
+  }
+
+  /**
+   * Given an instance of a form, remove it from the registry.
+   * @param {vm} form
+   */
+  deregister (form) {
+    if (
+      form.$options.name === 'FormulateForm' &&
+      form.name &&
+      this.registry.has(form.name)
+    ) {
+      this.registry.delete(form.name)
+    }
+  }
+
+  /**
+   * Given an array, this function will attempt to make sense of the given error
+   * and hydrate a form with the resulting errors.
+   *
+   * @param {error} err
+   * @param {string} formName
+   * @param {error}
+   */
+  handle (err, formName, skip = false) {
+    const e = skip ? err : this.options.errorHandler(err)
+    if (formName && this.registry.has(formName)) {
+      this.registry.get(formName).applyErrors({
+        formErrors: arrayify(e.formErrors),
+        inputErrors: e.inputErrors || {}
+      })
+    }
+    return e
   }
 
   /**

@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
-import Formulate from '../src/Formulate.js'
-import FileUpload from '../src/FileUpload.js'
+import Formulate from '../../src/Formulate.js'
+import FileUpload from '../../src/FileUpload.js'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateInputFile from '@/inputs/FormulateInputFile.vue'
 
@@ -18,6 +18,16 @@ describe('FormulateInputFile', () => {
   it('type "image" renders a file element', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'image' } })
     expect(wrapper.contains(FormulateInputFile)).toBe(true)
+  })
+
+  it('forces an error-behavior live mode when upload-behavior is live and it has content', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', validation: 'mime:image/jpeg', value: [{ url: 'img.jpg' }] } })
+    expect(wrapper.vm.showValidationErrors).toBe(true)
+  })
+
+  it('wont show errors when upload-behavior is live and it is required but empty', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', validation: 'required|mime:image/jpeg' } })
+    expect(wrapper.vm.showValidationErrors).toBe(false)
   })
 
   /**
