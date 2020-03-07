@@ -1,4 +1,4 @@
-import { parseRules, regexForFormat, cloneDeep, isValueType, snakeToCamel } from '@/libs/utils'
+import { parseRules, parseLocale, regexForFormat, cloneDeep, isValueType, snakeToCamel } from '@/libs/utils'
 import rules from '@/libs/rules'
 import FileUpload from '@/FileUpload';
 
@@ -141,5 +141,16 @@ describe('snakeToCamel', () => {
 
   it('has no effect hyphenated words', () => {
     expect(snakeToCamel('not-a-good-name')).toBe('not-a-good-name')
+  })
+})
+
+
+describe('parseLocale', () => {
+  it('properly orders the options', () => {
+    expect(parseLocale('en-US-VA')).toEqual(['en-US-VA', 'en-US', 'en'])
+  })
+
+  it('properly parses a single option', () => {
+    expect(parseLocale('en')).toEqual(['en'])
   })
 })

@@ -1,20 +1,23 @@
+import commonjs from '@rollup/plugin-commonjs' // Convert CommonJS modules to ES6
+import buble from '@rollup/plugin-buble' // Transpile/polyfill with reasonable browser support
 import autoExternal from 'rollup-plugin-auto-external'
-import commonjs from 'rollup-plugin-commonjs' // Convert CommonJS modules to ES6
 import vue from 'rollup-plugin-vue' // Handle .vue SFC files
-import buble from 'rollup-plugin-buble' // Transpile/polyfill with reasonable browser support
 import { terser } from 'rollup-plugin-terser'
 
 export default {
   input: 'src/Formulate.js', // Path relative to package.json
-  output: {
-    name: 'Formulate',
-    exports: 'default',
-    globals: {
-      'is-plain-object': 'isPlainObject',
-      'nanoid/non-secure': 'nanoid',
-      'is-url': 'isUrl'
+  output: [
+    {
+      name: 'Formulate',
+      exports: 'default',
+      globals: {
+        'is-plain-object': 'isPlainObject',
+        'nanoid/non-secure': 'nanoid',
+        'is-url': 'isUrl',
+        '@braid/vue-formulate-i18n': 'VueFormulateI18n'
+      }
     }
-  },
+  ],
   external: ['nanoid/non-secure'],
   plugins: [
     commonjs(),

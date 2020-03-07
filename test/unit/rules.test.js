@@ -1,5 +1,5 @@
 import rules from '@/libs/rules'
-import FileUpload from '../src/FileUpload'
+import FileUpload from '../../src/FileUpload'
 
 
 /**
