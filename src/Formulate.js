@@ -50,10 +50,8 @@ class Formulate {
       fileUrlKey: 'url',
       uploadJustCompleteDuration: 1000,
       errorHandler: (err) => err,
-      plugins: [],
-      locales: {
-        en
-      }
+      plugins: [ en ],
+      locales: {}
     }
     this.registry = new Map()
   }
