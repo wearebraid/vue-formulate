@@ -3,14 +3,12 @@
     v-if="visibleErrors.length"
     :class="`formulate-${type}-errors`"
   >
-    <!-- eslint-disable vue/no-v-html -->
     <li
       v-for="error in visibleErrors"
       :key="error"
       :class="`formulate-${type}-error`"
-      v-html="error"
+      v-text="error"
     />
-    <!-- eslint-enable vue/no-v-html -->
   </ul>
 </template>
 
