@@ -3,3 +3,4 @@ coverage
 .cache
 .DS_Store
 .vscode
+.idea
