@@ -16,10 +16,9 @@
 Vue Formulate is the easiest way to build forms using Vue. Key features include
 form and field validation, file uploads, form generation, single-element inputs that support labels, help text, error messages, placeholders and more, and [comprehensive documentation](https://vueformulate.com) for use within your own projects.
 
-
-:-------------------------:|:-------------------------:
-![uploads](https://assets.wearebraid.com/vue-formulate/formulate-uploads.gif)  |  ![form demo](https://assets.wearebraid.com/vue-formulate/formulate-form.gif)
-
+v-model an entire form    |  Well-considered file uploads
+:-------------------------:|:------------------------------:
+![v-model an entire form](https://assets.wearebraid.com/vue-formulate/formulate-form.gif) | ![well-considered file uploads](https://assets.wearebraid.com/vue-formulate/formulate-uploads.gif)
 
 ### How is Vue Formulate used?
 
