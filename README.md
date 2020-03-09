@@ -28,7 +28,6 @@ form and field validation, file uploads, form generation, single-element inputs 
 ✓ Easily create custom [validation messages](https://vueformulate.com//guide/validation/#customize-validation-messages)<br>
 ✓ Easily create [custom inputs](https://vueformulate.com//guide/custom-inputs)
 
-There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
 
 v-model an entire form    |  Well-considered file uploads
 :-------------------------:|:------------------------------:
@@ -50,3 +49,5 @@ The syntax is what developers would expect. To create an input you use the `Form
 ```
 
 Collecting multiple `FormulateInput` elements within a single `FormulateForm` element (even deeply nested) allows you to `v-model` your entire form.
+
+There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
