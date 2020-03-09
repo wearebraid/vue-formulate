@@ -19,14 +19,14 @@ form and field validation, file uploads, form generation, single-element inputs 
 ### Vue Formulate lets you:
 ✓ Create any input element with a single component<br>
 ✓ Use `v-model` [binding](https://vueformulate.com/guide/#model-binding) on fields and entire forms<br>
-✓ [Re-populate an entire form](https://vueformulate.com//guide/forms/#setting-initial-values) from a single object<br>
-✓ [Generate a form](https://vueformulate.com//guide/forms/#generating-forms) using json<br>
+✓ [Re-populate an entire form](https://vueformulate.com/guide/forms/#setting-initial-values) from a single object<br>
+✓ [Generate a form](https://vueformulate.com/guide/forms/#generating-forms) using json<br>
 ✓ Easily add field labels<br>
 ✓ Easily add help text<br>
-✓ Easily add [form validation](https://vueformulate.com//guide/validation)<br>
-✓ Easily add [custom validation](https://vueformulate.com//guide/validation/#custom-validation-rules) rules<br>
-✓ Easily create custom [validation messages](https://vueformulate.com//guide/validation/#customize-validation-messages)<br>
-✓ Easily create [custom inputs](https://vueformulate.com//guide/custom-inputs)
+✓ Easily add [form validation](https://vueformulate.com/guide/validation)<br>
+✓ Easily add [custom validation](https://vueformulate.com/guide/validation/#custom-validation-rules) rules<br>
+✓ Easily create custom [validation messages](https://vueformulate.com/guide/validation/#customize-validation-messages)<br>
+✓ Easily create [custom inputs](https://vueformulate.com/guide/custom-inputs)
 
 There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
 
