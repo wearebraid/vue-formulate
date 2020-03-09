@@ -16,6 +16,20 @@
 Vue Formulate is the easiest way to build forms using Vue. Key features include
 form and field validation, file uploads, form generation, single-element inputs that support labels, help text, error messages, placeholders and more, and [comprehensive documentation](https://vueformulate.com) for use within your own projects.
 
+### Vue Formulate lets you:
+✓ Create any input element with a single component<br>
+✓ Use `v-model` [binding](https://vueformulate.com/guide/#model-binding) on fields and entire forms<br>
+✓ [Re-populate an entire form](https://vueformulate.com//guide/forms/#setting-initial-values) from a single object<br>
+✓ [Generate a form](https://vueformulate.com//guide/forms/#generating-forms) using json<br>
+✓ Easily add field labels<br>
+✓ Easily add help text<br>
+✓ Easily add [form validation](https://vueformulate.com//guide/validation)<br>
+✓ Easily add [custom validation](https://vueformulate.com//guide/validation/#custom-validation-rules) rules<br>
+✓ Easily create custom [validation messages](https://vueformulate.com//guide/validation/#customize-validation-messages)<br>
+✓ Easily create [custom inputs](https://vueformulate.com//guide/custom-inputs)
+
+There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
+
 v-model an entire form    |  Well-considered file uploads
 :-------------------------:|:------------------------------:
 ![v-model an entire form](https://assets.wearebraid.com/vue-formulate/formulate-form.gif) | ![well-considered file uploads](https://assets.wearebraid.com/vue-formulate/formulate-uploads.gif)
@@ -36,17 +50,3 @@ The syntax is what developers would expect. To create an input you use the `Form
 ```
 
 Collecting multiple `FormulateInput` elements within a single `FormulateForm` element (even deeply nested) allows you to `v-model` your entire form.
-
-### Vue Formulate lets you:
-✓ Create any input element with a single component<br>
-✓ Use `v-model` [binding](https://vueformulate.com/guide/#model-binding) on fields and entire forms<br>
-✓ [Re-populate an entire form](https://vueformulate.com//guide/forms/#setting-initial-values) from a single object<br>
-✓ [Generate a form](https://vueformulate.com//guide/forms/#generating-forms) using json<br>
-✓ Easily add field labels<br>
-✓ Easily add help text<br>
-✓ Easily add [form validation](https://vueformulate.com//guide/validation)<br>
-✓ Easily add [custom validation](https://vueformulate.com//guide/validation/#custom-validation-rules) rules<br>
-✓ Easily create custom [validation messages](https://vueformulate.com//guide/validation/#customize-validation-messages)<br>
-✓ Easily create [custom inputs](https://vueformulate.com//guide/custom-inputs)
-
-There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
