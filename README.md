@@ -32,13 +32,14 @@ The syntax is what developers would expect:
 
 ✓ Create any input element with a single component<br>
 ✓ Supports Vue `v-model` [binding](https://vueformulate.com/guide/#model-binding)<br>
-✓ [Re-populate an entire form](https://vueformulate.com//guide/forms/#setting-initial-values) from a single object<br>
-✓ [Generate a form](https://vueformulate.com//guide/forms/#generating-forms) using json<br>
+✓ [Re-populate an entire form](https://vueformulate.com/guide/forms/#setting-initial-values) from a single object<br>
+✓ [Generate a form](https://vueformulate.com/guide/forms/#generating-forms) using json<br>
 ✓ Easy to add field labels<br>
 ✓ Easy to add help text<br>
-✓ Easy to add [form validation](https://vueformulate.com//guide/validation)<br>
-✓ Easy to add [custom validation](https://vueformulate.com//guide/validation/#custom-validation-rules) rules<br>
-✓ Easy to modify [validation messages](https://vueformulate.com//guide/validation/#customize-validation-messages)<br>
-✓ Easy to add [custom inputs](https://vueformulate.com//guide/custom-inputs)
+✓ Easy to add [form validation](https://vueformulate.com/guide/validation)<br>
+✓ Easy to add [custom validation](https://vueformulate.com/guide/validation/#custom-validation-rules) rules<br>
+✓ Easy to modify [validation messages](https://vueformulate.com/guide/validation/#customize-validation-messages)<br>
+✓ Easy to add [custom inputs](https://vueformulate.com/guide/custom-inputs)<br>
+✓ Backend response [error handling](https://vueformulate.com/guide/forms/error-handling)
 
 There's a lot more available to read at the [documentation website](https://vueformulate.com).

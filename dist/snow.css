@@ -351,9 +351,10 @@
       border-radius: 1.25em;
       width: 5em;
       overflow: hidden;
-      position: absolute;
+      position: relative;
+      flex: 0 0 5em;
       right: .75em;
-      transition: height .25s, width .25s;
+      transition: height .25s, width .25s, flex-basis .25s;
       z-index: 2; }
       .formulate-input[data-classification="file"] .formulate-files .formulate-file-progress::before {
         content: '';
@@ -373,7 +374,8 @@
         z-index: 3; }
       .formulate-input[data-classification="file"] .formulate-files .formulate-file-progress[data-just-finished] {
         width: 1.25em;
-        height: 1.25em; }
+        height: 1.25em;
+        flex: 0 0 1.25em; }
         .formulate-input[data-classification="file"] .formulate-files .formulate-file-progress[data-just-finished]::before {
           transition: transform .25s .2s, opacity .25s .2s;
           transform: scale(1);
@@ -381,6 +383,7 @@
       .formulate-input[data-classification="file"] .formulate-files .formulate-file-progress[data-is-finished] {
         transition: height .25s, width .25s, left .25s, top, .25s, border-radius .25s;
         width: .3em;
+        flex: 0 0 .3em;
         height: 100%;
         right: 0;
         border-radius: 0 .23em .23em 0; }
@@ -398,7 +401,10 @@
     .formulate-input[data-classification="file"] .formulate-files .formulate-file-name {
       padding-left: 1.5em;
       padding-right: 2em;
-      max-width: 100%; }
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; }
       .formulate-input[data-classification="file"] .formulate-files .formulate-file-name::before {
         position: absolute;
         left: .7em;
@@ -473,6 +479,7 @@
     .formulate-input[data-classification="file"] .formulate-files .formulate-file-image-preview {
       width: 3em;
       height: 3em;
+      flex: 0 0 3em;
       position: relative;
       z-index: 2;
       left: -1px;
