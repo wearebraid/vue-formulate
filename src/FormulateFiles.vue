@@ -20,6 +20,7 @@
         </div>
         <div
           class="formulate-file-name"
+          :title="file.name"
           v-text="file.name"
         />
         <div
