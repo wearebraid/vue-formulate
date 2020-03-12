@@ -139,7 +139,7 @@ export default {
       type: String,
       default: 'blur',
       validator: function (value) {
-        return ['blur', 'live'].includes(value)
+        return ['blur', 'live', 'submit'].includes(value)
       }
     },
     showErrors: {

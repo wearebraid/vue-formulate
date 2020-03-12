@@ -2,6 +2,7 @@ import Vue from 'vue'
 import flushPromises from 'flush-promises'
 import { mount } from '@vue/test-utils'
 import Formulate from '@/Formulate.js'
+import FormulateForm from '@/FormulateForm.vue'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateInputBox from '@/inputs/FormulateInputBox.vue'
 
@@ -116,5 +117,28 @@ describe('FormulateInput', () => {
     } })
     await flushPromises()
     expect(wrapper.contains(FormulateInputBox)).toBe(true)
+  })
+
+  it('doesnt show errors on blur when set error-behavior is submit', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'special',
+      validation: 'required',
+      errorBehavior: 'submit',
+    } })
+    wrapper.find('input').trigger('input')
+    wrapper.find('input').trigger('blur')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(false)
+  })
+
+  it('displays errors when error-behavior is submit and form is submitted', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: {
+        default: `<FormulateInput error-behavior="submit" validation="required" />`
+      }
+    })
+    wrapper.trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
   })
 })
