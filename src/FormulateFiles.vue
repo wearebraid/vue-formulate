@@ -7,11 +7,11 @@
       v-for="file in fileUploads"
       :key="file.uuid"
       :data-has-error="!!file.error"
-      :data-has-preview="imagePreview && file.previewData"
+      :data-has-preview="!!(imagePreview && file.previewData)"
     >
       <div class="formulate-file">
         <div
-          v-if="imagePreview && file.previewData"
+          v-if="!!(imagePreview && file.previewData)"
           class="formulate-file-image-preview"
         >
           <img

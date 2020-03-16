@@ -30,6 +30,13 @@ describe('FormulateInputFile', () => {
     expect(wrapper.vm.showValidationErrors).toBe(false)
   })
 
+  it('contains a data-has-preview attribute when showing a preview', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', value: [ { url: 'https://www.example.com/image.png' } ], validation: 'required|mime:image/jpeg' } })
+    const file = wrapper.find('[data-has-preview]')
+    expect(file.exists()).toBe(true)
+    expect(file.attributes('data-has-preview')).toBe('true')
+  })
+
   /**
    * ===========================================================================
    * Currently there appears to be no way to properly mock upload data in
