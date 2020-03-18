@@ -130,6 +130,14 @@ describe('between', () => {
   it('fails with number to small', async () => expect(await rules.between({ value: 0 }, 3, 10)).toBe(false))
 
   it('fails with number to large', async () => expect(await rules.between({ value: 15 }, 3, 10)).toBe(false))
+
+  it('passes when forced to value', async () => expect(await rules.between({ value: '4' }, 3, 10, 'value')).toBe(true))
+
+  it('fails when forced to value', async () => expect(await rules.between({ value: 442 }, 3, 10, 'value')).toBe(false))
+
+  it('passes when forced to length', async () => expect(await rules.between({ value: 7442 }, 3, 10, 'length')).toBe(true))
+
+  it('fails when forced to length', async () => expect(await rules.between({ value: 6 }, 3, 10, 'length')).toBe(false))
 })
 
 /**
