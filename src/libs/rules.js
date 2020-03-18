@@ -58,18 +58,19 @@ export default {
   /**
    * Rule: checks if the value is between two other values
    */
-  between: function ({ value }, from = 0, to = 10) {
+  between: function ({ value }, from = 0, to = 10, force) {
     return Promise.resolve((() => {
       if (from === null || to === null || isNaN(from) || isNaN(to)) {
         return false
       }
-      from = Number(from)
-      to = Number(to)
-      if (!isNaN(value)) {
+      if ((!isNaN(value) && force !== 'length') || force === 'value') {
         value = Number(value)
+        from = Number(from)
+        to = Number(to)
         return (value > from && value < to)
       }
-      if (typeof value === 'string') {
+      if (typeof value === 'string' || force === 'length') {
+        value = !isNaN(value) ? value.toString() : value
         return value.length > from && value.length < to
       }
       return false
