@@ -293,7 +293,10 @@ export default {
         })
       )
         .then(result => result.filter(result => result))
-        .then(errorMessages => { this.validationErrors = errorMessages })
+        .then(errorMessages => {
+          this.$emit('validation', this.context.name, errorMessages)
+          this.validationErrors = errorMessages
+        })
       return this.pendingValidation
     },
     getValidationMessage (rule, args) {

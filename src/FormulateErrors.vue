@@ -77,6 +77,7 @@ export default {
   methods: {
     setErrors (errors) {
       this.localErrors = arrayify(errors)
+      console.info(this.localErrors)
     }
   }
 }

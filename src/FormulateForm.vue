@@ -170,6 +170,8 @@ export default {
       // given an object of errors, apply them to this form
       this.namedErrors = formErrors
       this.namedFieldErrors = inputErrors
+      console.info('library', formErrors, inputErrors)
+      this.$emit('validation', this.context.name, this.namedErrors.concat(this.namedFieldErrors))
     },
     addErrorObserver (observer) {
       if (!this.errorObservers.find(obs => observer.callback === obs.callback)) {
