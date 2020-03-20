@@ -5,7 +5,7 @@ import FileUpload from '@/FileUpload';
 describe('parseRules', () => {
   it('parses single string rules, returning empty arguments array', () => {
     expect(parseRules('required', rules)).toEqual([
-      [rules.required, []]
+      [rules.required, [], 'required']
     ])
   })
 
@@ -17,21 +17,21 @@ describe('parseRules', () => {
 
   it('parses arguments for a rule', () => {
     expect(parseRules('in:foo,bar', rules)).toEqual([
-      [rules.in, ['foo', 'bar']]
+      [rules.in, ['foo', 'bar'], 'in']
     ])
   })
 
   it('parses multiple string rules and arguments', () => {
     expect(parseRules('required|in:foo,bar', rules)).toEqual([
-      [rules.required, []],
-      [rules.in, ['foo', 'bar']]
+      [rules.required, [], 'required'],
+      [rules.in, ['foo', 'bar'], 'in']
     ])
   })
 
   it('parses multiple array rules and arguments', () => {
     expect(parseRules(['required', 'in:foo,bar'], rules)).toEqual([
-      [rules.required, []],
-      [rules.in, ['foo', 'bar']]
+      [rules.required, [], 'required'],
+      [rules.in, ['foo', 'bar'], 'in']
     ])
   })
 
@@ -39,7 +39,7 @@ describe('parseRules', () => {
     expect(parseRules([
       ['matches', /^abc/, '1234']
     ], rules)).toEqual([
-      [rules.matches, [/^abc/, '1234']]
+      [rules.matches, [/^abc/, '1234'], 'matches']
     ])
   })
 })
@@ -141,6 +141,11 @@ describe('snakeToCamel', () => {
 
   it('has no effect hyphenated words', () => {
     expect(snakeToCamel('not-a-good-name')).toBe('not-a-good-name')
+  })
+
+  it('returns the same function if passed', () => {
+    const fn = () => {}
+    expect(snakeToCamel(fn)).toBe(fn)
   })
 })
 

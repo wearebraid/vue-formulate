@@ -282,22 +282,22 @@ export default {
     performValidation () {
       const rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
       this.pendingValidation = Promise.all(
-        rules.map(([rule, args]) => {
+        rules.map(([rule, args, ruleName]) => {
           var res = rule({
             value: this.context.model,
             getFormValues: this.getFormValues.bind(this),
             name: this.context.name
           }, ...args)
           res = (res instanceof Promise) ? res : Promise.resolve(res)
-          return res.then(res => res ? false : this.getValidationMessage(rule, args))
+          return res.then(res => res ? false : this.getMessage(ruleName, args))
         })
       )
         .then(result => result.filter(result => result))
         .then(errorMessages => { this.validationErrors = errorMessages })
       return this.pendingValidation
     },
-    getValidationMessage (rule, args) {
-      return this.getValidationFunction(rule)({
+    getMessage (ruleName, args) {
+      return this.getMessageFunc(ruleName)({
         args,
         name: this.mergedValidationName,
         value: this.context.model,
@@ -305,10 +305,9 @@ export default {
         formValues: this.getFormValues()
       })
     },
-    getValidationFunction (rule) {
-      let ruleName = rule.name.substr(0, 1) === '_' ? rule.name.substr(1) : rule.name
+    getMessageFunc (ruleName) {
       ruleName = snakeToCamel(ruleName)
-      if (this.messages && typeof this.messages === 'object' && typeof this.messages[ruleName] !== 'undefined') {
+      if (this.messages && typeof this.messages[ruleName] !== 'undefined') {
         switch (typeof this.messages[ruleName]) {
           case 'function':
             return this.messages[ruleName]
@@ -316,7 +315,7 @@ export default {
             return () => this.messages[ruleName]
         }
       }
-      return (context) => this.$formulate.validationMessage(rule.name, context, this)
+      return (context) => this.$formulate.validationMessage(ruleName, context, this)
     },
     hasValidationErrors () {
       return new Promise(resolve => {

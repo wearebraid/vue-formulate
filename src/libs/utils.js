@@ -106,19 +106,19 @@ function parseRule (rule, rules) {
   }
   if (Array.isArray(rule) && rule.length) {
     rule = rule.map(r => r) // light clone
-    rule[0] = snakeToCamel(rule[0])
-    if (typeof rule[0] === 'string' && rules.hasOwnProperty(rule[0])) {
-      return [rules[rule.shift()], rule]
+    const ruleName = snakeToCamel(rule.shift())
+    if (typeof ruleName === 'string' && rules.hasOwnProperty(ruleName)) {
+      return [rules[ruleName], rule, ruleName]
     }
-    if (typeof rule[0] === 'function') {
-      return [rule.shift(), rule]
+    if (typeof ruleName === 'function') {
+      return [ruleName, rule, ruleName]
     }
   }
   if (typeof rule === 'string') {
     const segments = rule.split(':')
-    const functionName = snakeToCamel(segments.shift())
-    if (rules.hasOwnProperty(functionName)) {
-      return [rules[functionName], segments.length ? segments.join(':').split(',') : []]
+    const ruleName = snakeToCamel(segments.shift())
+    if (rules.hasOwnProperty(ruleName)) {
+      return [rules[ruleName], segments.length ? segments.join(':').split(',') : [], ruleName]
     } else {
       throw new Error(`Unknown validation rule ${rule}`)
     }
