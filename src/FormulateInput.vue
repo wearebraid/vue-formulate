@@ -294,7 +294,7 @@ export default {
       )
         .then(result => result.filter(result => result))
         .then(errorMessages => {
-          const validationChange = errorMessages.length !== this.validationErrors.length
+          const validationChange = JSON.stringify(errorMessages) !== JSON.stringify(this.validationErrors)
           this.validationErrors = errorMessages
           if (validationChange) {
             this.$emit('validation', this.getErrorObject())
