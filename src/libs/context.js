@@ -27,6 +27,7 @@ export default {
       uploadBehavior: this.uploadBehavior,
       preventWindowDrops: this.preventWindowDrops,
       hasValidationErrors: this.hasValidationErrors,
+      getValidationErrors: this.getValidationErrors,
       ...this.typeContext
     })
   },

@@ -250,11 +250,16 @@ export default {
     hasValidationErrors () {
       const resolvers = []
       for (const fieldName in this.registry) {
-        if (typeof this.registry[fieldName].hasValidationErrors === 'function') {
-          resolvers.push(this.registry[fieldName].hasValidationErrors())
+        if (typeof this.registry[fieldName].getValidationErrors === 'function') {
+          resolvers.push(this.registry[fieldName].getValidationErrors())
         }
       }
-      return Promise.all(resolvers).then(fields => !!fields.find(hasErrors => hasErrors))
+      return Promise.all(resolvers).then((errorObjects) => {
+        console.log(errorObjects)
+        this.$emit('validation', errorObjects)
+        return !errorObjects.some(item => item.hasErrors)
+        // return !!fields.find(hasErrors => hasErrors)
+      })
     }
   }
 }

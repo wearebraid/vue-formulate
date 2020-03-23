@@ -326,6 +326,16 @@ export default {
           this.pendingValidation.then(() => resolve(!!this.validationErrors.length))
         })
       })
+    },
+    getValidationErrors () {
+      return new Promise(resolve => {
+        this.$nextTick(() => {
+          this.pendingValidation.then(() => resolve(this.getErrorObject()))
+        })
+      })
+    },
+    getErrorObject () {
+      return { name: this.context.nameOrFallback, errors: this.validationErrors, hasErrors: !!this.validationErrors.length }
     }
   }
 }
