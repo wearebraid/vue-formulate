@@ -294,7 +294,7 @@ export default {
       )
         .then(result => result.filter(result => result))
         .then(errorMessages => {
-          this.$emit('validation', this.context.name, errorMessages)
+          this.$emit('validation', this.context.nameOrFallback || this.context.name, errorMessages)
           this.validationErrors = errorMessages
         })
       return this.pendingValidation
@@ -335,7 +335,7 @@ export default {
       })
     },
     getErrorObject () {
-      return { name: this.context.nameOrFallback, errors: this.validationErrors, hasErrors: !!this.validationErrors.length }
+      return { name: this.context.nameOrFallback || this.context.name, errors: this.validationErrors, hasErrors: !!this.validationErrors.length }
     }
   }
 }

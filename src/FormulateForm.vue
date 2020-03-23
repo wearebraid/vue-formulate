@@ -170,8 +170,6 @@ export default {
       // given an object of errors, apply them to this form
       this.namedErrors = formErrors
       this.namedFieldErrors = inputErrors
-      console.info('library', formErrors, inputErrors)
-      this.$emit('validation', this.context.name, this.namedErrors.concat(this.namedFieldErrors))
     },
     addErrorObserver (observer) {
       if (!this.errorObservers.find(obs => observer.callback === obs.callback)) {
@@ -255,10 +253,8 @@ export default {
         }
       }
       return Promise.all(resolvers).then((errorObjects) => {
-        console.log(errorObjects)
-        this.$emit('validation', errorObjects)
-        return !errorObjects.some(item => item.hasErrors)
-        // return !!fields.find(hasErrors => hasErrors)
+        this.$emit('validation', errorObjects.filter(eo => eo.hasErrors))
+        return errorObjects.some(item => item.hasErrors)
       })
     }
   }
