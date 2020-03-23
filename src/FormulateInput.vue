@@ -294,8 +294,11 @@ export default {
       )
         .then(result => result.filter(result => result))
         .then(errorMessages => {
-          this.$emit('validation', this.context.nameOrFallback || this.context.name, errorMessages)
+          const validationChange = errorMessages.length !== this.validationErrors.length
           this.validationErrors = errorMessages
+          if (validationChange) {
+            this.$emit('validation', this.getErrorObject())
+          }
         })
       return this.pendingValidation
     },

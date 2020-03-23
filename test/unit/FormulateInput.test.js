@@ -124,10 +124,30 @@ describe('FormulateInput', () => {
         name: 'testinput',
       } })
     await flushPromises()
-    const errorObject = wrapper.emitted('validation')[0]
-    expect(errorObject.length).toBe(2)
-    expect(errorObject[0]).toEqual('testinput')
-    expect(errorObject[1].length).toBe(1)
-    expect(errorObject[1][0]).toEqual(expect.any(String))
+    const errorObject = wrapper.emitted('validation')[0][0]
+    expect(errorObject).toEqual(expect.objectContaining({
+      name: 'testinput',
+      errors: [
+        expect.any(String)
+      ],
+      hasErrors: true
+    }))
+  })
+
+  it('doesn’t emit a validation event if the validation state didn’t change', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+        type: 'text',
+        validation: 'min:5',
+        errorBehavior: 'live',
+        value: '',
+        name: 'testinput',
+      } })
+    await flushPromises()
+    expect(wrapper.emitted('validation').length).toBe(1)
+    wrapper.find('input').setValue('foo')
+    await flushPromises()
+    wrapper.find('input').setValue('')
+    await flushPromises()
+    expect(wrapper.emitted('validation').length).toBe(1)
   })
 })
