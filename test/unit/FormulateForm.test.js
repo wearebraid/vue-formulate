@@ -389,4 +389,22 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(wrapper.find(FormulateForm).vm.errorObservers.length).toBe(0)
   })
+
+  it('emits correct validation event on submit', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' }
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    const errorObjects = wrapper.emitted('validation')[0][0]
+    expect(errorObjects.length).toBe(1)
+    const errorObject = errorObjects[0]
+    expect(errorObject).toEqual(expect.objectContaining({
+      name: 'testinput',
+      errors: [
+        expect.any(String)
+      ],
+      hasErrors: true
+    }))
+  })
 })

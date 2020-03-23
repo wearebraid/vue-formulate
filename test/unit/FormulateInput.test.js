@@ -70,7 +70,6 @@ describe('FormulateInput', () => {
       validationRules: {
         foobar: async ({ value }) => value === 'foo'
       },
-      validation: 'required|foobar',
       errorBehavior: 'live',
       value: 'bar'
     } })
@@ -88,7 +87,6 @@ describe('FormulateInput', () => {
       validationRules: {
         foobar: ({ value }) => value === 'foo'
       },
-      validation: 'required|foobar',
       errorBehavior: 'live',
       value: 'bar'
     } })
@@ -116,5 +114,20 @@ describe('FormulateInput', () => {
     } })
     await flushPromises()
     expect(wrapper.contains(FormulateInputBox)).toBe(true)
+  })
+  it('emits correct validation event', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+        type: 'text',
+        validation: 'required',
+        errorBehavior: 'live',
+        value: '',
+        name: 'testinput',
+      } })
+    await flushPromises()
+    const errorObject = wrapper.emitted('validation')[0]
+    expect(errorObject.length).toBe(2)
+    expect(errorObject[0]).toEqual('testinput')
+    expect(errorObject[1].length).toBe(1)
+    expect(errorObject[1][0]).toEqual(expect.any(String))
   })
 })
