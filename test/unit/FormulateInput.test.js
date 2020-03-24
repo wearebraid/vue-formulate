@@ -115,6 +115,7 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.contains(FormulateInputBox)).toBe(true)
   })
+
   it('emits correct validation event', async () => {
     const wrapper = mount(FormulateInput, { propsData: {
         type: 'text',
@@ -125,12 +126,55 @@ describe('FormulateInput', () => {
       } })
     await flushPromises()
     const errorObject = wrapper.emitted('validation')[0][0]
-    expect(errorObject).toEqual(expect.objectContaining({
+    expect(errorObject).toEqual({
       name: 'testinput',
       errors: [
         expect.any(String)
       ],
       hasErrors: true
-    }))
+    })
   })
+
+  it('emits a error-visibility event on blur', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required',
+      errorBehavior: 'blur',
+      value: '',
+      name: 'testinput',
+    } })
+    await flushPromises()
+    expect(wrapper.emitted('error-visibility')[0][0]).toBe(false)
+    wrapper.find('input[type="text"]').trigger('blur')
+    await flushPromises()
+    expect(wrapper.emitted('error-visibility')[1][0]).toBe(true)
+  })
+
+  it('emits error-visibility event immediately when live', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required',
+      errorBehavior: 'live',
+      value: '',
+      name: 'testinput',
+    } })
+    await flushPromises()
+    expect(wrapper.emitted('error-visibility').length).toBe(1)
+  })
+
+  it('Does not emit an error-visibility event if visibility did not change', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'in:xyz',
+      errorBehavior: 'live',
+      value: 'bar',
+      name: 'testinput',
+    } })
+    await flushPromises()
+    expect(wrapper.emitted('error-visibility').length).toBe(1)
+    wrapper.find('input[type="text"]').setValue('bar')
+    await flushPromises()
+    expect(wrapper.emitted('error-visibility').length).toBe(1)
+  })
+
 })

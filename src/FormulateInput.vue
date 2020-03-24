@@ -48,19 +48,15 @@
     />
     <FormulateErrors
       v-if="!disableErrors"
-      @error-visibility="errorVisibility"
       :type="`input`"
-      :errors="explicitErrors"
-      :field-name="nameOrFallback"
-      :validation-errors="validationErrors"
-      :show-validation-errors="showValidationErrors"
+      :context="context"
     />
   </div>
 </template>
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, snakeToCamel } from './libs/utils'
+import { shallowEqualObjects, parseRules, snakeToCamel, arrayify } from './libs/utils'
 import nanoid from 'nanoid/non-secure'
 
 export default {
@@ -68,9 +64,11 @@ export default {
   inheritAttrs: false,
   inject: {
     formulateFormSetter: { default: undefined },
-    formulateFieldValidation: { default: undefined },
+    formulateFieldValidation: { default: () => () => ({}) },
     formulateFormRegister: { default: undefined },
-    getFormValues: { default: () => () => ({}) }
+    getFormValues: { default: () => () => ({}) },
+    observeErrors: { default: undefined },
+    removeErrorObserver: { default: undefined }
   },
   model: {
     prop: 'formulateValue',
@@ -193,6 +191,7 @@ export default {
     return {
       defaultId: nanoid(9),
       localAttributes: {},
+      localErrors: [],
       internalModelProxy: this.getInitialValue(),
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
@@ -241,6 +240,12 @@ export default {
       if (this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
         this.context.model = newValue
       }
+    },
+    showValidationErrors: {
+      handler (val) {
+        this.$emit('error-visibility', val)
+      },
+      immediate: true
     }
   },
   created () {
@@ -248,8 +253,16 @@ export default {
     if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
       this.formulateFormRegister(this.nameOrFallback, this)
     }
+    if (!this.disableErrors && typeof this.observeErrors === 'function') {
+      this.observeErrors({ callback: this.setErrors, type: 'input', field: this.nameOrFallback })
+    }
     this.updateLocalAttributes(this.$attrs)
     this.performValidation()
+  },
+  destroyed () {
+    if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
+      this.removeErrorObserver(this.setErrors)
+    }
   },
   methods: {
     getInitialValue () {
@@ -295,18 +308,19 @@ export default {
         })
       )
         .then(result => result.filter(result => result))
-        .then(errorMessages => {
-          const validationChanged = !shallowEqualObjects(errorMessages, this.validationErrors)
-          this.validationErrors = errorMessages
-          if (validationChanged) {
-            const errorObject = this.getErrorObject()
-            this.$emit('validation', errorObject)
-            if (this.formulateFieldValidation && typeof this.formulateFieldValidation === 'function') {
-              this.formulateFieldValidation(errorObject)
-            }
-          }
-        })
+        .then(messages => this.didValidate(messages))
       return this.pendingValidation
+    },
+    didValidate (messages) {
+      const validationChanged = !shallowEqualObjects(messages, this.validationErrors)
+      this.validationErrors = messages
+      if (validationChanged) {
+        const errorObject = this.getErrorObject()
+        this.$emit('validation', errorObject)
+        if (this.formulateFieldValidation && typeof this.formulateFieldValidation === 'function') {
+          this.formulateFieldValidation(errorObject)
+        }
+      }
     },
     getMessage (ruleName, args) {
       return this.getMessageFunc(ruleName)({
@@ -344,10 +358,14 @@ export default {
       })
     },
     getErrorObject () {
-      return { name: this.context.nameOrFallback || this.context.name, errors: this.validationErrors, hasErrors: !!this.validationErrors.length }
+      return {
+        name: this.context.nameOrFallback || this.context.name,
+        errors: this.validationErrors,
+        hasErrors: !!this.validationErrors.length
+      }
     },
-    errorVisibility (visible) {
-      this.$emit('error-visibility', visible)
+    setErrors (errors) {
+      this.localErrors = arrayify(errors)
     }
   }
 }

@@ -41,6 +41,9 @@ export default {
         performValidation,
         hasValidationErrors,
         getValidationErrors,
+        validationErrors,
+        setErrors,
+        visibleValidationErrors,
         component,
         hasLabel,
         ...context

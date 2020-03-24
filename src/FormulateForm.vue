@@ -5,9 +5,7 @@
   >
     <FormulateErrors
       v-if="!hasFormErrorObservers"
-      type="form"
-      :errors="mergedFormErrors"
-      :prevent-registration="true"
+      :context="formContext"
     />
     <slot />
   </form>
@@ -66,6 +64,15 @@ export default {
     }
   },
   computed: {
+    /**
+     * @todo in 2.3.0 this will expand and be extracted to a separate module to
+     * support better scoped slot interoperability.
+     */
+    formContext () {
+      return {
+        errors: this.mergedFormErrors
+      }
+    },
     hasInitialValue () {
       return (
         (this.formulateValue && typeof this.formulateValue === 'object') ||
