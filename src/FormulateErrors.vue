@@ -56,6 +56,11 @@ export default {
       localErrors: []
     }
   },
+  watch: {
+    visibleErrors (newVisibleErrors, oldVisibleErrors) {
+      this.$emit('error-visibility', newVisibleErrors.length > 0)
+    }
+  },
   computed: {
     mergedErrors () {
       return arrayify(this.errors).concat(this.localErrors)

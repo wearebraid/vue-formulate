@@ -48,6 +48,7 @@
     />
     <FormulateErrors
       v-if="!disableErrors"
+      @error-visibility="errorVisibility"
       :type="`input`"
       :errors="explicitErrors"
       :field-name="nameOrFallback"
@@ -67,6 +68,7 @@ export default {
   inheritAttrs: false,
   inject: {
     formulateFormSetter: { default: undefined },
+    formulateFieldValidation: { default: undefined },
     formulateFormRegister: { default: undefined },
     getFormValues: { default: () => () => ({}) }
   },
@@ -294,10 +296,14 @@ export default {
       )
         .then(result => result.filter(result => result))
         .then(errorMessages => {
-          const validationChange = JSON.stringify(errorMessages) !== JSON.stringify(this.validationErrors)
+          const validationChanged = !shallowEqualObjects(errorMessages, this.validationErrors)
           this.validationErrors = errorMessages
-          if (validationChange) {
-            this.$emit('validation', this.getErrorObject())
+          if (validationChanged) {
+            const errorObject = this.getErrorObject()
+            this.$emit('validation', errorObject)
+            if (this.formulateFieldValidation && typeof this.formulateFieldValidation === 'function') {
+              this.formulateFieldValidation(errorObject)
+            }
           }
         })
       return this.pendingValidation
@@ -339,6 +345,9 @@ export default {
     },
     getErrorObject () {
       return { name: this.context.nameOrFallback || this.context.name, errors: this.validationErrors, hasErrors: !!this.validationErrors.length }
+    },
+    errorVisibility (visible) {
+      this.$emit('error-visibility', visible)
     }
   }
 }

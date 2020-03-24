@@ -24,7 +24,8 @@ export default {
       formulateFormRegister: this.register,
       getFormValues: this.getFormValues,
       observeErrors: this.addErrorObserver,
-      removeErrorObserver: this.removeErrorObserver
+      removeErrorObserver: this.removeErrorObserver,
+      formulateFieldValidation: this.formulateFieldValidation
     }
   },
   name: 'FormulateForm',
@@ -245,6 +246,9 @@ export default {
     getFormValues () {
       return this.internalFormModelProxy
     },
+    formulateFieldValidation (errorObject) {
+      this.$emit('validation', errorObject)
+    },
     hasValidationErrors () {
       const resolvers = []
       for (const fieldName in this.registry) {
@@ -253,7 +257,6 @@ export default {
         }
       }
       return Promise.all(resolvers).then((errorObjects) => {
-        this.$emit('validation', errorObjects.filter(eo => eo.hasErrors))
         return errorObjects.some(item => item.hasErrors)
       })
     }
