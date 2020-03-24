@@ -40,6 +40,10 @@ export default {
         blurHandler,
         performValidation,
         hasValidationErrors,
+        getValidationErrors,
+        validationErrors,
+        setErrors,
+        visibleValidationErrors,
         component,
         hasLabel,
         ...context
