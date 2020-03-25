@@ -150,8 +150,13 @@ class Formulate {
    * Attempt to get the vue-i18n configured locale.
    */
   i18n (vm) {
-    if (vm.$i18n && vm.$i18n.locale) {
-      return vm.$i18n.locale
+    if (vm.$i18n) {
+      switch (typeof vm.$i18n.locale) {
+        case 'string':
+          return vm.$i18n.locale
+        case 'function':
+          return vm.$i18n.locale()
+      }
     }
     return false
   }

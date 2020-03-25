@@ -25,29 +25,13 @@ export default {
     }
   },
   props: {
-    showValidationErrors: {
-      type: Boolean,
-      default: false
-    },
-    errors: {
-      type: [Array, Boolean],
-      default: false
-    },
-    validationErrors: {
-      type: [Array],
-      default: () => ([])
+    context: {
+      type: Object,
+      default: () => ({})
     },
     type: {
       type: String,
       default: 'form'
-    },
-    preventRegistration: {
-      type: Boolean,
-      default: false
-    },
-    fieldName: {
-      type: [String, Boolean],
-      default: false
     }
   },
   data () {
@@ -57,20 +41,28 @@ export default {
     }
   },
   computed: {
+    visibleValidationErrors () {
+      return Array.isArray(this.context.visibleValidationErrors) ? this.context.visibleValidationErrors : []
+    },
+    errors () {
+      return Array.isArray(this.context.errors) ? this.context.errors : []
+    },
     mergedErrors () {
-      return arrayify(this.errors).concat(this.localErrors)
+      return this.errors.concat(this.localErrors)
     },
     visibleErrors () {
-      return Array.from(new Set(this.mergedErrors.concat(this.showValidationErrors ? this.validationErrors : [])))
+      return Array.from(new Set(this.mergedErrors.concat(this.visibleValidationErrors)))
     }
   },
   created () {
-    if (!this.preventRegistration && typeof this.observeErrors === 'function' && (this.type === 'form' || this.fieldName)) {
-      this.observeErrors({ callback: this.boundSetErrors, type: this.type, field: this.fieldName })
+    // This registration is for <FormulateErrors /> that are used for displaying
+    // Form errors in an override position.
+    if (this.type === 'form' && typeof this.observeErrors === 'function' && !Array.isArray(this.context.errors)) {
+      this.observeErrors({ callback: this.boundSetErrors, type: this.type })
     }
   },
   destroyed () {
-    if (!this.preventRegistration && typeof this.removeErrorObserver === 'function') {
+    if (this.type === 'form' && typeof this.removeErrorObserver === 'function' && !Array.isArray(this.context.errors)) {
       this.removeErrorObserver(this.boundSetErrors)
     }
   },

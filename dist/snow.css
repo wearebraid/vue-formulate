@@ -1,5 +1,6 @@
 .formulate-input {
-  margin-bottom: 1.5em; }
+  margin-bottom: 1.5em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
   .formulate-input .formulate-input-label {
     display: block;
     line-height: 1.5;
