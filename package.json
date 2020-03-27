@@ -23,7 +23,8 @@
     "test": "NODE_ENV=test jest --config test/jest.conf.js",
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
     "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
-    "build:size": "gzip -c dist/formulate.esm.js | wc -c"
+    "build:size": "gzip -c dist/formulate.esm.js | wc -c",
+    "dev": "vue-cli-service serve --port=7872 examples/main.js"
   },
   "repository": {
     "type": "git",
@@ -50,6 +51,9 @@
     "@rollup/plugin-buble": "^0.21.1",
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-node-resolve": "^7.1.1",
+    "@vue/cli-plugin-babel": "^4.2.3",
+    "@vue/cli-plugin-eslint": "^4.2.3",
+    "@vue/cli-service": "^4.2.3",
     "@vue/component-compiler-utils": "^3.1.1",
     "@vue/test-utils": "^1.0.0-beta.31",
     "autoprefixer": "^9.7.4",
@@ -77,7 +81,7 @@
     "rollup-plugin-multi-input": "^1.1.1",
     "rollup-plugin-terser": "^5.2.0",
     "rollup-plugin-vue": "^5.1.6",
-    "typescript": "^3.8.2",
+    "sass-loader": "^8.0.2",
     "vue": "^2.6.11",
     "vue-jest": "^3.0.5",
     "vue-runtime-helpers": "^1.1.2",
