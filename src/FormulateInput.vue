@@ -41,11 +41,16 @@
         />
       </slot>
     </div>
-    <div
-      v-if="help"
-      class="formulate-input-help"
-      v-text="help"
-    />
+    <slot
+      name="help"
+      v-bind="context"
+    >
+      <div
+        v-if="context.help"
+        class="formulate-input-help"
+        v-text="context.help"
+      />
+    </slot>
     <FormulateErrors
       v-if="!disableErrors"
       :type="`input`"

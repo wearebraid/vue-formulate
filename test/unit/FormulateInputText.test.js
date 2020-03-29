@@ -262,4 +262,14 @@ describe('FormulateInputText', () => {
     })
     expect(wrapper.find('label').text()).toBe('flavor town')
   })
+
+  it('Allow help text override with scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', name: 'soda', help: 'Do you want some'},
+      scopedSlots: {
+        help: '<small>{{ props.help }} {{ props.name }}?</small>'
+      }
+    })
+    expect(wrapper.find('small').text()).toBe('Do you want some soda?')
+  })
 })
