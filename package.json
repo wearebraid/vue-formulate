@@ -82,6 +82,7 @@
     "rollup-plugin-terser": "^5.2.0",
     "rollup-plugin-vue": "^5.1.6",
     "sass-loader": "^8.0.2",
+    "typescript": "^3.8.3",
     "vue": "^2.6.11",
     "vue-jest": "^3.0.5",
     "vue-runtime-helpers": "^1.1.2",

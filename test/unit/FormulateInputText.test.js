@@ -241,4 +241,25 @@ describe('FormulateInputText', () => {
     await flushPromises()
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
   })
+
+
+  it('allows label-before override with scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', label: 'flavor' },
+      scopedSlots: {
+        label: '<label>{{ props.label }} town</label>'
+      }
+    })
+    expect(wrapper.find('label').text()).toBe('flavor town')
+  })
+
+  it('allows label-after override with scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', label: 'flavor', labelPosition: 'after' },
+      scopedSlots: {
+        label: '<label>{{ props.label }} town</label>'
+      }
+    })
+    expect(wrapper.find('label').text()).toBe('flavor town')
+  })
 })

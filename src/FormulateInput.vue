@@ -32,7 +32,7 @@
       <slot
         v-if="context.hasLabel && context.labelPosition === 'after'"
         name="label"
-        v-bind="context.label"
+        v-bind="context"
       >
         <label
           class="formulate-input-label formulate-input-label--after"
