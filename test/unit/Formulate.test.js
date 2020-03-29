@@ -153,7 +153,7 @@ describe('Formulate', () => {
     expect(Vue.prototype.$formulate.getLocale(vm)).toBe('nl-BE')
   })
 
-  it('can select a matching locale using i18n', () => {
+  it('can select a matching locale using i18n locale string', () => {
     Formulate.selectedLocale = false // reset the memoization
     function Vue () {}
     Vue.component = function (name, instance) {}
@@ -165,5 +165,20 @@ describe('Formulate', () => {
       }
     })
     expect(Vue.prototype.$formulate.getLocale(vm)).toBe('cn')
+  })
+
+  it('can select a matching locale using i18n locale function', () => {
+    Formulate.selectedLocale = false // reset the memoization
+    function Vue () {}
+    Vue.component = function (name, instance) {}
+    const vm = { $i18n: {locale: () => 'en-US' } }
+    Formulate.install(Vue, {
+      locales: {
+        cn: {},
+        em: {},
+        en: {}
+      }
+    })
+    expect(Vue.prototype.$formulate.getLocale(vm)).toBe('en')
   })
 })
