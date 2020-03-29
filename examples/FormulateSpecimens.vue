@@ -1,12 +1,17 @@
 <template>
   <div id="app">
-    <h1>Hello world</h1>
+    <SpecimenText />
   </div>
 </template>
 
 <script>
+import SpecimenText from './specimens/SpecimenText'
+
 export default {
   name: 'App',
+  components: {
+    SpecimenText
+  },
   data () {
     return {
     }
@@ -16,4 +21,7 @@ export default {
 
 <style lang="scss">
 @import '../themes/snow/snow.scss';
+body {
+  font-family: $formulate-font-stack;
+}
 </style>
