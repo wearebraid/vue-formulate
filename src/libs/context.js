@@ -78,11 +78,17 @@ function typeContext () {
  */
 function elementAttributes () {
   const attrs = Object.assign({}, this.localAttributes)
+
   if (this.id) {
     attrs.id = this.id
   } else {
     attrs.id = this.defaultId
   }
+
+  if (this.help) {
+    attrs['aria-describedby'] = this.id ? `${this.id}-help-text` : `${this.defaultId}-help-text`
+  }
+
   return attrs
 }
 

@@ -7,6 +7,7 @@
       v-model="context.model"
       :type="type"
       v-bind="attributes"
+      data-test="formulate-input-text"
       @blur="context.blurHandler"
     >
   </div>

@@ -131,4 +131,23 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.contains(FormulateInputBox)).toBe(true)
   })
+    it('links errors with `aria-describedby`', async () => {
+      const wrapper = mount(FormulateInput, {
+        propsData: {
+          type: 'text',
+          validation: 'required|globalRule',
+          errorBehavior: 'live',
+          value: 'bar',
+          help: 'Some help text'
+        }
+      })
+
+      await flushPromises()
+
+      const text = wrapper.find('[data-test="formulate-input-text"]')
+      const errors = wrapper.find('[data-test="formulate-errors"]')
+      const errorsId = errors.attributes('id')
+
+      expect(text.attributes('aria-describedby')).toBe(errorsId);
+    });
 })

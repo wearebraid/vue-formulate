@@ -43,7 +43,9 @@
     </div>
     <div
       v-if="help"
+      :id="helpId"
       class="formulate-input-help"
+      data-test="formulate-input-help"
       v-text="help"
     />
     <FormulateErrors
@@ -220,6 +222,16 @@ export default {
         messages[snakeToCamel(key)] = this.validationMessages[key]
       })
       return messages
+    },
+    helpId () {
+      const id = this.id || this.defaultId
+
+      return `${id}-help-text`
+    },
+    errorId () {
+      const id = this.id || this.defaultId
+
+      return `${id}-errors`
     }
   },
   watch: {
