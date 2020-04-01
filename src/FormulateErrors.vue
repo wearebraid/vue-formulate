@@ -2,6 +2,7 @@
   <ul
     v-if="visibleErrors.length"
     :class="`formulate-${type}-errors`"
+    data-test="formulate-errors"
   >
     <li
       v-for="error in visibleErrors"

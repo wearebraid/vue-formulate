@@ -131,6 +131,28 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.contains(FormulateInputBox)).toBe(true)
   })
+
+  describe('Attributes', () => {
+    it('links help text with `aria-describedby`', async () => {
+      const wrapper = mount(FormulateInput, {
+        propsData: {
+          type: 'text',
+          validation: 'required|globalRule',
+          errorBehavior: 'live',
+          value: 'bar',
+          help: 'Some help text'
+        }
+      })
+
+      await flushPromises()
+
+      const text = wrapper.find('[data-test="formulate-input-text"]')
+      const help = wrapper.find('[data-test="formulate-input-help"]')
+      const helpId = help.attributes('id')
+
+      expect(text.attributes('aria-describedby')).toBe(helpId);
+    });
+
     it('links errors with `aria-describedby`', async () => {
       const wrapper = mount(FormulateInput, {
         propsData: {
@@ -150,4 +172,5 @@ describe('FormulateInput', () => {
 
       expect(text.attributes('aria-describedby')).toBe(errorsId);
     });
+  });
 })
