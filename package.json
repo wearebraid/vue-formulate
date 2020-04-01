@@ -20,6 +20,7 @@
     "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/formulate.umd.js",
     "build:iife": "rollup --config build/rollup.iife.config.js --format iife --file dist/formulate.min.js",
     "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --no-map --use cssnano > dist/snow.min.css",
+    "lint": "eslint src/**/*.{js,vue} --fix",
     "test": "NODE_ENV=test jest --config test/jest.conf.js",
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
     "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
