@@ -46,6 +46,7 @@ export default {
         visibleValidationErrors,
         component,
         hasLabel,
+        slotComponents,
         ...context
       } = this.context
       return this.options.map(option => this.groupItemContext(

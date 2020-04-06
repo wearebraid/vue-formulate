@@ -63,6 +63,8 @@ describe('Formulate', () => {
   it('installs on vue instance', () => {
     const components = [
       'FormulateForm',
+      'FormulateHelp',
+      'FormulateLabel',
       'FormulateInput',
       'FormulateErrors',
       'FormulateInputBox',

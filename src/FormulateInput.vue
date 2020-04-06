@@ -8,14 +8,14 @@
   >
     <div class="formulate-input-wrapper">
       <slot
-        v-if="context.hasLabel && context.labelPosition === 'before'"
+        v-if="context.labelPosition === 'before'"
         name="label"
         v-bind="context"
       >
-        <label
-          class="formulate-input-label formulate-input-label--before"
-          :for="context.attributes.id"
-          v-text="context.label"
+        <component
+          :is="context.slotComponents.label"
+          v-if="context.hasLabel"
+          :context="context"
         />
       </slot>
       <slot
@@ -30,14 +30,14 @@
         </component>
       </slot>
       <slot
-        v-if="context.hasLabel && context.labelPosition === 'after'"
+        v-if="context.labelPosition === 'after'"
         name="label"
         v-bind="context"
       >
-        <label
-          class="formulate-input-label formulate-input-label--after"
-          :for="context.attributes.id"
-          v-text="context.label"
+        <component
+          :is="context.slotComponents.label"
+          v-if="context.hasLabel"
+          :context="context"
         />
       </slot>
     </div>
@@ -45,10 +45,10 @@
       name="help"
       v-bind="context"
     >
-      <div
+      <component
+        :is="slotComponents.help"
         v-if="context.help"
-        class="formulate-input-help"
-        v-text="context.help"
+        :context="context"
       />
     </slot>
     <FormulateErrors

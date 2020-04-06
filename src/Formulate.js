@@ -9,6 +9,8 @@ import fauxUploader from './libs/faux-uploader'
 import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
 import FormulateErrors from './FormulateErrors.vue'
+import FormulateHelp from './slots/FormulateHelp.vue'
+import FormulateLabel from './slots/FormulateLabel.vue'
 import FormulateInputGroup from './FormulateInputGroup.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
@@ -30,6 +32,8 @@ class Formulate {
     this.defaults = {
       components: {
         FormulateForm,
+        FormulateHelp,
+        FormulateLabel,
         FormulateInput,
         FormulateErrors,
         FormulateInputBox,
@@ -40,6 +44,11 @@ class Formulate {
         FormulateInputSelect,
         FormulateInputSlider,
         FormulateInputTextArea
+      },
+      slotDefaults: {
+        label: 'FormulateLabel',
+        help: 'FormulateHelp',
+        errors: 'FormulateErrors'
       },
       library,
       rules,
@@ -136,6 +145,19 @@ class Formulate {
       return this.options.library[type].component
     }
     return false
+  }
+
+  /**
+   * What component should be rendered for the given slot location and type.
+   * @param {string} type the type of component
+   * @param {string} slot the name of the slot
+   */
+  slotComponent (type, slot) {
+    const def = this.options.library[type]
+    if (def.slots && def.slots[slot]) {
+      return def.slots[slot]
+    }
+    return this.options.slotDefaults[slot]
   }
 
   /**

@@ -27,6 +27,7 @@ export default {
       preventWindowDrops: this.preventWindowDrops,
       setErrors: this.setErrors.bind(this),
       showValidationErrors: this.showValidationErrors,
+      slotComponents: this.slotComponents,
       type: this.type,
       uploadBehavior: this.uploadBehavior,
       uploadUrl: this.mergedUploadUrl,
@@ -52,7 +53,8 @@ export default {
   hasErrors,
   hasVisibleErrors,
   showValidationErrors,
-  visibleValidationErrors
+  visibleValidationErrors,
+  slotComponents
 }
 
 /**
@@ -228,6 +230,16 @@ function hasErrors () {
  */
 function hasVisibleErrors () {
   return ((this.validationErrors && this.showValidationErrors) || !!this.explicitErrors.length)
+}
+
+/**
+ * The component that should be rendered in the label slot as default.
+ */
+function slotComponents () {
+  return {
+    label: this.$formulate.slotComponent(this.type, 'label'),
+    help: this.$formulate.slotComponent(this.type, 'help')
+  }
 }
 
 /**
