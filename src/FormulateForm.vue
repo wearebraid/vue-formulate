@@ -5,9 +5,7 @@
   >
     <FormulateErrors
       v-if="!hasFormErrorObservers"
-      type="form"
-      :errors="mergedFormErrors"
-      :prevent-registration="true"
+      :context="formContext"
     />
     <slot />
   </form>
@@ -24,7 +22,8 @@ export default {
       formulateFormRegister: this.register,
       getFormValues: this.getFormValues,
       observeErrors: this.addErrorObserver,
-      removeErrorObserver: this.removeErrorObserver
+      removeErrorObserver: this.removeErrorObserver,
+      formulateFieldValidation: this.formulateFieldValidation
     }
   },
   name: 'FormulateForm',
@@ -65,6 +64,15 @@ export default {
     }
   },
   computed: {
+    /**
+     * @todo in 2.3.0 this will expand and be extracted to a separate module to
+     * support better scoped slot interoperability.
+     */
+    formContext () {
+      return {
+        errors: this.mergedFormErrors
+      }
+    },
     hasInitialValue () {
       return (
         (this.formulateValue && typeof this.formulateValue === 'object') ||
@@ -245,14 +253,19 @@ export default {
     getFormValues () {
       return this.internalFormModelProxy
     },
+    formulateFieldValidation (errorObject) {
+      this.$emit('validation', errorObject)
+    },
     hasValidationErrors () {
       const resolvers = []
       for (const fieldName in this.registry) {
-        if (typeof this.registry[fieldName].hasValidationErrors === 'function') {
-          resolvers.push(this.registry[fieldName].hasValidationErrors())
+        if (typeof this.registry[fieldName].getValidationErrors === 'function') {
+          resolvers.push(this.registry[fieldName].getValidationErrors())
         }
       }
-      return Promise.all(resolvers).then(fields => !!fields.find(hasErrors => hasErrors))
+      return Promise.all(resolvers).then((errorObjects) => {
+        return errorObjects.some(item => item.hasErrors)
+      })
     }
   }
 }

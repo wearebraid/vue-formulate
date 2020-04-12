@@ -23,7 +23,6 @@ describe('FormulateForm', () => {
     expect(wrapper.find('form div.default-slot-item').exists()).toBe(true)
   })
 
-
   it('intercepts submit event', () => {
     const formSubmitted = jest.fn()
     const wrapper = mount(FormulateForm, {
@@ -388,5 +387,51 @@ describe('FormulateForm', () => {
     wrapper.setData({ hasField: false })
     await flushPromises()
     expect(wrapper.find(FormulateForm).vm.errorObservers.length).toBe(0)
+  })
+
+  it('emits correct validation event on entry', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: `
+        <div>
+          <FormulateInput type="text" validation="required|in:bar" name="testinput" />
+          <FormulateInput type="radio" validation="required" name="bar" />
+        </div>
+      ` }
+    })
+    wrapper.find('input[type="text"]').setValue('foo')
+    await flushPromises()
+    const errorObjects = wrapper.emitted('validation')
+    // There should be 3 events, both inputs mounting, and the value being set removing required on testinput
+    expect(errorObjects.length).toBe(3)
+    // this should be the event from the setValue()
+    const errorObject = errorObjects[2][0]
+    expect(errorObject).toEqual({
+      name: 'testinput',
+      errors: [
+        expect.any(String)
+      ],
+      hasErrors: true
+    })
+  })
+
+  it('emits correct validation event when no errors', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: `
+        <div>
+          <FormulateInput type="text" validation="required|in:bar" name="testinput" />
+          <FormulateInput type="radio" validation="required" name="bar" />
+        </div>
+      ` }
+    })
+    wrapper.find('input[type="text"]').setValue('bar')
+    await flushPromises()
+    const errorObjects = wrapper.emitted('validation')
+    expect(errorObjects.length).toBe(3)
+    const errorObject = errorObjects[2][0]
+    expect(errorObject).toEqual({
+      name: 'testinput',
+      errors: [],
+      hasErrors: false
+    })
   })
 })

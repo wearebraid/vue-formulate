@@ -27,6 +27,12 @@ export default {
       uploadBehavior: this.uploadBehavior,
       preventWindowDrops: this.preventWindowDrops,
       hasValidationErrors: this.hasValidationErrors,
+      getValidationErrors: this.getValidationErrors.bind(this),
+      validationErrors: this.validationErrors,
+      errors: this.explicitErrors,
+      setErrors: this.setErrors.bind(this),
+      showValidationErrors: this.showValidationErrors,
+      visibleValidationErrors: this.visibleValidationErrors,
       ...this.typeContext
     })
   },
@@ -44,7 +50,8 @@ export default {
   allErrors,
   hasErrors,
   hasVisibleErrors,
-  showValidationErrors
+  showValidationErrors,
+  visibleValidationErrors
 }
 
 /**
@@ -134,10 +141,18 @@ function showValidationErrors () {
   if (this.showErrors || this.formShouldShowErrors) {
     return true
   }
-  if (this.classification === 'file' && this.uploadBehavior === 'live' && this.context.model) {
+  if (this.classification === 'file' && this.uploadBehavior === 'live' && modelGetter.call(this)) {
     return true
   }
   return this.behavioralErrorVisibility
+}
+
+/**
+ * All of the currently visible validation errors (does not include error handling)
+ * @return {array}
+ */
+function visibleValidationErrors () {
+  return (this.showValidationErrors && this.validationErrors.length) ? this.validationErrors : []
 }
 
 /**
@@ -188,6 +203,7 @@ function createOptionList (options) {
  */
 function explicitErrors () {
   return arrayify(this.errors)
+    .concat(this.localErrors)
     .concat(arrayify(this.error))
 }
 
@@ -207,7 +223,7 @@ function hasErrors () {
 }
 
 /**
- * Checks if form has actively visible errors.
+ * Returns if form has actively visible errors (of any kind)
  */
 function hasVisibleErrors () {
   return ((this.validationErrors && this.showValidationErrors) || !!this.explicitErrors.length)
