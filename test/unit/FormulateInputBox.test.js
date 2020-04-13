@@ -201,4 +201,10 @@ describe('FormulateInputBox', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-input-error').exists()).toBe(true)
   })
+
+  it('renders no boxes when options array is empty', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', options: [] } })
+    expect(wrapper.contains(FormulateInputGroup)).toBe(true)
+    expect(wrapper.find('input[type="checkbox"]').exists()).toBe(false)
+  })
 })

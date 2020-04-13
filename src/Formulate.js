@@ -231,7 +231,7 @@ class Formulate {
    * @param {error}
    */
   handle (err, formName, skip = false) {
-    const e = skip ? err : this.options.errorHandler(err)
+    const e = skip ? err : this.options.errorHandler(err, formName)
     if (formName && this.registry.has(formName)) {
       this.registry.get(formName).applyErrors({
         formErrors: arrayify(e.formErrors),
