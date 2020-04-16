@@ -1,15 +1,27 @@
 <template>
   <div class="formulate-input-group">
-    <component
-      :is="subComponent"
-      v-for="optionContext in optionsWithContext"
-      :key="optionContext.id"
-      v-model="context.model"
-      v-bind="optionContext"
-      :disable-errors="true"
-      class="formulate-input-group-item"
-      @blur="context.blurHandler"
-    />
+    <template
+      v-if="subType !== 'grouping'"
+    >
+      <FormulateInput
+        v-for="optionContext in optionsWithContext"
+        :key="optionContext.id"
+        v-model="context.model"
+        v-bind="optionContext"
+        :disable-errors="true"
+        class="formulate-input-group-item"
+        @blur="context.blurHandler"
+      />
+    </template>
+    <template
+      v-else
+    >
+      <FormulateGrouping
+        :context="context"
+      >
+        <slot />
+      </FormulateGrouping>
+    </template>
   </div>
 </template>
 
@@ -26,9 +38,8 @@ export default {
     options () {
       return this.context.options || []
     },
-    subComponent () {
-      // @todo - rough-in for future flexible input-groups
-      return 'FormulateInput'
+    subType () {
+      return (this.context.type === 'group') ? 'grouping' : 'inputs'
     },
     optionsWithContext () {
       const {

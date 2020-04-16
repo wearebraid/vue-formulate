@@ -46,16 +46,22 @@
       v-bind="context"
     >
       <component
-        :is="slotComponents.help"
+        :is="context.slotComponents.help"
         v-if="context.help"
         :context="context"
       />
     </slot>
-    <FormulateErrors
-      v-if="!disableErrors"
-      :type="`input`"
-      :context="context"
-    />
+    <slot
+      name="errors"
+      v-bind="context"
+    >
+      <component
+        :is="context.slotComponents.errors"
+        v-if="!context.disableErrors"
+        :type="context.slotComponents.errors === 'FormulateErrors' ? 'input' : false"
+        :context="context"
+      />
+    </slot>
   </div>
 </template>
 

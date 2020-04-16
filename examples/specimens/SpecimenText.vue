@@ -6,15 +6,11 @@
       placeholder="Username"
       help="Select a username"
     />
+    <FormulateInput
+      label="How old are you?"
+      type="number"
+      placeholder="25"
+      help="Select your age"
+    />
   </div>
 </template>
-
-<script>
-export default {
-
-}
-</script>
-
-<style>
-
-</style>

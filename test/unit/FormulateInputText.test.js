@@ -272,4 +272,15 @@ describe('FormulateInputText', () => {
     })
     expect(wrapper.find('small').text()).toBe('Do you want some soda?')
   })
+
+  it('Allow errors override with scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', name: 'soda', validation: 'required|in:foo,bar', errorBehavior: 'live' },
+      scopedSlots: {
+        errors: '<ul class="my-errors"><li v-for="error in props.visibleValidationErrors">{{ error }}</li></ul>'
+      }
+    })
+    await flushPromises();
+    expect(wrapper.findAll('.my-errors li').length).toBe(2)
+  })
 })

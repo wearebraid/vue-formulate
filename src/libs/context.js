@@ -13,6 +13,7 @@ export default {
       blurHandler: blurHandler.bind(this),
       classification: this.classification,
       component: this.component,
+      disableErrors: this.disableErrors,
       errors: this.explicitErrors,
       getValidationErrors: this.getValidationErrors.bind(this),
       hasLabel: (this.label && this.classification !== 'button'),
@@ -238,7 +239,8 @@ function hasVisibleErrors () {
 function slotComponents () {
   return {
     label: this.$formulate.slotComponent(this.type, 'label'),
-    help: this.$formulate.slotComponent(this.type, 'help')
+    help: this.$formulate.slotComponent(this.type, 'help'),
+    errors: this.$formulate.slotComponent(this.type, 'errors')
   }
 }
 

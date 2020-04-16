@@ -6,15 +6,18 @@ import { arrayify, parseLocale } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import { en } from '@braid/vue-formulate-i18n'
 import fauxUploader from './libs/faux-uploader'
+import FormulateSlot from './FormulateSlot'
 import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
 import FormulateErrors from './FormulateErrors.vue'
 import FormulateHelp from './slots/FormulateHelp.vue'
+import FormulateGrouping from './FormulateGrouping.vue'
 import FormulateLabel from './slots/FormulateLabel.vue'
-import FormulateInputGroup from './FormulateInputGroup.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
 import FormulateInputFile from './inputs/FormulateInputFile.vue'
+import FormulateRepeatable from './slots/FormulateRepeatable.vue'
+import FormulateInputGroup from './inputs/FormulateInputGroup.vue'
 import FormulateInputButton from './inputs/FormulateInputButton.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
@@ -31,14 +34,17 @@ class Formulate {
     this.options = {}
     this.defaults = {
       components: {
+        FormulateSlot,
         FormulateForm,
         FormulateHelp,
         FormulateLabel,
         FormulateInput,
         FormulateErrors,
+        FormulateGrouping,
         FormulateInputBox,
         FormulateInputText,
         FormulateInputFile,
+        FormulateRepeatable,
         FormulateInputGroup,
         FormulateInputButton,
         FormulateInputSelect,

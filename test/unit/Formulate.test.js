@@ -62,14 +62,17 @@ describe('Formulate', () => {
 
   it('installs on vue instance', () => {
     const components = [
+      'FormulateSlot',
       'FormulateForm',
       'FormulateHelp',
       'FormulateLabel',
       'FormulateInput',
       'FormulateErrors',
+      'FormulateGrouping',
       'FormulateInputBox',
       'FormulateInputText',
       'FormulateInputFile',
+      'FormulateRepeatable',
       'FormulateInputGroup',
       'FormulateInputButton',
       'FormulateInputSelect',
