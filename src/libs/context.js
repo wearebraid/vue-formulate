@@ -196,8 +196,6 @@ function createOptionList (options) {
       optionList.push({ value, label: options[value], id: `${that.elementAttributes.id}_${value}` })
     }
     return optionList
-  } else if (Array.isArray(options) && !options.length) {
-    return [{ value: this.value, label: (this.label || this.name), id: this.context.id || nanoid(9) }]
   }
   return options
 }

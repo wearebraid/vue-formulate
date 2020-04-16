@@ -229,6 +229,47 @@ describe('FormulateForm', () => {
     expect(wrapper.vm.$formulate.registry.get('login')).toBe(wrapper.vm)
   })
 
+  it('calls custom error handler with error and name', async () => {
+    const mockHandler = jest.fn((err, name) => err);
+    const wrapper = mount({
+      template: `
+      <div>
+        <FormulateForm
+          name="login"
+        />
+        <FormulateForm
+          name="register"
+        />
+      </div>
+      `
+    })
+    wrapper.vm.$formulate.extend({ errorHandler: mockHandler })
+    wrapper.vm.$formulate.handle({ formErrors: ['This is an error message'] }, 'login')
+    expect(mockHandler.mock.calls.length).toBe(1);
+    expect(mockHandler.mock.calls[0]).toEqual([{ formErrors: ['This is an error message'] }, 'login']);
+  })
+
+  it('errors are displayed on correctly named components', async () => {
+    const wrapper = mount({
+      template: `
+      <div>
+        <FormulateForm
+          name="login"
+        />
+        <FormulateForm
+          name="register"
+        />
+      </div>
+      `
+    })
+    expect(wrapper.vm.$formulate.registry.has('login') && wrapper.vm.$formulate.registry.has('register')).toBe(true)
+    wrapper.vm.$formulate.handle({ formErrors: ['This is an error message'] }, 'login')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-form').length).toBe(2)
+    expect(wrapper.find('.formulate-form--login .formulate-form-errors').exists()).toBe(true)
+    expect(wrapper.find('.formulate-form--register .formulate-form-errors').exists()).toBe(false)
+  })
+
   it('errors are displayed on correctly named components', async () => {
     const wrapper = mount({
       template: `
