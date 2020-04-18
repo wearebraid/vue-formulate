@@ -122,6 +122,10 @@ export default {
       type: [String, Boolean],
       default: false
     },
+    limit: {
+      type: Number,
+      default: Infinity
+    },
     help: {
       type: [String, Boolean],
       default: false
@@ -133,6 +137,10 @@ export default {
     errors: {
       type: [String, Array, Boolean],
       default: false
+    },
+    repeatable: {
+      type: Boolean,
+      default: true
     },
     validation: {
       type: [String, Boolean, Array],

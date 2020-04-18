@@ -68,6 +68,7 @@ describe('Formulate', () => {
       'FormulateLabel',
       'FormulateInput',
       'FormulateErrors',
+      'FormulateAddMore',
       'FormulateGrouping',
       'FormulateInputBox',
       'FormulateInputText',

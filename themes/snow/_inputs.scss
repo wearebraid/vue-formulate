@@ -42,7 +42,15 @@
   }
 
   .formulate-input-group-item {
-    margin-bottom: .5em;
+    padding-bottom: 1.5em;
+    margin-bottom: 1.5em;
+    border-bottom: 1px solid $formulate-gray;
+
+    &:last-child {
+      margin-bottom: 1.5em;
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
   }
 
   &:last-child {

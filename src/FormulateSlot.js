@@ -7,7 +7,7 @@ export default {
       p = p.$parent
     }
     if (p.$scopedSlots && p.$scopedSlots[props.name]) {
-      return p.$scopedSlots[props.name](props)
+      return p.$scopedSlots[props.name](props.context || props)
     }
     return h('div', data, children)
   }

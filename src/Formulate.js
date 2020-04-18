@@ -7,12 +7,13 @@ import isPlainObject from 'is-plain-object'
 import { en } from '@braid/vue-formulate-i18n'
 import fauxUploader from './libs/faux-uploader'
 import FormulateSlot from './FormulateSlot'
-import FormulateInput from './FormulateInput.vue'
 import FormulateForm from './FormulateForm.vue'
+import FormulateInput from './FormulateInput.vue'
 import FormulateErrors from './FormulateErrors.vue'
 import FormulateHelp from './slots/FormulateHelp.vue'
 import FormulateGrouping from './FormulateGrouping.vue'
 import FormulateLabel from './slots/FormulateLabel.vue'
+import FormulateAddMore from './slots/FormulateAddMore.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
 import FormulateInputFile from './inputs/FormulateInputFile.vue'
@@ -40,6 +41,7 @@ class Formulate {
         FormulateLabel,
         FormulateInput,
         FormulateErrors,
+        FormulateAddMore,
         FormulateGrouping,
         FormulateInputBox,
         FormulateInputText,
@@ -54,7 +56,10 @@ class Formulate {
       slotDefaults: {
         label: 'FormulateLabel',
         help: 'FormulateHelp',
-        errors: 'FormulateErrors'
+        errors: 'FormulateErrors',
+        grouping: 'FormulateGrouping',
+        repeatable: 'FormulateRepeatable',
+        addMore: 'FormulateAddMore'
       },
       library,
       rules,
@@ -160,8 +165,8 @@ class Formulate {
    */
   slotComponent (type, slot) {
     const def = this.options.library[type]
-    if (def.slots && def.slots[slot]) {
-      return def.slots[slot]
+    if (def.slotComponents && def.slotComponents[slot]) {
+      return def.slotComponents[slot]
     }
     return this.options.slotDefaults[slot]
   }

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="formulate-group-row"
+    class="formulate-input-group-item"
   >
     <FormulateSlot
       name="default"

@@ -1,4 +1,3 @@
-import nanoid from 'nanoid/non-secure'
 import { map, arrayify, shallowEqualObjects } from './utils'
 
 /**
@@ -23,9 +22,11 @@ export default {
       imageBehavior: this.imageBehavior,
       label: this.label,
       labelPosition: this.logicalLabelPosition,
+      limit: this.limit,
       name: this.nameOrFallback,
       performValidation: this.performValidation.bind(this),
       preventWindowDrops: this.preventWindowDrops,
+      repeatable: this.repeatable,
       setErrors: this.setErrors.bind(this),
       showValidationErrors: this.showValidationErrors,
       slotComponents: this.slotComponents,
@@ -238,7 +239,10 @@ function slotComponents () {
   return {
     label: this.$formulate.slotComponent(this.type, 'label'),
     help: this.$formulate.slotComponent(this.type, 'help'),
-    errors: this.$formulate.slotComponent(this.type, 'errors')
+    errors: this.$formulate.slotComponent(this.type, 'errors'),
+    grouping: this.$formulate.slotComponent(this.type, 'grouping'),
+    repeatable: this.$formulate.slotComponent(this.type, 'repeatable'),
+    addMore: this.$formulate.slotComponent(this.type, 'addMore')
   }
 }
 

@@ -1,13 +1,24 @@
 <template>
   <FormulateSlot
-    name="repeatable"
+    name="grouping"
+    :context="context"
   >
-    <FormulateRepeatable
-      v-for="item in items"
-      :key="item.id"
+    <component
+      :is="context.slotComponents.repeatable"
+      v-for="(item, index) in items"
+      :key="index"
     >
       <slot />
-    </FormulateRepeatable>
+    </component>
+    <FormulateSlot
+      v-if="canAddMore"
+      name="addmore"
+    >
+      <component
+        :is="context.slotComponents.addMore"
+        @add="addItem"
+      />
+    </FormulateSlot>
   </FormulateSlot>
 </template>
 
@@ -20,8 +31,21 @@ export default {
     }
   },
   computed: {
+    canAddMore () {
+      return (this.context.repeatable && this.items.length < this.context.limit)
+    },
     items () {
-      return [{ id: 1 }, { id: 2 }]
+      return Array.isArray(this.context.model) ? this.context.model : []
+    }
+  },
+  methods: {
+    addItem () {
+      const item = { id: this.items.length }
+      if (Array.isArray(this.context.model)) {
+        this.context.model.push(item)
+        return
+      }
+      this.context.model = [item]
     }
   }
 }
