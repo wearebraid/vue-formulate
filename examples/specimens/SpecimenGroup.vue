@@ -1,6 +1,7 @@
 <template>
   <div class="specimens specimens--group">
     <FormulateInput
+      v-model="groupValue"
       label="Invite some new users"
       type="group"
       placeholder="users"
@@ -20,5 +21,16 @@
         validation="required|email"
       />
     </FormulateInput>
+    {{ groupValue }}
   </div>
 </template>
+
+<script>
+export default {
+  data () {
+    return {
+      groupValue: null
+    }
+  }
+}
+</script>

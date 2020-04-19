@@ -78,7 +78,8 @@ describe('Formulate', () => {
       'FormulateInputButton',
       'FormulateInputSelect',
       'FormulateInputSlider',
-      'FormulateInputTextArea'
+      'FormulateInputTextArea',
+      'FormulateRepeatableProvider'
     ]
     const registry = []
     function Vue () {}

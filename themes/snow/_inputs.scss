@@ -42,9 +42,10 @@
   }
 
   .formulate-input-group-item {
-    padding-bottom: 1.5em;
     margin-bottom: 1.5em;
-    border-bottom: 1px solid $formulate-gray;
+    padding: 1.5em;
+    border: 1px solid $formulate-gray;
+    border-radius: .25em;
 
     &:last-child {
       margin-bottom: 1.5em;

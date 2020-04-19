@@ -3,13 +3,15 @@
     name="grouping"
     :context="context"
   >
-    <component
-      :is="context.slotComponents.repeatable"
+    <FormulateRepeatableProvider
       v-for="(item, index) in items"
       :key="index"
+      :index="index"
+      :set-field-value="setFieldValue"
+      :context="context"
     >
       <slot />
-    </component>
+    </FormulateRepeatableProvider>
     <FormulateSlot
       v-if="canAddMore"
       name="addmore"
@@ -30,22 +32,39 @@ export default {
       required: true
     }
   },
+  provide () {
+    return {
+      formulateFormSetter: this.setFieldValue,
+      formulateFormRegister: this.register
+    }
+  },
   computed: {
     canAddMore () {
       return (this.context.repeatable && this.items.length < this.context.limit)
     },
     items () {
-      return Array.isArray(this.context.model) ? this.context.model : []
+      return Array.isArray(this.context.model) ? this.context.model : [{}]
     }
   },
   methods: {
     addItem () {
-      const item = { id: this.items.length }
       if (Array.isArray(this.context.model)) {
-        this.context.model.push(item)
+        this.context.model.push({})
         return
       }
-      this.context.model = [item]
+      this.context.model = this.items.concat([{}])
+    },
+    setFieldValue (index, field, value) {
+      const values = Array.isArray(this.context.model) ? this.context.model : []
+      values.splice(index, 1, Object.assign(
+        {},
+        typeof this.context.model[index] === 'object' ? this.context.model[index] : {},
+        { [field]: value }
+      ))
+      this.context.model = values
+    },
+    register () {
+
     }
   }
 }

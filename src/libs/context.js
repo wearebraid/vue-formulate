@@ -240,7 +240,6 @@ function slotComponents () {
     label: this.$formulate.slotComponent(this.type, 'label'),
     help: this.$formulate.slotComponent(this.type, 'help'),
     errors: this.$formulate.slotComponent(this.type, 'errors'),
-    grouping: this.$formulate.slotComponent(this.type, 'grouping'),
     repeatable: this.$formulate.slotComponent(this.type, 'repeatable'),
     addMore: this.$formulate.slotComponent(this.type, 'addMore')
   }

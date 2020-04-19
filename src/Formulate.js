@@ -23,6 +23,7 @@ import FormulateInputButton from './inputs/FormulateInputButton.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
+import FormulateRepeatableProvider from './slots/FormulateRepeatableProvider.vue'
 
 /**
  * The base formulate library.
@@ -51,13 +52,13 @@ class Formulate {
         FormulateInputButton,
         FormulateInputSelect,
         FormulateInputSlider,
-        FormulateInputTextArea
+        FormulateInputTextArea,
+        FormulateRepeatableProvider
       },
       slotDefaults: {
         label: 'FormulateLabel',
         help: 'FormulateHelp',
         errors: 'FormulateErrors',
-        grouping: 'FormulateGrouping',
         repeatable: 'FormulateRepeatable',
         addMore: 'FormulateAddMore'
       },
