@@ -116,6 +116,19 @@ describe('cloneDeep', () => {
     const clone = cloneDeep({ a: 123, b: c })
     expect(clone.b === c).toBe(false)
   })
+
+  it('retains array structures inside of a pojo', () => {
+    const obj = { a: 'abcd', d: ['first', 'second'] }
+    const clone = cloneDeep(obj)
+    expect(Array.isArray(clone.d)).toBe(true)
+  })
+
+  it('removes references inside array structures', () => {
+    const deepObj = {foo: 'bar'}
+    const obj = { a: 'abcd', d: ['first', deepObj] }
+    const clone = cloneDeep(obj)
+    expect(clone.d[1] === deepObj).toBe(false)
+  })
 })
 
 describe('snakeToCamel', () => {

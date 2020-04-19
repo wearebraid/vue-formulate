@@ -1,27 +1,38 @@
 <template>
   <div class="specimens specimens--group">
-    <FormulateInput
-      v-model="groupValue"
-      label="Invite some new users"
-      type="group"
-      placeholder="users"
-      help="Fields can be grouped"
+    <FormulateForm
+      v-model="formResult"
+      @submit="save"
     >
       <FormulateInput
-        label="First and last name"
-        name="Name"
-        type="text"
-        placeholder="User’s name"
-      />
+        name="users"
+        label="Invite some new users"
+        type="group"
+        placeholder="users"
+        help="Fields can be grouped"
+      >
+        <FormulateInput
+          label="First and last name"
+          name="name"
+          type="text"
+          placeholder="User’s name"
+        />
+        <FormulateInput
+          name="email"
+          label="Email address"
+          type="email"
+          placeholder="User’s email"
+          validation="required|email"
+        />
+      </FormulateInput>
       <FormulateInput
-        name="Email"
-        label="Email address"
-        type="email"
-        placeholder="User’s email"
-        validation="required|email"
+        type="submit"
       />
-    </FormulateInput>
-    {{ groupValue }}
+    </FormulateForm>
+    <span>Form Values</span>
+    <pre>{{ formResult }}</pre>
+    <span>Save Values</span>
+    <pre>{{ saveValues }}</pre>
   </div>
 </template>
 
@@ -29,7 +40,13 @@
 export default {
   data () {
     return {
-      groupValue: null
+      formResult: null,
+      saveValues: null
+    }
+  },
+  methods: {
+    save (values) {
+      this.saveValues = values
     }
   }
 }

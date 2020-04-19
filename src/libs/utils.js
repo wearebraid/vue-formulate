@@ -178,7 +178,11 @@ export function isValueType (data) {
  * case of needing to unbind reactive watchers.
  */
 export function cloneDeep (obj) {
-  const newObj = {}
+  if (typeof obj !== 'object') {
+    return obj
+  }
+  const isArr = Array.isArray(obj)
+  const newObj = isArr ? [] : {}
   for (const key in obj) {
     if (obj[key] instanceof FileUpload || isValueType(obj[key])) {
       newObj[key] = obj[key]
