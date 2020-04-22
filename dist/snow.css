@@ -28,7 +28,14 @@
     line-height: 1.5;
     margin-bottom: .25em; }
   .formulate-input .formulate-input-group-item {
-    margin-bottom: .5em; }
+    margin-bottom: 1.5em;
+    padding: 1.5em;
+    border: 1px solid #efefef;
+    border-radius: .25em; }
+    .formulate-input .formulate-input-group-item:last-child {
+      margin-bottom: 1.5em;
+      border-bottom: 0;
+      padding-bottom: 0; }
   .formulate-input:last-child {
     margin-bottom: 0; }
   .formulate-input[data-classification='text'] input {

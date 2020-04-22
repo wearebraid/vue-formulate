@@ -206,3 +206,18 @@ export function parseLocale (locale) {
     return options.length ? options : [segment]
   }, [])
 }
+
+/**
+ * Shorthand for Object.prototype.hasOwnProperty.call (space saving)
+ */
+export function has (ctx, prop) {
+  return Object.prototype.hasOwnProperty.call(ctx, prop)
+}
+
+/**
+ * Given a registry object, map over it recursively entering groups.
+ * @param {Object} registry key => component
+ */
+export function mapRegistry (registry) {
+  //
+}

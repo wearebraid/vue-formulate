@@ -67,7 +67,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, snakeToCamel, arrayify } from './libs/utils'
+import { shallowEqualObjects, parseRules, snakeToCamel, arrayify, has } from './libs/utils'
 import nanoid from 'nanoid/non-secure'
 
 export default {
@@ -79,7 +79,8 @@ export default {
     formulateFormRegister: { default: undefined },
     getFormValues: { default: () => () => ({}) },
     observeErrors: { default: undefined },
-    removeErrorObserver: { default: undefined }
+    removeErrorObserver: { default: undefined },
+    isSubField: { default: () => () => false }
   },
   model: {
     prop: 'formulateValue',
@@ -290,9 +291,9 @@ export default {
       classification = (classification === 'box' && this.options) ? 'group' : classification
       if (classification === 'box' && this.checked) {
         return this.value || true
-      } else if (Object.prototype.hasOwnProperty.call(this.$options.propsData, 'value') && classification !== 'box') {
+      } else if (has(this.$options.propsData, 'value') && classification !== 'box') {
         return this.value
-      } else if (Object.prototype.hasOwnProperty.call(this.$options.propsData, 'formulateValue')) {
+      } else if (has(this.$options.propsData, 'formulateValue')) {
         return this.formulateValue
       }
       return ''

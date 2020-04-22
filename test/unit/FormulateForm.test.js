@@ -42,7 +42,7 @@ describe('FormulateForm', () => {
       propsData: { formulateValue: { testinput: 'has initial value' } },
       slots: { default: '<FormulateInput type="text" name="subinput1" /><FormulateInput type="checkbox" name="subinput2" />' }
     })
-    expect(Object.keys(wrapper.vm.registry)).toEqual(['subinput1', 'subinput2'])
+    expect(wrapper.vm.registry.keys()).toEqual(['subinput1', 'subinput2'])
   })
 
   it('can set a field’s initial value', async () => {

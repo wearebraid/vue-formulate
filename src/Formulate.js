@@ -2,7 +2,7 @@ import library from './libs/library'
 import rules from './libs/rules'
 import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
-import { arrayify, parseLocale } from './libs/utils'
+import { arrayify, parseLocale, has } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import { en } from '@braid/vue-formulate-i18n'
 import fauxUploader from './libs/faux-uploader'
@@ -210,7 +210,7 @@ class Formulate {
         }
         if (locale) {
           const option = parseLocale(locale)
-            .find(locale => Object.prototype.hasOwnProperty.call(this.options.locales, locale))
+            .find(locale => has(this.options.locales, locale))
           if (option) {
             selection = option
           }

@@ -37,6 +37,7 @@ export default {
       validationErrors: this.validationErrors,
       value: this.value,
       visibleValidationErrors: this.visibleValidationErrors,
+      isSubField: this.isSubField,
       ...this.typeContext
     })
   },

@@ -35,7 +35,8 @@ export default {
   provide () {
     return {
       formulateFormSetter: this.setFieldValue,
-      formulateFormRegister: this.register
+      formulateFormRegister: this.register,
+      isSubField: () => true
     }
   },
   computed: {
@@ -63,7 +64,7 @@ export default {
       ))
       this.context.model = values
     },
-    register () {
+    register (field, component) {
 
     }
   }

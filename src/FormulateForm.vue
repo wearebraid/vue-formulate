@@ -12,7 +12,8 @@
 </template>
 
 <script>
-import { shallowEqualObjects, arrayify } from './libs/utils'
+import { shallowEqualObjects, arrayify, has } from './libs/utils'
+import Registry from './libs/registry'
 import FormSubmission from './FormSubmission'
 
 export default {
@@ -55,7 +56,7 @@ export default {
   },
   data () {
     return {
-      registry: {},
+      registry: new Registry(),
       internalFormModelProxy: {},
       formShouldShowErrors: false,
       errorObservers: [],
@@ -87,13 +88,13 @@ export default {
     },
     initialValues () {
       if (
-        Object.prototype.hasOwnProperty.call(this.$options.propsData, 'formulateValue') &&
+        has(this.$options.propsData, 'formulateValue') &&
         typeof this.formulateValue === 'object'
       ) {
         // If there is a v-model on the form, use those values as first priority
         return Object.assign({}, this.formulateValue) // @todo - use a deep clone to detach reference types
       } else if (
-        Object.prototype.hasOwnProperty.call(this.$options.propsData, 'values') &&
+        has(this.$options.propsData, 'values') &&
         typeof this.values === 'object'
       ) {
         // If there are values, use them as secondary priority
@@ -135,9 +136,9 @@ export default {
           typeof newValue === 'object'
         ) {
           for (const field in newValue) {
-            if (this.registry.hasOwnProperty(field) &&
+            if (this.registry.has(field) &&
               !shallowEqualObjects(newValue[field], this.internalFormModelProxy[field]) &&
-              !shallowEqualObjects(newValue[field], this.registry[field].internalModelProxy[field])
+              !shallowEqualObjects(newValue[field], this.registry.get(field).internalModelProxy[field])
             ) {
               this.setFieldValue(field, newValue[field])
               this.registry[field].context.model = newValue[field]
@@ -184,7 +185,7 @@ export default {
         this.errorObservers.push(observer)
         if (observer.type === 'form') {
           observer.callback(this.mergedFormErrors)
-        } else if (Object.prototype.hasOwnProperty.call(this.mergedFieldErrors, observer.field)) {
+        } else if (has(this.mergedFieldErrors, observer.field)) {
           observer.callback(this.mergedFieldErrors[observer.field])
         }
       }
@@ -196,21 +197,16 @@ export default {
       Object.assign(this.internalFormModelProxy, { [field]: value })
       this.$emit('input', Object.assign({}, this.internalFormModelProxy))
     },
-    getUniqueRegistryName (base, count = 0) {
-      if (Object.prototype.hasOwnProperty.call(this.registry, base + (count || ''))) {
-        return this.getUniqueRegistryName(base, count + 1)
-      }
-      return base + (count || '')
-    },
     register (field, component) {
       // Don't re-register fields... @todo come up with another way of handling this that doesn't break multi option
-      if (Object.prototype.hasOwnProperty.call(this.registry, field)) {
+      if (this.registry.has(field)) {
         return false
       }
-      this.registry[field] = component
-      const hasVModelValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'formulateValue')
-      const hasValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'value')
+      this.registry.add(field, component)
+      const hasVModelValue = has(component.$options.propsData, 'formulateValue')
+      const hasValue = has(component.$options.propsData, 'value')
       if (
+        !component.context.isSubField() &&
         !hasVModelValue &&
         this.hasInitialValue &&
         this.initialValues[field]
@@ -222,6 +218,8 @@ export default {
         (hasVModelValue || hasValue) &&
         !shallowEqualObjects(component.internalModelProxy, this.initialValues[field])
       ) {
+        // In this case, the field is v-modeled or has an initial value and the
+        // form has no value or a different value, so use the field value
         this.setFieldValue(field, component.internalModelProxy)
       }
     },
@@ -246,9 +244,9 @@ export default {
         })
     },
     showErrors () {
-      for (const fieldName in this.registry) {
-        this.registry[fieldName].formShouldShowErrors = true
-      }
+      this.registry.map(input => {
+        input.formShouldShowErrors = true
+      })
     },
     getFormValues () {
       return this.internalFormModelProxy
@@ -257,13 +255,10 @@ export default {
       this.$emit('validation', errorObject)
     },
     hasValidationErrors () {
-      const resolvers = []
-      for (const fieldName in this.registry) {
-        if (typeof this.registry[fieldName].getValidationErrors === 'function') {
-          resolvers.push(this.registry[fieldName].getValidationErrors())
-        }
-      }
-      return Promise.all(resolvers).then((errorObjects) => {
+      return Promise.all(this.registry.reduce((resolvers, cmp, name) => {
+        resolvers.push(cmp.getValidationErrors())
+        return resolvers
+      }, [])).then((errorObjects) => {
         return errorObjects.some(item => item.hasErrors)
       })
     }
