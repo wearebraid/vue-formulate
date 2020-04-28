@@ -46,6 +46,26 @@ describe('FormulateForm', () => {
     expect(Object.keys(wrapper.vm.registry)).toEqual(['subinput1', 'subinput2'])
   })
 
+  it('deregisters a subcomponents', async () => {
+    const wrapper = mount({
+      data () {
+        return {
+          active: true
+        }
+      },
+      template: `
+        <FormulateForm>
+          <FormulateInput v-if="active" type="text" name="subinput1" />
+          <FormulateInput type="checkbox" name="subinput2" />
+        </FormulateForm>
+      `
+    })
+    expect(Object.keys(wrapper.find(FormulateForm).vm.registry)).toEqual(['subinput1', 'subinput2'])
+    wrapper.setData({ active: false })
+    await flushPromises()
+    expect(Object.keys(wrapper.find(FormulateForm).vm.registry)).toEqual(['subinput2'])
+  })
+
   it('can set a field’s initial value', async () => {
     const wrapper = mount(FormulateForm, {
       propsData: { formulateValue: { testinput: 'has initial value' } },

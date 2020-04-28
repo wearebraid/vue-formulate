@@ -68,6 +68,7 @@ export default {
   inject: {
     formulateFormSetter: { default: undefined },
     formulateFormRegister: { default: undefined },
+    formulateFormDeregister: { default: undefined },
     getFormValues: { default: () => () => ({}) }
   },
   model: {
@@ -248,6 +249,11 @@ export default {
     }
     this.updateLocalAttributes(this.$attrs)
     this.performValidation()
+  },
+  beforeDestroy () {
+    if (this.formulateFormDeregister && typeof this.formulateFormDeregister === 'function') {
+      this.formulateFormDeregister(this.nameOrFallback)
+    }
   },
   methods: {
     getInitialValue () {
