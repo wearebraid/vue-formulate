@@ -22,6 +22,7 @@ export default {
     return {
       formulateFormSetter: this.setFieldValue,
       formulateFormRegister: this.register,
+      formulateFormDeregister: this.deregister,
       getFormValues: this.getFormValues,
       observeErrors: this.addErrorObserver,
       removeErrorObserver: this.removeErrorObserver
@@ -216,6 +217,9 @@ export default {
       ) {
         this.setFieldValue(field, component.internalModelProxy)
       }
+    },
+    deregister (field) {
+      delete this.registry[field]
     },
     registerErrorComponent (component) {
       if (!this.errorComponents.includes(component)) {
