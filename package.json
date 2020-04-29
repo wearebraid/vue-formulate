@@ -8,9 +8,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "engines": {
-    "node": ">=11"
-  },
   "browser": {
     "./sfc": "src/Formulate.js"
   },
