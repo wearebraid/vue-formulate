@@ -78,3 +78,8 @@ test('type "button" renders slot inside button', () => {
   })
   expect(wrapper.find('button > span').html()).toBe('<span>My custom slot</span>')
 })
+
+it('passes an explicitly given name prop through to the root element', () => {
+  const wrapper = mount(FormulateInput, { propsData: { type: 'button', name: 'foo' } })
+  expect(wrapper.find('button[name="foo"]').exists()).toBe(true)
+})

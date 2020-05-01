@@ -83,6 +83,11 @@ describe('FormulateInputText', () => {
     expect(wrapper.find(`input[id="${wrapper.vm.context.attributes.id}"]`).exists()).toBe(true)
   })
 
+  it('passes an explicitly given name prop through to the root element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', name: 'foo' } })
+    expect(wrapper.find('input[name="foo"]').exists()).toBe(true)
+  })
+
   it('doesn’t automatically add a label', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text' } })
     expect(wrapper.find('label').exists()).toBe(false)

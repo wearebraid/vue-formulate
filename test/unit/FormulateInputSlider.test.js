@@ -25,4 +25,9 @@ describe('FormulateInputSlider', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'range', showValue: 'true', value: '15', min: '0', max: '100' } })
     expect(wrapper.find('.formulate-input-element-range-value').text()).toBe('15')
   })
+
+  it('passes an explicitly given name prop through to the root element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'range', name: 'foo' } })
+    expect(wrapper.find('input[name="foo"]').exists()).toBe(true)
+  })
 })

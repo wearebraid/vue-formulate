@@ -1,4 +1,3 @@
-import nanoid from 'nanoid/non-secure'
 import { map, arrayify, shallowEqualObjects } from './utils'
 
 /**
@@ -12,6 +11,7 @@ export default {
       type: this.type,
       value: this.value,
       name: this.nameOrFallback,
+      hasGivenName: this.hasGivenName,
       classification: this.classification,
       component: this.component,
       id: this.id || this.defaultId,
@@ -32,6 +32,7 @@ export default {
   },
   // Used in sub-context
   nameOrFallback,
+  hasGivenName,
   typeContext,
   elementAttributes,
   logicalLabelPosition,
@@ -78,11 +79,17 @@ function typeContext () {
  */
 function elementAttributes () {
   const attrs = Object.assign({}, this.localAttributes)
+  // pass the ID prop through to the root element
   if (this.id) {
     attrs.id = this.id
   } else {
     attrs.id = this.defaultId
   }
+  // pass an explicitly given name prop through to the root element
+  if (this.hasGivenName) {
+    attrs.name = this.name
+  }
+
   return attrs
 }
 
@@ -151,6 +158,24 @@ function nameOrFallback () {
     return false
   }
   return this.name
+}
+
+/**
+ * determine if an input has a user-defined name
+ */
+function hasGivenName () {
+  if (
+    this.name &&
+    typeof this.name === 'string' &&
+    !['checkbox', 'radio'].includes(this.type) &&
+    this.name !== `${this.type}_${this.id}` &&
+    this.name !== `${this.type}_${this.defaultId}` &&
+    // radio and checkbox options have their value as part of their ID so we need to filter those out too
+    this.name !== `${this.type}_${(String(this.id).replace('_' + String(this.value), ''))}`
+  ) {
+    return true
+  }
+  return false
 }
 
 /**
