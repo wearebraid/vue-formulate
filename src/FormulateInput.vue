@@ -190,7 +190,7 @@ export default {
   },
   data () {
     return {
-      defaultId: nanoid(9),
+      defaultId: this.$formulate.nextId(this),
       localAttributes: {},
       internalModelProxy: this.getInitialValue(),
       behavioralErrorVisibility: (this.errorBehavior === 'live'),

@@ -207,4 +207,12 @@ describe('FormulateInputBox', () => {
     expect(wrapper.contains(FormulateInputGroup)).toBe(true)
     expect(wrapper.find('input[type="checkbox"]').exists()).toBe(false)
   })
+
+  it('renders multiple labels both with correct id', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', label: 'VueFormulate FTW!'} })
+    const id = wrapper.find('input[type="checkbox"]').attributes('id')
+    const labelIds = wrapper.findAll('label').wrappers.map(label => label.attributes('for'));
+    expect(labelIds.length).toBe(2);
+    expect(labelIds.filter(labelId => labelId === id).length).toBe(2);
+  })
 })
