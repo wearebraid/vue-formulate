@@ -83,9 +83,24 @@ describe('FormulateInputText', () => {
     expect(wrapper.find(`input[id="${wrapper.vm.context.attributes.id}"]`).exists()).toBe(true)
   })
 
-  it('passes an explicitly given name prop through to the root element', () => {
+  it('passes an explicitly given name prop through to the root text element', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text', name: 'foo' } })
     expect(wrapper.find('input[name="foo"]').exists()).toBe(true)
+  })
+
+  it('passes an explicitly given name prop through to the root textarea element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'textarea', name: 'foo' } })
+    expect(wrapper.find('textarea[name="foo"]').exists()).toBe(true)
+  })
+
+  it('additional context does not bleed through to text input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text' } } )
+    expect(Object.keys(wrapper.find('input[type="text"]').attributes())).toEqual(["type", "id"])
+  })
+
+  it('additional context does not bleed through to textarea input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'textarea' } } )
+    expect(Object.keys(wrapper.find('textarea').attributes())).toEqual(["id"])
   })
 
   it('doesn’t automatically add a label', () => {

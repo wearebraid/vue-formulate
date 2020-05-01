@@ -83,3 +83,8 @@ it('passes an explicitly given name prop through to the root element', () => {
   const wrapper = mount(FormulateInput, { propsData: { type: 'button', name: 'foo' } })
   expect(wrapper.find('button[name="foo"]').exists()).toBe(true)
 })
+
+it('additional context does not bleed through to button input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'button' } } )
+    expect(Object.keys(wrapper.find('button').attributes())).toEqual(["type", "id"])
+  })

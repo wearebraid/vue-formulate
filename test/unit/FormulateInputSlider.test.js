@@ -30,4 +30,9 @@ describe('FormulateInputSlider', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'range', name: 'foo' } })
     expect(wrapper.find('input[name="foo"]').exists()).toBe(true)
   })
+
+  it('additional context does not bleed through to range input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'range' } } )
+    expect(Object.keys(wrapper.find('input[type="range"]').attributes())).toEqual(["type", "id"])
+  })
 })

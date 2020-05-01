@@ -167,7 +167,6 @@ function hasGivenName () {
   if (
     this.name &&
     typeof this.name === 'string' &&
-    !['checkbox', 'radio'].includes(this.type) &&
     this.name !== `${this.type}_${this.id}` &&
     this.name !== `${this.type}_${this.defaultId}` &&
     // radio and checkbox options have their value as part of their ID so we need to filter those out too

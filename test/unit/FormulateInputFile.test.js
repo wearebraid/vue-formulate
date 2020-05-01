@@ -42,6 +42,11 @@ describe('FormulateInputFile', () => {
     expect(wrapper.find('input[name="foo"]').exists()).toBe(true)
   })
 
+  it('additional context does not bleed through to file input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image' } } )
+    expect(Object.keys(wrapper.find('input[type="file"]').attributes())).toEqual(["type", "id"])
+  })
+
   /**
    * ===========================================================================
    * Currently there appears to be no way to properly mock upload data in

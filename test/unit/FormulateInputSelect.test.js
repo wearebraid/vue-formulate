@@ -47,4 +47,9 @@ describe('FormulateInputSelect', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'select', options: [],  name: 'foo' } })
     expect(wrapper.find('select[name="foo"]').exists()).toBe(true)
   })
+
+  it('additional context does not bleed through to text select attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'select' } } )
+    expect(Object.keys(wrapper.find('select').attributes())).toEqual(["id"])
+  })
 })
