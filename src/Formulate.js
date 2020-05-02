@@ -82,7 +82,7 @@ class Formulate {
    * implementation is open to community review.
    */
   nextId (vm) {
-    const path = vm.$route && vm.$route.path && vm.$route.path || false
+    const path = vm.$route && vm.$route.path || false
     const pathPrefix = path ? vm.$route.path.replace(/[\/\\.\s]/g, '-') : 'global';
     if (!Object.prototype.hasOwnProperty.call(this.idRegistry, pathPrefix)) {
       this.idRegistry[pathPrefix] = 0;
