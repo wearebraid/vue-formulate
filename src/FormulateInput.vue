@@ -60,7 +60,6 @@
 <script>
 import context from './libs/context'
 import { shallowEqualObjects, parseRules, snakeToCamel } from './libs/utils'
-import nanoid from 'nanoid/non-secure'
 
 export default {
   name: 'FormulateInput',

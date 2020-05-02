@@ -1,4 +1,3 @@
-import nanoid from 'nanoid/non-secure'
 import { map, arrayify, shallowEqualObjects } from './utils'
 
 /**
