@@ -164,7 +164,17 @@ function nameOrFallback () {
  * determine if an input has a user-defined name
  */
 function hasGivenName () {
-return typeof this.name !== 'boolean'
+  if (
+    this.name &&
+    typeof this.name === 'string' &&
+    this.name !== `${this.type}_${this.id}` &&
+    this.name !== `${this.type}_${this.defaultId}` &&
+    // radio and checkbox options have their value as part of their ID so we need to filter those out too
+    this.name !== `${this.type}_${(String(this.id).replace('_' + String(this.value), ''))}`
+  ) {
+    return true
+  }
+  return false
 }
 
 /**
