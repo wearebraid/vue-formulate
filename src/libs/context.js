@@ -11,6 +11,7 @@ export default {
       type: this.type,
       value: this.value,
       name: this.nameOrFallback,
+      hasGivenName: this.hasGivenName,
       classification: this.classification,
       component: this.component,
       id: this.id || this.defaultId,
@@ -31,6 +32,7 @@ export default {
   },
   // Used in sub-context
   nameOrFallback,
+  hasGivenName,
   typeContext,
   elementAttributes,
   logicalLabelPosition,
@@ -77,11 +79,17 @@ function typeContext () {
  */
 function elementAttributes () {
   const attrs = Object.assign({}, this.localAttributes)
+  // pass the ID prop through to the root element
   if (this.id) {
     attrs.id = this.id
   } else {
     attrs.id = this.defaultId
   }
+  // pass an explicitly given name prop through to the root element
+  if (this.hasGivenName) {
+    attrs.name = this.name
+  }
+
   return attrs
 }
 
@@ -150,6 +158,13 @@ function nameOrFallback () {
     return false
   }
   return this.name
+}
+
+/**
+ * determine if an input has a user-defined name
+ */
+function hasGivenName () {
+  return typeof this.name !== 'boolean'
 }
 
 /**

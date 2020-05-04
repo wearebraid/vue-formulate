@@ -54,7 +54,9 @@ export default {
   methods: {
     groupItemContext (context, option, groupAttributes) {
       const optionAttributes = {}
-      const ctx = Object.assign({}, context, option, groupAttributes, optionAttributes)
+      const ctx = Object.assign({}, context, option, groupAttributes, optionAttributes, !context.hasGivenName ? {
+        name: true
+      } : {})
       return ctx
     }
   }
