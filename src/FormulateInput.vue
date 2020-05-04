@@ -60,7 +60,6 @@
 <script>
 import context from './libs/context'
 import { shallowEqualObjects, parseRules, snakeToCamel } from './libs/utils'
-import nanoid from 'nanoid/non-secure'
 
 export default {
   name: 'FormulateInput',
@@ -190,7 +189,7 @@ export default {
   },
   data () {
     return {
-      defaultId: nanoid(9),
+      defaultId: this.$formulate.nextId(this),
       localAttributes: {},
       internalModelProxy: this.getInitialValue(),
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
