@@ -19,6 +19,16 @@ describe('FormulateInputBox', () => {
     expect(wrapper.contains(FormulateInputBox)).toBe(true)
   })
 
+  it('passes an explicitly given name prop through to the root radio elements', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'radio', name: 'foo', options: {a: '1', b: '2'} } })
+    expect(wrapper.findAll('input[name="foo"]')).toHaveLength(2)
+  })
+
+  it('passes an explicitly given name prop through to the root checkbox elements', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', name: 'foo', options: {a: '1', b: '2'} } })
+    expect(wrapper.findAll('input[name="foo"]')).toHaveLength(2)
+  })
+
   it('box inputs properly process options object in context library', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', options: {a: '1', b: '2'} } })
     expect(Array.isArray(wrapper.vm.context.options)).toBe(true)
