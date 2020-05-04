@@ -155,6 +155,7 @@
       width: 1em;
       height: 1em;
       border-radius: 1em;
+      border: 0;
       background-color: $formulate-green;
       margin-top: calc(-.5em + 2px);
     }
@@ -182,6 +183,10 @@
     }
 
     &::-webkit-slider-runnable-track {
+      @include track;
+    }
+
+    &::-moz-range-track {
       @include track;
     }
   }
