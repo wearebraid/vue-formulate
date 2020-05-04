@@ -3,7 +3,6 @@
 
 .formulate-input {
   margin-bottom: 1.5em;
-  font-family: $formulate-font-stack;
 
   .formulate-input-label {
     display: block;
@@ -42,16 +41,7 @@
   }
 
   .formulate-input-group-item {
-    margin-bottom: 1.5em;
-    padding: 1.5em;
-    border: 1px solid $formulate-gray;
-    border-radius: .25em;
-
-    &:last-child {
-      margin-bottom: 1.5em;
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
+    margin-bottom: .5em;
   }
 
   &:last-child {
@@ -165,8 +155,8 @@
       width: 1em;
       height: 1em;
       border-radius: 1em;
-      background-color: $formulate-green;
       border: 0;
+      background-color: $formulate-green;
       margin-top: calc(-.5em + 2px);
     }
 
@@ -226,11 +216,6 @@
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-
-    &[data-secondary] {
-      background-color: transparent;
-      border: 1px solid $formulate-green;
-    }
 
     &[disabled] {
       background-color: $formulate-gray-d;
