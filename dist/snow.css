@@ -1,5 +1,6 @@
 .formulate-input {
-  margin-bottom: 1.5em; }
+  margin-bottom: 1.5em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
   .formulate-input .formulate-input-label {
     display: block;
     line-height: 1.5;
@@ -27,7 +28,14 @@
     line-height: 1.5;
     margin-bottom: .25em; }
   .formulate-input .formulate-input-group-item {
-    margin-bottom: .5em; }
+    margin-bottom: 1.5em;
+    padding: 1.5em;
+    border: 1px solid #efefef;
+    border-radius: .25em; }
+    .formulate-input .formulate-input-group-item:last-child {
+      margin-bottom: 1.5em;
+      border-bottom: 0;
+      padding-bottom: 0; }
   .formulate-input:last-child {
     margin-bottom: 0; }
   .formulate-input[data-classification='text'] input {
@@ -120,6 +128,7 @@
       height: 1em;
       border-radius: 1em;
       background-color: #41b883;
+      border: 0;
       margin-top: calc(-.5em + 2px); }
     .formulate-input[data-classification='slider'] input::-moz-range-thumb {
       cursor: pointer;
@@ -128,6 +137,7 @@
       height: 1em;
       border-radius: 1em;
       background-color: #41b883;
+      border: 0;
       margin-top: calc(-.5em + 2px); }
     .formulate-input[data-classification='slider'] input::-ms-thumb {
       cursor: pointer;
@@ -136,8 +146,17 @@
       height: 1em;
       border-radius: 1em;
       background-color: #41b883;
+      border: 0;
       margin-top: calc(-.5em + 2px); }
     .formulate-input[data-classification='slider'] input::-webkit-slider-runnable-track {
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background-color: #efefef;
+      border-radius: 3px;
+      margin: 0;
+      padding: 0; }
+    .formulate-input[data-classification='slider'] input::-moz-range-track {
       appearance: none;
       width: 100%;
       height: 4px;
@@ -193,6 +212,9 @@
       line-height: normal; }
     .formulate-input[data-classification='button'] button:focus {
       outline: 0;
+      border: 1px solid #41b883; }
+    .formulate-input[data-classification='button'] button[data-secondary] {
+      background-color: transparent;
       border: 1px solid #41b883; }
     .formulate-input[data-classification='button'] button[disabled] {
       background-color: #cecece;
