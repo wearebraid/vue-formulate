@@ -1,6 +1,7 @@
 <template>
   <FormulateSlot
     name="grouping"
+    class="formulate-input-grouping"
     :context="context"
   >
     <FormulateRepeatableProvider

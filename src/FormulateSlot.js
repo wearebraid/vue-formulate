@@ -9,6 +9,10 @@ export default {
     if (p.$scopedSlots && p.$scopedSlots[props.name]) {
       return p.$scopedSlots[props.name](props.context || props)
     }
-    return h('div', data, children)
+    if (children.length > 1) {
+      const { name, context, ...attrs } = data.attrs
+      return h('div', { ...data, ...{ attrs } }, children)
+    }
+    return children[0]
   }
 }
