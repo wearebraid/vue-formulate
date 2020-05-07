@@ -9,10 +9,13 @@
 </template>
 
 <script>
+import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from '../libs/registry'
+
 export default {
   provide () {
     return {
-      formulateFormSetter: (field, value) => this.setFieldValue(this.index, field, value)
+      ...useRegistryProviders(this),
+      formulateSetter: (field, value) => this.setFieldValue(this.index, field, value)
     }
   },
   props: {
@@ -28,6 +31,18 @@ export default {
       type: Function,
       required: true
     }
+  },
+  data () {
+    return {
+      ...useRegistry(this),
+      isGrouping: true
+    }
+  },
+  computed: {
+    ...useRegistryComputed()
+  },
+  methods: {
+    ...useRegistryMethods(['setFieldValue'])
   }
 }
 </script>

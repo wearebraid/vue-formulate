@@ -26,11 +26,11 @@ export default class FormSubmission {
   values () {
     return new Promise((resolve, reject) => {
       const pending = []
-      const values = cloneDeep(this.form.internalFormModelProxy)
+      const values = cloneDeep(this.form.proxy)
       for (const key in values) {
-        if (typeof this.form.internalFormModelProxy[key] === 'object' && this.form.internalFormModelProxy[key] instanceof FileUpload) {
+        if (typeof this.form.proxy[key] === 'object' && this.form.proxy[key] instanceof FileUpload) {
           pending.push(
-            this.form.internalFormModelProxy[key].upload().then(data => Object.assign(values, { [key]: data }))
+            this.form.proxy[key].upload().then(data => Object.assign(values, { [key]: data }))
           )
         }
       }

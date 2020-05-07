@@ -74,9 +74,9 @@ export default {
   name: 'FormulateInput',
   inheritAttrs: false,
   inject: {
-    formulateFormSetter: { default: undefined },
+    formulateSetter: { default: undefined },
     formulateFieldValidation: { default: () => () => ({}) },
-    formulateFormRegister: { default: undefined },
+    formulateRegister: { default: undefined },
     getFormValues: { default: () => () => ({}) },
     observeErrors: { default: undefined },
     removeErrorObserver: { default: undefined },
@@ -141,7 +141,7 @@ export default {
     },
     repeatable: {
       type: Boolean,
-      default: true
+      default: false
     },
     validation: {
       type: [String, Boolean, Array],
@@ -270,8 +270,8 @@ export default {
   },
   created () {
     this.applyInitialValue()
-    if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
-      this.formulateFormRegister(this.nameOrFallback, this)
+    if (this.formulateRegister && typeof this.formulateRegister === 'function') {
+      this.formulateRegister(this.nameOrFallback, this)
     }
     if (!this.disableErrors && typeof this.observeErrors === 'function') {
       this.observeErrors({ callback: this.setErrors, type: 'input', field: this.nameOrFallback })

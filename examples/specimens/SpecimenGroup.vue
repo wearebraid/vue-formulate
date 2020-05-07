@@ -1,15 +1,17 @@
 <template>
   <div class="specimens specimens--group">
     <FormulateForm
-      v-model="formResult"
+      v-model="formData"
       @submit="save"
     >
       <FormulateInput
+        v-model="users"
         name="users"
         label="Invite some new users"
         type="group"
         placeholder="users"
         help="Fields can be grouped"
+        :repeatable="true"
       >
         <FormulateInput
           label="First and last name"
@@ -18,6 +20,7 @@
           placeholder="User’s name"
         />
         <FormulateInput
+          v-model="email"
           name="email"
           label="Email address"
           type="email"
@@ -30,9 +33,11 @@
       />
     </FormulateForm>
     <span>Form Values</span>
-    <pre>{{ formResult }}</pre>
+    <pre>{{ formData }}</pre>
     <span>Save Values</span>
     <pre>{{ saveValues }}</pre>
+    <pre>{{ email }}</pre>
+    <pre>{{ users }}</pre>
   </div>
 </template>
 
@@ -40,7 +45,13 @@
 export default {
   data () {
     return {
-      formResult: null,
+      formData: {
+      },
+      users: [
+        { name: 'Justin' },
+        { name: 'Bob' }
+      ],
+      email: 'justin@wearebraid.com',
       saveValues: null
     }
   },

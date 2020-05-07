@@ -171,6 +171,26 @@ describe('FormulateForm', () => {
     expect(wrapper.emitted().input[wrapper.emitted().input.length - 1]).toEqual([{ testinput: 'override-data' }])
   })
 
+  it('updates an inputs value when the form v-model is modified', async () => {
+    const wrapper = mount({
+      data () {
+        return {
+          formValues: {
+            testinput: 'abcd',
+          }
+        }
+      },
+      template: `
+        <FormulateForm v-model="formValues">
+          <FormulateInput type="text" name="testinput" />
+        </FormulateForm>
+      `
+    })
+    await flushPromises()
+    wrapper.vm.formValues = { testinput: '1234' }
+    await flushPromises()
+    expect(wrapper.find('input[type="text"]').element.value).toBe('1234')
+  })
 
   it('emits an instance of FormSubmission', async () => {
     const wrapper = mount(FormulateForm, {
@@ -205,7 +225,6 @@ describe('FormulateForm', () => {
       slots: { default: `<FormulateInput type="text" name="name" validation="required" /><FormulateInput type="checkbox" name="candy" />` }
     })
     await flushPromises()
-    // expect(wrapper.vm.internalFormModelProxy).toEqual({ name: 'Dave Barnett', candy: true })
     expect(wrapper.find('input[type="text"]').element.value).toBe('Dave Barnett')
     expect(wrapper.find('input[type="checkbox"]').element.checked).toBe(true)
   })

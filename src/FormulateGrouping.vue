@@ -26,7 +26,9 @@
 </template>
 
 <script>
+
 export default {
+  name: 'FormulateGrouping',
   props: {
     context: {
       type: Object,
@@ -35,8 +37,6 @@ export default {
   },
   provide () {
     return {
-      formulateFormSetter: this.setFieldValue,
-      formulateFormRegister: this.register,
       isSubField: () => true
     }
   },
@@ -64,9 +64,6 @@ export default {
         { [field]: value }
       ))
       this.context.model = values
-    },
-    register (field, component) {
-
     }
   }
 }

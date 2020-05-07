@@ -13,15 +13,13 @@
 
 <script>
 import { shallowEqualObjects, arrayify, has } from './libs/utils'
-import Registry from './libs/registry'
+import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
 import FormSubmission from './FormSubmission'
 
 export default {
   provide () {
     return {
-      formulateFormSetter: this.setFieldValue,
-      formulateFormRegister: this.register,
-      getFormValues: this.getFormValues,
+      ...useRegistryProviders(this),
       observeErrors: this.addErrorObserver,
       removeErrorObserver: this.removeErrorObserver,
       formulateFieldValidation: this.formulateFieldValidation
@@ -56,8 +54,7 @@ export default {
   },
   data () {
     return {
-      registry: new Registry(),
-      internalFormModelProxy: {},
+      ...useRegistry(this),
       formShouldShowErrors: false,
       errorObservers: [],
       namedErrors: [],
@@ -65,42 +62,11 @@ export default {
     }
   },
   computed: {
-    /**
-     * @todo in 2.3.0 this will expand and be extracted to a separate module to
-     * support better scoped slot interoperability.
-     */
+    ...useRegistryComputed(),
     formContext () {
       return {
         errors: this.mergedFormErrors
       }
-    },
-    hasInitialValue () {
-      return (
-        (this.formulateValue && typeof this.formulateValue === 'object') ||
-        (this.values && typeof this.values === 'object')
-      )
-    },
-    isVmodeled () {
-      return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
-        this._events &&
-        Array.isArray(this._events.input) &&
-        this._events.input.length)
-    },
-    initialValues () {
-      if (
-        has(this.$options.propsData, 'formulateValue') &&
-        typeof this.formulateValue === 'object'
-      ) {
-        // If there is a v-model on the form, use those values as first priority
-        return Object.assign({}, this.formulateValue) // @todo - use a deep clone to detach reference types
-      } else if (
-        has(this.$options.propsData, 'values') &&
-        typeof this.values === 'object'
-      ) {
-        // If there are values, use them as secondary priority
-        return Object.assign({}, this.values)
-      }
-      return {}
     },
     classes () {
       const classes = { 'formulate-form': true }
@@ -137,11 +103,11 @@ export default {
         ) {
           for (const field in newValue) {
             if (this.registry.has(field) &&
-              !shallowEqualObjects(newValue[field], this.internalFormModelProxy[field]) &&
+              !shallowEqualObjects(newValue[field], this.proxy[field]) &&
               !shallowEqualObjects(newValue[field], this.registry.get(field).internalModelProxy[field])
             ) {
               this.setFieldValue(field, newValue[field])
-              this.registry[field].context.model = newValue[field]
+              this.registry.get(field).context.model = newValue[field]
             }
           }
         }
@@ -170,11 +136,7 @@ export default {
     this.$formulate.deregister(this)
   },
   methods: {
-    applyInitialValues () {
-      if (this.hasInitialValue) {
-        this.internalFormModelProxy = this.initialValues
-      }
-    },
+    ...useRegistryMethods(),
     applyErrors ({ formErrors, inputErrors }) {
       // given an object of errors, apply them to this form
       this.namedErrors = formErrors
@@ -192,36 +154,6 @@ export default {
     },
     removeErrorObserver (observer) {
       this.errorObservers = this.errorObservers.filter(obs => obs.callback !== observer)
-    },
-    setFieldValue (field, value) {
-      Object.assign(this.internalFormModelProxy, { [field]: value })
-      this.$emit('input', Object.assign({}, this.internalFormModelProxy))
-    },
-    register (field, component) {
-      // Don't re-register fields... @todo come up with another way of handling this that doesn't break multi option
-      if (this.registry.has(field)) {
-        return false
-      }
-      this.registry.add(field, component)
-      const hasVModelValue = has(component.$options.propsData, 'formulateValue')
-      const hasValue = has(component.$options.propsData, 'value')
-      if (
-        !component.context.isSubField() &&
-        !hasVModelValue &&
-        this.hasInitialValue &&
-        this.initialValues[field]
-      ) {
-        // In the case that the form is carrying an initial value and the
-        // element is not, set it directly.
-        component.context.model = this.initialValues[field]
-      } else if (
-        (hasVModelValue || hasValue) &&
-        !shallowEqualObjects(component.internalModelProxy, this.initialValues[field])
-      ) {
-        // In this case, the field is v-modeled or has an initial value and the
-        // form has no value or a different value, so use the field value
-        this.setFieldValue(field, component.internalModelProxy)
-      }
     },
     registerErrorComponent (component) {
       if (!this.errorComponents.includes(component)) {
@@ -247,9 +179,6 @@ export default {
       this.registry.map(input => {
         input.formShouldShowErrors = true
       })
-    },
-    getFormValues () {
-      return this.internalFormModelProxy
     },
     formulateFieldValidation (errorObject) {
       this.$emit('validation', errorObject)

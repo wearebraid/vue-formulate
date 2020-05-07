@@ -289,7 +289,7 @@ function modelSetter (value) {
     this.internalModelProxy = value
   }
   this.$emit('input', value)
-  if (this.context.name && typeof this.formulateFormSetter === 'function') {
-    this.formulateFormSetter(this.context.name, value)
+  if (this.context.name && typeof this.formulateSetter === 'function') {
+    this.formulateSetter(this.context.name, value)
   }
 }
