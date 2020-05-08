@@ -4,6 +4,8 @@ import flushPromises from 'flush-promises'
 import Formulate from '@/Formulate.js'
 import FileUpload from '@/FileUpload.js'
 import FormulateInput from '@/FormulateInput.vue'
+import FormulateForm from '@/FormulateForm.vue'
+import FormulateRepeatableProvider from '@/FormulateRepeatableProvider.vue'
 
 Vue.use(Formulate)
 
@@ -15,17 +17,17 @@ describe('FormulateInputGroup', () => {
         default: '<FormulateInput type="text" />'
       }
     })
-    expect(wrapper.findAll('.formulate-input-grouping input[type="text"]').length).toBe(1)
+    expect(wrapper.findAll('.formulate-input-group-repeatable input[type="text"]').length).toBe(1)
   })
 
   it('registers sub-fields with grouping', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { type: 'group' },
       slots: {
-        default: '<FormulateInput type="text" />'
+        default: '<FormulateInput type="text" name="persona" />'
       }
     })
-    expect(wrapper.findAll('.formulate-input-grouping input[type="text"]').length).toBe(1)
+    expect(wrapper.find(FormulateRepeatableProvider).vm.registry.has('persona')).toBeTruthy()
   })
 
   it('is not repeatable by default', async () => {
@@ -97,5 +99,282 @@ describe('FormulateInputGroup', () => {
     expect(fields.length).toBe(4)
     expect(fields.at(0).element.value).toBe('jim@example.com')
     expect(fields.at(2).element.value).toBe('jim@example.com')
+  })
+
+  it('v-modeling a subfield updates group v-model value', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          v-model="users"
+          type="group"
+        >
+          <FormulateInput type="text" v-model="email" name="email" />
+          <FormulateInput type="text" name="name" />
+        </FormulateInput>
+      `,
+      data () {
+        return {
+          users: [{email: 'jon@example.com'}, {email:'jane@example.com'}],
+          email: 'jim@example.com'
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.vm.users).toEqual([{email: 'jim@example.com'}, {email:'jim@example.com'}])
+  })
+
+  it('prevents form submission when children have validation errors', async () => {
+    const submit = jest.fn()
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          @submit="submit"
+        >
+          <FormulateInput
+            type="text"
+            validation="required"
+            value="testing123"
+            name="name"
+          />
+          <FormulateInput
+            v-model="users"
+            type="group"
+          >
+            <FormulateInput type="text" name="email" />
+            <FormulateInput type="text" name="name" validation="required" />
+          </FormulateInput>
+          <FormulateInput type="submit" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          users: [{email: 'jon@example.com'}, {email:'jane@example.com'}],
+        }
+      },
+      methods: {
+        submit
+      }
+    })
+    const form = wrapper.find(FormulateForm)
+    await form.vm.formSubmitted()
+    expect(submit.mock.calls.length).toBe(0);
+  })
+
+  it('allows form submission with children when there are no validation errors', async () => {
+    const submit = jest.fn()
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          @submit="submit"
+        >
+          <FormulateInput
+            type="text"
+            validation="required"
+            value="testing123"
+            name="name"
+          />
+          <FormulateInput
+            name="users"
+            type="group"
+          >
+            <FormulateInput type="text" name="email" validation="required|email" value="justin@wearebraid.com" />
+            <FormulateInput type="text" name="name" validation="required" value="party" />
+          </FormulateInput>
+          <FormulateInput type="submit" />
+        </FormulateForm>
+      `,
+      methods: {
+        submit
+      }
+    })
+    const form = wrapper.find(FormulateForm)
+    await form.vm.formSubmitted()
+    expect(submit.mock.calls.length).toBe(1);
+  })
+
+  it('displays validation errors on group children when form is submitted', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm>
+          <FormulateInput
+            name="users"
+            type="group"
+            :repeatable="true"
+          >
+            <FormulateInput type="text" name="name" validation="required" />
+          </FormulateInput>
+          <FormulateInput type="submit" />
+        </FormulateForm>
+      `
+    })
+    const form = wrapper.find(FormulateForm)
+    await form.vm.formSubmitted()
+    expect(wrapper.find('[data-classification="text"] .formulate-input-error').exists()).toBe(true);
+  })
+
+  it('displays error messages on newly registered fields when formShouldShowErrors is true', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm>
+          <FormulateInput
+            name="users"
+            type="group"
+            :repeatable="true"
+          >
+            <FormulateInput type="text" name="name" validation="required" />
+          </FormulateInput>
+          <FormulateInput type="submit" />
+        </FormulateForm>
+      `
+    })
+    const form = wrapper.find(FormulateForm)
+    await form.vm.formSubmitted()
+    // Click the add more button
+    wrapper.find('button[type="button"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('[data-classification="text"] .formulate-input-error').length).toBe(2)
+  })
+
+  it('displays error messages on newly registered fields when formShouldShowErrors is true', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm>
+          <FormulateInput
+            name="users"
+            type="group"
+            :repeatable="true"
+          >
+            <FormulateInput type="text" name="name" validation="required" />
+          </FormulateInput>
+          <FormulateInput type="submit" />
+        </FormulateForm>
+      `
+    })
+    const form = wrapper.find(FormulateForm)
+    await form.vm.formSubmitted()
+    // Click the add more button
+    wrapper.find('button[type="button"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('[data-classification="text"] .formulate-input-error').length).toBe(2)
+  })
+
+  it('allows the removal of groups', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm>
+        <FormulateInput
+          name="users"
+          type="group"
+          :repeatable="true"
+          v-model="users"
+        >
+          <FormulateInput type="text" name="name" validation="required" />
+        </FormulateInput>
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `,
+      data () {
+        return {
+          users: [{name: 'justin'}, {name: 'bill'}]
+        }
+      }
+    })
+    await flushPromises()
+    wrapper.find('.formulate-input-group-repeatable-remove').trigger('click')
+    await flushPromises()
+    expect(wrapper.vm.users).toEqual([{name: 'bill'}])
+  })
+
+  it('can override the add more text', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { addLabel: '+ Add a user', type: 'group', repeatable: true },
+      slots: {
+        default: '<div />'
+      }
+    })
+    expect(wrapper.find('button').text()).toEqual('+ Add a user')
+  })
+
+  it('does not allow more than the limit', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { addLabel: '+ Add a user', type: 'group', repeatable: true, limit: 2, value: [{}, {}]},
+      slots: {
+        default: '<div class="repeated"/>'
+      }
+    })
+    expect(wrapper.findAll('.repeated').length).toBe(2)
+    expect(wrapper.find('button').exists()).toBeFalsy()
+  })
+
+  it('does not truncate the number of items if value is more than limit', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { addLabel: '+ Add a user', type: 'group', repeatable: true, limit: 2, value: [{}, {}, {}, {}]},
+      slots: {
+        default: '<div class="repeated"/>'
+      }
+    })
+    expect(wrapper.findAll('.repeated').length).toBe(4)
+  })
+
+  it('allows a slot override of the add button and has addItem prop', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'group', repeatable: true, addLabel: '+ Name' },
+      scopedSlots: {
+        default: '<div class="repeatable" />',
+        addmore: '<span class="add-name" @click="props.addMore">{{ props.addLabel }}</span>'
+      }
+    })
+    expect(wrapper.find('.formulate-input-group-add-more').exists()).toBeFalsy()
+    const addButton = wrapper.find('.add-name')
+    expect(addButton.text()).toBe('+ Name')
+    addButton.trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('.repeatable').length).toBe(2)
+  })
+
+  it('allows a slot override of the repeatable area', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'group', repeatable: true, value: [{}, {}]},
+      scopedSlots: {
+        repeatable: '<div class="repeat">{{ props.index }}<div class="remove" @click="props.removeItem" /></div>',
+      }
+    })
+    const repeats = wrapper.findAll('.repeat')
+    expect(repeats.length).toBe(2)
+    expect(repeats.at(1).text()).toBe("1")
+    wrapper.find('.remove').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('.repeat').length).toBe(1)
+  })
+
+  it('does not show an error message on group input when child has an error', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm>
+          <FormulateInput
+            type="text"
+            validation="required"
+            value="testing123"
+            name="name"
+          />
+          <FormulateInput
+            v-model="users"
+            type="group"
+          >
+            <FormulateInput type="text" name="email" />
+            <FormulateInput type="text" name="name" validation="required" />
+          </FormulateInput>
+          <FormulateInput type="submit" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          users: [{email: 'jon@example.com'}, {}],
+        }
+      }
+    })
+    const form = wrapper.find(FormulateForm)
+    await form.vm.formSubmitted()
+    expect(wrapper.find('[data-classification="group"] > .formulate-input-errors').exists()).toBe(false)
   })
 })

@@ -19,12 +19,24 @@
         />
       </slot>
       <slot
+        v-if="context.helpPosition === 'before'"
+        name="help"
+        v-bind="context"
+      >
+        <component
+          :is="context.slotComponents.help"
+          v-if="context.help"
+          :context="context"
+        />
+      </slot>
+      <slot
         name="element"
         v-bind="context"
       >
         <component
           :is="context.component"
           :context="context"
+          @click="$emit('click', $event)"
         >
           <slot v-bind="context" />
         </component>
@@ -42,6 +54,7 @@
       </slot>
     </div>
     <slot
+      v-if="context.helpPosition === 'after'"
       name="help"
       v-bind="context"
     >
@@ -73,10 +86,18 @@ import nanoid from 'nanoid/non-secure'
 export default {
   name: 'FormulateInput',
   inheritAttrs: false,
+  provide () {
+    return {
+      // Allows sub-components of this input to register arbitrary rules.
+      formulateRegisterRule: this.registerRule,
+      formulateRemoveRule: this.removeRule
+    }
+  },
   inject: {
     formulateSetter: { default: undefined },
     formulateFieldValidation: { default: () => () => ({}) },
     formulateRegister: { default: undefined },
+    formulateDeregister: { default: undefined },
     getFormValues: { default: () => () => ({}) },
     observeErrors: { default: undefined },
     removeErrorObserver: { default: undefined },
@@ -128,6 +149,10 @@ export default {
       default: Infinity
     },
     help: {
+      type: [String, Boolean],
+      default: false
+    },
+    helpPosition: {
       type: [String, Boolean],
       default: false
     },
@@ -205,6 +230,10 @@ export default {
     disableErrors: {
       type: Boolean,
       default: false
+    },
+    addLabel: {
+      type: [Boolean, String],
+      default: false
     }
   },
   data () {
@@ -216,7 +245,10 @@ export default {
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
       validationErrors: [],
-      pendingValidation: Promise.resolve()
+      pendingValidation: Promise.resolve(),
+      // These registries are used for injected messages registrants only (mostly internal).
+      ruleRegistry: [],
+      messageRegistry: {}
     }
   },
   computed: {
@@ -230,7 +262,7 @@ export default {
     },
     parsedValidationRules () {
       const parsedValidationRules = {}
-      Object.keys(this.validationRules).forEach((key) => {
+      Object.keys(this.validationRules).forEach(key => {
         parsedValidationRules[snakeToCamel(key)] = this.validationRules[key]
       })
       return parsedValidationRules
@@ -239,6 +271,9 @@ export default {
       const messages = {}
       Object.keys(this.validationMessages).forEach((key) => {
         messages[snakeToCamel(key)] = this.validationMessages[key]
+      })
+      Object.keys(this.messageRegistry).forEach((key) => {
+        messages[snakeToCamel(key)] = this.messageRegistry[key]
       })
       return messages
     }
@@ -283,6 +318,9 @@ export default {
     if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
       this.removeErrorObserver(this.setErrors)
     }
+    if (typeof this.formulateDeregister === 'function') {
+      this.formulateDeregister(this.nameOrFallback)
+    }
   },
   methods: {
     getInitialValue () {
@@ -315,7 +353,10 @@ export default {
       }
     },
     performValidation () {
-      const rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
+      let rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
+      // Add in ruleRegistry rules. These are added directly via injection from
+      // children and not part of the standard validation rule set.
+      rules = this.ruleRegistry.length ? rules.concat(this.ruleRegistry) : rules
       this.pendingValidation = Promise.all(
         rules.map(([rule, args, ruleName]) => {
           var res = rule({
@@ -324,7 +365,7 @@ export default {
             name: this.context.name
           }, ...args)
           res = (res instanceof Promise) ? res : Promise.resolve(res)
-          return res.then(res => res ? false : this.getMessage(ruleName, args))
+          return res.then(result => result ? false : this.getMessage(ruleName, args))
         })
       )
         .then(result => result.filter(result => result))
@@ -358,6 +399,7 @@ export default {
           case 'function':
             return this.messages[ruleName]
           case 'string':
+          case 'boolean':
             return () => this.messages[ruleName]
         }
       }
@@ -372,20 +414,34 @@ export default {
     },
     getValidationErrors () {
       return new Promise(resolve => {
-        this.$nextTick(() => {
-          this.pendingValidation.then(() => resolve(this.getErrorObject()))
-        })
+        this.$nextTick(() => this.pendingValidation.then(() => resolve(this.getErrorObject())))
       })
     },
     getErrorObject () {
       return {
         name: this.context.nameOrFallback || this.context.name,
-        errors: this.validationErrors,
+        errors: this.validationErrors.filter(s => typeof s === 'string'),
         hasErrors: !!this.validationErrors.length
       }
     },
     setErrors (errors) {
       this.localErrors = arrayify(errors)
+    },
+    registerRule (rule, args, ruleName, message = null) {
+      if (!this.ruleRegistry.some(r => r[2] === ruleName)) {
+        // These are the raw rule format since they will be used directly.
+        this.ruleRegistry.push([rule, args, ruleName])
+        if (message !== null) {
+          this.messageRegistry[ruleName] = message
+        }
+      }
+    },
+    removeRule (key) {
+      const ruleIndex = this.ruleRegistry.findIndex(r => r[2] === key)
+      if (ruleIndex >= 0) {
+        this.ruleRegistry.splice(ruleIndex, 1)
+        delete this.messageRegistry[key]
+      }
     }
   }
 }

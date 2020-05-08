@@ -23,7 +23,7 @@ import FormulateInputButton from './inputs/FormulateInputButton.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
-import FormulateRepeatableProvider from './slots/FormulateRepeatableProvider.vue'
+import FormulateRepeatableProvider from './FormulateRepeatableProvider.vue'
 
 /**
  * The base formulate library.
@@ -173,7 +173,7 @@ class Formulate {
   }
 
   /**
-   * Get validation rules.
+   * Get validation rules by merging any passed in with global rules.
    * @return {object} object of validation functions
    */
   rules (rules = {}) {

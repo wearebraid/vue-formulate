@@ -3,25 +3,19 @@
     name="grouping"
     class="formulate-input-grouping"
     :context="context"
+    :force-wrap="context.repeatable"
   >
     <FormulateRepeatableProvider
       v-for="(item, index) in items"
+      :ref="`provider-${index}`"
       :key="index"
       :index="index"
-      :set-field-value="setFieldValue"
+      :set-field-value="(field, value) => setFieldValue(index, field, value)"
       :context="context"
+      @remove="removeItem"
     >
       <slot />
     </FormulateRepeatableProvider>
-    <FormulateSlot
-      v-if="canAddMore"
-      name="addmore"
-    >
-      <component
-        :is="context.slotComponents.addMore"
-        @add="addItem"
-      />
-    </FormulateSlot>
   </FormulateSlot>
 </template>
 
@@ -40,22 +34,38 @@ export default {
       isSubField: () => true
     }
   },
+  inject: ['formulateRegisterRule', 'formulateRemoveRule'],
   computed: {
-    canAddMore () {
-      return (this.context.repeatable && this.items.length < this.context.limit)
-    },
     items () {
       return Array.isArray(this.context.model) ? this.context.model : [{}]
+    },
+    providers () {
+      return this.items.map((...[ , i ]) => Array.isArray(this.$refs[`provider-${i}`]) ? this.$refs[`provider-${i}`][0] : false)
+    },
+    formShouldShowErrors () {
+      return this.context.formShouldShowErrors
     }
   },
-  methods: {
-    addItem () {
-      if (Array.isArray(this.context.model)) {
-        this.context.model.push({})
-        return
+  watch: {
+    providers () {
+      if (this.formShouldShowErrors) {
+        this.showErrors()
       }
-      this.context.model = this.items.concat([{}])
     },
+    formShouldShowErrors (val) {
+      if (val) {
+        this.showErrors()
+      }
+    }
+  },
+  created () {
+    // We register with an error message of 'true' which causes the validation to fail but no message output.
+    this.formulateRegisterRule(this.validateGroup.bind(this), [], 'formulateGrouping', true)
+  },
+  destroyed () {
+    this.formulateRemoveRule('formulateGrouping')
+  },
+  methods: {
     setFieldValue (index, field, value) {
       const values = Array.isArray(this.context.model) ? this.context.model : []
       values.splice(index, 1, Object.assign(
@@ -64,6 +74,22 @@ export default {
         { [field]: value }
       ))
       this.context.model = values
+    },
+    validateGroup () {
+      return Promise.all(this.providers.reduce((resolvers, provider) => {
+        if (provider && typeof provider.hasValidationErrors === 'function') {
+          resolvers.push(provider.hasValidationErrors())
+        }
+        return resolvers
+      }, [])).then(providersHasErrors => !providersHasErrors.some(hasErrors => !!hasErrors))
+    },
+    showErrors () {
+      this.providers.map(p => p && typeof p.showErrors === 'function' && p.showErrors())
+    },
+    removeItem (index) {
+      if (Array.isArray(this.context.model)) {
+        this.context.model.splice(index, 1)
+      }
     }
   }
 }

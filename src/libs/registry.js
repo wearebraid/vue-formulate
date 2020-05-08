@@ -94,6 +94,9 @@ class Registry {
       // form has no value or a different value, so use the field value
       this.ctx.setFieldValue(field, component.internalModelProxy)
     }
+    if (this.childrenShouldShowErrors) {
+      component.formShouldShowErrors = true
+    }
   }
 
   /**
@@ -114,7 +117,9 @@ class Registry {
     return {
       proxy: {},
       registry: this,
-      register: this.register.bind(this)
+      register: this.register.bind(this),
+      deregister: field => this.registry.delete(field),
+      childrenShouldShowErrors: false
     }
   }
 }
@@ -170,7 +175,7 @@ export function useRegistryComputed () {
 }
 
 /**
- * Watchers used in the registry.
+ * Methods used in the registry.
  */
 export function useRegistryMethods (without = []) {
   const methods = {
@@ -185,6 +190,18 @@ export function useRegistryMethods (without = []) {
     },
     getFormValues () {
       return this.proxy
+    },
+    hasValidationErrors () {
+      return Promise.all(this.registry.reduce((resolvers, cmp, name) => {
+        resolvers.push(cmp.performValidation() && cmp.getValidationErrors())
+        return resolvers
+      }, [])).then(errorObjects => errorObjects.some(item => item.hasErrors))
+    },
+    showErrors () {
+      this.childrenShouldShowErrors = true
+      this.registry.map(input => {
+        input.formShouldShowErrors = true
+      })
     }
   }
   return Object.keys(methods).reduce((withMethods, key) => {
@@ -199,6 +216,7 @@ export function useRegistryProviders (ctx) {
   return {
     formulateSetter: ctx.setFieldValue,
     formulateRegister: ctx.register,
+    formulateDeregister: ctx.deregister,
     getFormValues: ctx.getFormValues
   }
 }

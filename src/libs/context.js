@@ -8,16 +8,19 @@ import { map, arrayify, shallowEqualObjects } from './utils'
 export default {
   context () {
     return defineModel.call(this, {
+      addLabel: this.logicalAddLabel,
       attributes: this.elementAttributes,
       blurHandler: blurHandler.bind(this),
       classification: this.classification,
       component: this.component,
       disableErrors: this.disableErrors,
       errors: this.explicitErrors,
+      formShouldShowErrors: this.formShouldShowErrors,
       getValidationErrors: this.getValidationErrors.bind(this),
       hasLabel: (this.label && this.classification !== 'button'),
       hasValidationErrors: this.hasValidationErrors.bind(this),
       help: this.help,
+      helpPosition: this.logicalHelpPosition,
       id: this.id || this.defaultId,
       imageBehavior: this.imageBehavior,
       label: this.label,
@@ -46,6 +49,7 @@ export default {
   typeContext,
   elementAttributes,
   logicalLabelPosition,
+  logicalHelpPosition,
   mergedUploadUrl,
 
   // These items are not passed as context
@@ -57,7 +61,18 @@ export default {
   hasVisibleErrors,
   showValidationErrors,
   visibleValidationErrors,
-  slotComponents
+  slotComponents,
+  logicalAddLabel
+}
+
+/**
+ * The label to display when adding a new group.
+ */
+function logicalAddLabel () {
+  if (typeof this.addLabel === 'boolean') {
+    return `+ ${this.label || this.name || 'Add'}`
+  }
+  return this.addLabel
 }
 
 /**
@@ -100,7 +115,7 @@ function elementAttributes () {
 }
 
 /**
- * Determine the a best-guess location for the label (before or after).
+ * Determine the best-guess location for the label (before or after).
  * @return {string} before|after
  */
 function logicalLabelPosition () {
@@ -112,6 +127,21 @@ function logicalLabelPosition () {
       return 'after'
     default:
       return 'before'
+  }
+}
+
+/**
+ * Determine the best location for the label based on type (before or after).
+ */
+function logicalHelpPosition () {
+  if (this.helpPosition) {
+    return this.helpPosition
+  }
+  switch (this.classification) {
+    case 'group':
+      return 'before'
+    default:
+      return 'after'
   }
 }
 

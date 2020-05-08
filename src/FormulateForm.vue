@@ -175,21 +175,8 @@ export default {
           return undefined
         })
     },
-    showErrors () {
-      this.registry.map(input => {
-        input.formShouldShowErrors = true
-      })
-    },
     formulateFieldValidation (errorObject) {
       this.$emit('validation', errorObject)
-    },
-    hasValidationErrors () {
-      return Promise.all(this.registry.reduce((resolvers, cmp, name) => {
-        resolvers.push(cmp.getValidationErrors())
-        return resolvers
-      }, [])).then((errorObjects) => {
-        return errorObjects.some(item => item.hasErrors)
-      })
     }
   }
 }

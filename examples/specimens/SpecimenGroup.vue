@@ -1,5 +1,22 @@
 <template>
   <div class="specimens specimens--group">
+    <h2>Non-repeatable group</h2>
+    <FormulateInput
+      type="group"
+    >
+      <FormulateInput
+        label="City"
+        type="text"
+        name="city"
+      />
+      <FormulateInput
+        label="State"
+        type="select"
+        :options="{NE: 'Nebraska', MO: 'Missouri', VA: 'Virginia'}"
+        placeholder="Select a state"
+      />
+    </FormulateInput>
+    <h2>Repeatable group</h2>
     <FormulateForm
       v-model="formData"
       @submit="save"
@@ -18,6 +35,7 @@
           name="name"
           type="text"
           placeholder="User’s name"
+          validation="required"
         />
         <FormulateInput
           v-model="email"
@@ -32,12 +50,12 @@
         type="submit"
       />
     </FormulateForm>
-    <span>Form Values</span>
+    <!-- <span>Form Values</span>
     <pre>{{ formData }}</pre>
-    <span>Save Values</span>
+    <span>Save Values</span> -->
     <pre>{{ saveValues }}</pre>
-    <pre>{{ email }}</pre>
-    <pre>{{ users }}</pre>
+    <!-- <pre>{{ email }}</pre>
+    <pre>{{ users }}</pre> -->
   </div>
 </template>
 
@@ -49,7 +67,7 @@ export default {
       },
       users: [
         { name: 'Justin' },
-        { name: 'Bob' }
+        {}
       ],
       email: 'justin@wearebraid.com',
       saveValues: null

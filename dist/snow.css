@@ -7,6 +7,9 @@
     font-size: .9em;
     font-weight: 600;
     margin-bottom: .1em; }
+    .formulate-input .formulate-input-label--before + .formulate-input-help--before {
+      margin-top: -.25em;
+      margin-bottom: .75em; }
   .formulate-input .formulate-input-element {
     max-width: 20em;
     margin-bottom: .1em; }
@@ -27,15 +30,6 @@
     font-weight: 300;
     line-height: 1.5;
     margin-bottom: .25em; }
-  .formulate-input .formulate-input-group-item {
-    margin-bottom: 1.5em;
-    padding: 1.5em;
-    border: 1px solid #efefef;
-    border-radius: .25em; }
-    .formulate-input .formulate-input-group-item:last-child {
-      margin-bottom: 1.5em;
-      border-bottom: 0;
-      padding-bottom: 0; }
   .formulate-input:last-child {
     margin-bottom: 0; }
   .formulate-input[data-classification='text'] input {
@@ -205,6 +199,19 @@
     .formulate-input[data-classification='button'] button[disabled] {
       background-color: #cecece;
       border-color: #cecece; }
+    .formulate-input[data-classification='button'] button[data-ghost] {
+      color: #41b883;
+      background-color: transparent;
+      border-color: currentColor; }
+    .formulate-input[data-classification='button'] button[data-minor] {
+      font-size: .75em;
+      display: inline-block; }
+    .formulate-input[data-classification='button'] button[data-danger] {
+      background-color: #960505;
+      border-color: #960505; }
+    .formulate-input[data-classification='button'] button[data-danger][data-ghost] {
+      color: #960505;
+      background-color: transparent; }
     .formulate-input[data-classification='button'] button:active {
       background-color: #64c89b;
       border-color: #64c89b; }
@@ -295,8 +302,54 @@
     margin-left: .5em; }
   .formulate-input[data-classification='box'] .formulate-input-label--before {
     margin-right: .5em; }
-  .formulate-input[data-classification="group"] > .formulate-input-wrapper > .formulate-input-label {
+  .formulate-input[data-classification='group'] .formulate-input-group-item {
     margin-bottom: .5em; }
+  .formulate-input[data-classification='group'] [data-is-repeatable] {
+    padding: 1em;
+    border: 1px solid #efefef;
+    border-radius: .3em; }
+    .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-grouping {
+      margin: -1em -1em 0 -1em; }
+    .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable {
+      padding: 1em 3em 1em 1em;
+      border-bottom: 1px solid #efefef;
+      position: relative; }
+      .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove {
+        position: absolute;
+        display: block;
+        top: calc(50% - .75em);
+        width: 1.5em;
+        height: 1.5em;
+        background-color: #cecece;
+        right: .75em;
+        border-radius: 1.5em;
+        cursor: pointer;
+        transition: background-color .2s; }
+        .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove::before, .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove::after {
+          content: '';
+          position: absolute;
+          top: calc(50% - .125em);
+          left: 0.375em;
+          display: block;
+          width: .75em;
+          height: .25em;
+          background-color: white;
+          transform-origin: center center;
+          transition: transform .25s; }
+        @media (pointer: fine) {
+          .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove:hover {
+            background-color: #dc2c2c; }
+            .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove:hover::after, .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove:hover::before {
+              height: .2em;
+              width: .9em;
+              left: .3em;
+              top: calc(50% - .075em); }
+            .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove:hover::after {
+              transform: rotate(45deg); }
+            .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove:hover::before {
+              transform: rotate(-45deg); } }
+      .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable:last-child {
+        margin-bottom: 1em; }
   .formulate-input[data-classification="file"] .formulate-input-upload-area {
     width: 100%;
     position: relative;

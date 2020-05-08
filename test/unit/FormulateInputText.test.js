@@ -263,6 +263,13 @@ describe('FormulateInputText', () => {
     expect(wrapper.find('label').text()).toBe('flavor town')
   })
 
+  it('allows help-before override', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', label: 'flavor', help: 'I love this next field...', helpPosition: 'before' },
+    })
+    expect(wrapper.find('label + *').classes('formulate-input-help')).toBe(true)
+  })
+
   it('Allow help text override with scoped slot', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { type: 'text', name: 'soda', help: 'Do you want some'},

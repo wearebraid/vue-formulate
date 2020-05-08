@@ -1,21 +1,29 @@
 <template>
   <FormulateSlot
     name="repeatable"
+    :context="context"
+    :index="index"
+    :remove-item="removeItem"
   >
-    <FormulateRepeatable>
+    <component
+      :is="context.slotComponents.repeatable"
+      :context="context"
+      :index="index"
+      :remove-item="removeItem"
+    >
       <slot />
-    </FormulateRepeatable>
+    </component>
   </FormulateSlot>
 </template>
 
 <script>
-import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from '../libs/registry'
+import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
 
 export default {
   provide () {
     return {
       ...useRegistryProviders(this),
-      formulateSetter: (field, value) => this.setFieldValue(this.index, field, value)
+      formulateSetter: (field, value) => this.setFieldValue(field, value)
     }
   },
   props: {
@@ -42,7 +50,10 @@ export default {
     ...useRegistryComputed()
   },
   methods: {
-    ...useRegistryMethods(['setFieldValue'])
+    ...useRegistryMethods(['setFieldValue']),
+    removeItem () {
+      this.$emit('remove', this.index)
+    }
   }
 }
 </script>

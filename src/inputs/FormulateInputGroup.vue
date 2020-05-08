@@ -1,5 +1,8 @@
 <template>
-  <div class="formulate-input-group">
+  <div
+    class="formulate-input-group"
+    :data-is-repeatable="context.repeatable"
+  >
     <template
       v-if="subType !== 'grouping'"
     >
@@ -21,6 +24,19 @@
       >
         <slot />
       </FormulateGrouping>
+      <FormulateSlot
+        v-if="canAddMore"
+        name="addmore"
+        :context="context"
+        :add-more="addItem"
+      >
+        <component
+          :is="context.slotComponents.addMore"
+          :context="context"
+          :add-more="addItem"
+          @add="addItem"
+        />
+      </FormulateSlot>
     </template>
   </div>
 </template>
@@ -66,9 +82,22 @@ export default {
         option,
         groupApplicableAttributes
       ))
+    },
+    canAddMore () {
+      return (this.context.repeatable && this.items.length < this.context.limit)
+    },
+    items () {
+      return Array.isArray(this.context.model) ? this.context.model : [{}]
     }
   },
   methods: {
+    addItem () {
+      if (Array.isArray(this.context.model)) {
+        this.context.model.push({})
+        return
+      }
+      this.context.model = this.items.concat([{}])
+    },
     groupItemContext (context, option, groupAttributes) {
       const optionAttributes = {}
       const ctx = Object.assign({}, context, option, groupAttributes, optionAttributes)
