@@ -40,7 +40,7 @@ export default {
       return Array.isArray(this.context.model) ? this.context.model : [{}]
     },
     providers () {
-      return this.items.map((...[ , i ]) => Array.isArray(this.$refs[`provider-${i}`]) ? this.$refs[`provider-${i}`][0] : false)
+      return this.items.map((item, i) => Array.isArray(this.$refs[`provider-${i}`]) ? this.$refs[`provider-${i}`][0] : false)
     },
     formShouldShowErrors () {
       return this.context.formShouldShowErrors

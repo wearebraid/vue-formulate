@@ -304,6 +304,8 @@
     margin-right: .5em; }
   .formulate-input[data-classification='group'] .formulate-input-group-item {
     margin-bottom: .5em; }
+  .formulate-input[data-classification='group'] > .formulate-input-wrapper > .formulate-input-label {
+    margin-bottom: .5em; }
   .formulate-input[data-classification='group'] [data-is-repeatable] {
     padding: 1em;
     border: 1px solid #efefef;
