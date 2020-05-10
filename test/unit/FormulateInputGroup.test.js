@@ -5,6 +5,7 @@ import Formulate from '@/Formulate.js'
 import FileUpload from '@/FileUpload.js'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateForm from '@/FormulateForm.vue'
+import FormulateGrouping from '@/FormulateGrouping.vue'
 import FormulateRepeatableProvider from '@/FormulateRepeatableProvider.vue'
 
 Vue.use(Formulate)
@@ -395,5 +396,48 @@ describe('FormulateInputGroup', () => {
     expect(repeatables.length).toBe(2)
     expect(repeatables.at(0).text()).toBe('test-0')
     expect(repeatables.at(1).text()).toBe('test-1')
+  })
+
+  it('forces non-repeatable groups to not initialize with an empty array', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="group"
+          name="test"
+          v-model="model"
+        >
+          <div class="repeatable" />
+        </FormulateInput>
+      `,
+      data () {
+        return {
+          model: []
+        }
+      }
+    })
+    await flushPromises();
+    expect(wrapper.find(FormulateGrouping).vm.items).toEqual([{}])
+  })
+
+  it('allows repeatable groups to initialize with an empty array', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="group"
+          name="test"
+          :repeatable="true"
+          v-model="model"
+        >
+          <div class="repeatable" />
+        </FormulateInput>
+      `,
+      data () {
+        return {
+          model: []
+        }
+      }
+    })
+    await flushPromises();
+    expect(wrapper.find(FormulateGrouping).vm.items).toEqual([])
   })
 })

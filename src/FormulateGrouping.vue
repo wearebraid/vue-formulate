@@ -37,7 +37,13 @@ export default {
   inject: ['formulateRegisterRule', 'formulateRemoveRule'],
   computed: {
     items () {
-      return Array.isArray(this.context.model) ? this.context.model : [{}]
+      if (Array.isArray(this.context.model)) {
+        if (!this.context.repeatable && this.context.model.length === 0) {
+          return [{}]
+        }
+        return this.context.model
+      }
+      return [{}]
     },
     providers () {
       return this.items.map((item, i) => Array.isArray(this.$refs[`provider-${i}`]) ? this.$refs[`provider-${i}`][0] : false)
