@@ -21,12 +21,12 @@ export default {
     }
 
     // If we found no scoped slot, take the children and render those inside a wrapper if there are multiple
-    if (children && (children.length > 1 || (forceWrap && children.length > 0))) {
+    if (Array.isArray(children) && (children.length > 1 || (forceWrap && children.length > 0))) {
       const { name, context, ...attrs } = data.attrs
       return h('div', { ...data, ...{ attrs } }, children)
 
     // If there is only one child, render it alone
-    } else if (children.length === 1) {
+    } else if (Array.isArray(children) && children.length === 1) {
       return children[0]
     }
 

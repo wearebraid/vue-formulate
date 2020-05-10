@@ -377,4 +377,23 @@ describe('FormulateInputGroup', () => {
     await form.vm.formSubmitted()
     expect(wrapper.find('[data-classification="group"] > .formulate-input-errors').exists()).toBe(false)
   })
+
+  it('exposes the index to the context object on default slot', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="group"
+          name="test"
+          #default="{ name, index }"
+          :value="[{}, {}]"
+        >
+          <div class="repeatable">{{ name }}-{{ index }}</div>
+        </FormulateInput>
+      `,
+    })
+    const repeatables = wrapper.findAll('.repeatable')
+    expect(repeatables.length).toBe(2)
+    expect(repeatables.at(0).text()).toBe('test-0')
+    expect(repeatables.at(1).text()).toBe('test-1')
+  })
 })

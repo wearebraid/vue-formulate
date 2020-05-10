@@ -11,7 +11,11 @@
       :index="index"
       :remove-item="removeItem"
     >
-      <slot />
+      <FormulateSlot
+        :context="context"
+        :index="index"
+        name="default"
+      />
     </component>
   </FormulateSlot>
 </template>
