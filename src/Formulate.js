@@ -55,7 +55,7 @@ class Formulate {
         FormulateInputTextArea,
         FormulateRepeatableProvider
       },
-      slotDefaults: {
+      slotComponents: {
         label: 'FormulateLabel',
         help: 'FormulateHelp',
         errors: 'FormulateErrors',
@@ -169,7 +169,7 @@ class Formulate {
     if (def.slotComponents && def.slotComponents[slot]) {
       return def.slotComponents[slot]
     }
-    return this.options.slotDefaults[slot]
+    return this.options.slotComponents[slot]
   }
 
   /**
