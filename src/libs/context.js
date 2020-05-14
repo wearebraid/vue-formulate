@@ -17,6 +17,7 @@ export default {
       errors: this.explicitErrors,
       formShouldShowErrors: this.formShouldShowErrors,
       getValidationErrors: this.getValidationErrors.bind(this),
+      hasGivenName: this.hasGivenName,
       hasLabel: (this.label && this.classification !== 'button'),
       hasValidationErrors: this.hasValidationErrors.bind(this),
       help: this.help,
@@ -46,6 +47,7 @@ export default {
   },
   // Used in sub-context
   nameOrFallback,
+  hasGivenName,
   typeContext,
   elementAttributes,
   logicalLabelPosition,
@@ -106,11 +108,17 @@ function typeContext () {
  */
 function elementAttributes () {
   const attrs = Object.assign({}, this.localAttributes)
+  // pass the ID prop through to the root element
   if (this.id) {
     attrs.id = this.id
   } else {
     attrs.id = this.defaultId
   }
+  // pass an explicitly given name prop through to the root element
+  if (this.hasGivenName) {
+    attrs.name = this.name
+  }
+
   return attrs
 }
 
@@ -202,6 +210,13 @@ function nameOrFallback () {
     return false
   }
   return this.name
+}
+
+/**
+ * determine if an input has a user-defined name
+ */
+function hasGivenName () {
+  return typeof this.name !== 'boolean'
 }
 
 /**

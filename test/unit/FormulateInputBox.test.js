@@ -11,12 +11,22 @@ Vue.use(Formulate)
 describe('FormulateInputBox', () => {
   it('renders a box element when type "checkbox" ', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox' } })
-    expect(wrapper.contains(FormulateInputBox)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputBox).exists()).toBe(true)
   })
 
   it('renders a box element when type "radio"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'radio' } })
-    expect(wrapper.contains(FormulateInputBox)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputBox).exists()).toBe(true)
+  })
+
+  it('passes an explicitly given name prop through to the root radio elements', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'radio', name: 'foo', options: {a: '1', b: '2'} } })
+    expect(wrapper.findAll('input[name="foo"]')).toHaveLength(2)
+  })
+
+  it('passes an explicitly given name prop through to the root checkbox elements', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', name: 'foo', options: {a: '1', b: '2'} } })
+    expect(wrapper.findAll('input[name="foo"]')).toHaveLength(2)
   })
 
   it('box inputs properly process options object in context library', () => {
@@ -26,12 +36,12 @@ describe('FormulateInputBox', () => {
 
   it('renders a group when type "checkbox" with options', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', options: {a: '1', b: '2'} } })
-    expect(wrapper.contains(FormulateInputGroup)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputGroup).exists()).toBe(true)
   })
 
   it('renders a group when type "radio" with options', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'radio', options: {a: '1', b: '2'} } })
-    expect(wrapper.contains(FormulateInputGroup)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputGroup).exists()).toBe(true)
   })
 
   it('defaults labelPosition to "after" when type "checkbox"', () => {
@@ -52,7 +62,7 @@ describe('FormulateInputBox', () => {
 
   it('generates ids if not provided when type "radio"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'radio', options: {a: '1', b: '2'} } })
-    expect(wrapper.findAll('input[type="radio"]').is('[id]')).toBe(true)
+    expect(wrapper.find('input[type="radio"]').attributes().id).toBeTruthy()
   })
 
   it('additional context does not bleed through to attributes with type "radio" and options', () => {
@@ -72,14 +82,14 @@ describe('FormulateInputBox', () => {
 
   it('does not use the value attribute to be checked', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', value: '123' } })
-    expect(wrapper.find('input').is(':checked')).toBe(false)
+    expect(wrapper.find('input').element.checked).toBe(false)
   })
 
   it('uses the checked attribute to be checked', async () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', checked: 'true' } })
     await flushPromises()
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('input').is(':checked')).toBe(true)
+    expect(wrapper.find('input').element.checked).toBe(true)
   })
 
   it('uses the value attribute to select "type" radio when using options', async () => {
@@ -204,7 +214,15 @@ describe('FormulateInputBox', () => {
 
   it('renders no boxes when options array is empty', async () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', options: [] } })
-    expect(wrapper.contains(FormulateInputGroup)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputGroup).exists()).toBe(true)
     expect(wrapper.find('input[type="checkbox"]').exists()).toBe(false)
+  })
+
+  it('renders multiple labels both with correct id', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'checkbox', label: 'VueFormulate FTW!'} })
+    const id = wrapper.find('input[type="checkbox"]').attributes('id')
+    const labelIds = wrapper.findAll('label').wrappers.map(label => label.attributes('for'));
+    expect(labelIds.length).toBe(2);
+    expect(labelIds.filter(labelId => labelId === id).length).toBe(2);
   })
 })

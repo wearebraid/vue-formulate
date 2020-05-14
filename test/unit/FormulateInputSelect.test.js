@@ -10,7 +10,7 @@ Vue.use(Formulate)
 describe('FormulateInputSelect', () => {
   it('renders select input when type is "select"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'select' } })
-    expect(wrapper.contains(FormulateInputSelect)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputSelect).exists()).toBe(true)
   })
 
   it('renders select options when options object is passed', () => {
@@ -41,5 +41,15 @@ describe('FormulateInputSelect', () => {
     const options = wrapper.findAll('option')
     expect(options.length).toBe(1)
     expect(options.at(0).attributes('disabled')).toBeTruthy()
+  })
+
+  it('passes an explicitly given name prop through to the root element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'select', options: [],  name: 'foo' } })
+    expect(wrapper.find('select[name="foo"]').exists()).toBe(true)
+  })
+
+  it('additional context does not bleed through to text select attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'select' } } )
+    expect(Object.keys(wrapper.find('select').attributes())).toEqual(["id"])
   })
 })

@@ -72,9 +72,11 @@ class Formulate {
       uploadJustCompleteDuration: 1000,
       errorHandler: (err) => err,
       plugins: [ en ],
-      locales: {}
+      locales: {},
+      idPrefix: 'formulate-'
     }
     this.registry = new Map()
+    this.idRegistry = {}
   }
 
   /**
@@ -92,6 +94,21 @@ class Formulate {
     for (var componentName in this.options.components) {
       Vue.component(componentName, this.options.components[componentName])
     }
+  }
+
+  /**
+   * Produce a deterministically generated id based on the sequence by which it
+   * was requested. This should be *theoretically* the same SSR as client side.
+   * However, SSR and deterministic ids can be very challenging, so this
+   * implementation is open to community review.
+   */
+  nextId (vm) {
+    const path = vm.$route && vm.$route.path || false
+    const pathPrefix = path ? vm.$route.path.replace(/[\/\\.\s]/g, '-') : 'global';
+    if (!Object.prototype.hasOwnProperty.call(this.idRegistry, pathPrefix)) {
+      this.idRegistry[pathPrefix] = 0;
+    }
+    return `${this.options.idPrefix}${pathPrefix}-${++this.idRegistry[pathPrefix]}`
   }
 
   /**

@@ -113,7 +113,7 @@ describe('FormulateInput', () => {
       value: 'bar'
     } })
     await flushPromises()
-    expect(wrapper.contains(FormulateInputBox)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputBox).exists()).toBe(true)
   })
 
   it('emits correct validation event', async () => {

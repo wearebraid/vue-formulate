@@ -80,8 +80,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, snakeToCamel, arrayify, has } from './libs/utils'
-import nanoid from 'nanoid/non-secure'
+import { shallowEqualObjects, parseRules, snakeToCamel, has, arrayify } from './libs/utils'
 
 export default {
   name: 'FormulateInput',
@@ -238,7 +237,7 @@ export default {
   },
   data () {
     return {
-      defaultId: nanoid(9),
+      defaultId: this.$formulate.nextId(this),
       localAttributes: {},
       localErrors: [],
       internalModelProxy: this.getInitialValue(),
@@ -314,7 +313,7 @@ export default {
     this.updateLocalAttributes(this.$attrs)
     this.performValidation()
   },
-  destroyed () {
+  beforeDestroy () {
     if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
       this.removeErrorObserver(this.setErrors)
     }

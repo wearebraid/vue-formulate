@@ -28,7 +28,7 @@ describe('FormulateInputGroup', () => {
         default: '<FormulateInput type="text" name="persona" />'
       }
     })
-    expect(wrapper.find(FormulateRepeatableProvider).vm.registry.has('persona')).toBeTruthy()
+    expect(wrapper.findComponent(FormulateRepeatableProvider).vm.registry.has('persona')).toBeTruthy()
   })
 
   it('is not repeatable by default', async () => {
@@ -156,7 +156,7 @@ describe('FormulateInputGroup', () => {
         submit
       }
     })
-    const form = wrapper.find(FormulateForm)
+    const form = wrapper.findComponent(FormulateForm)
     await form.vm.formSubmitted()
     expect(submit.mock.calls.length).toBe(0);
   })
@@ -188,7 +188,7 @@ describe('FormulateInputGroup', () => {
         submit
       }
     })
-    const form = wrapper.find(FormulateForm)
+    const form = wrapper.findComponent(FormulateForm)
     await form.vm.formSubmitted()
     expect(submit.mock.calls.length).toBe(1);
   })
@@ -208,7 +208,7 @@ describe('FormulateInputGroup', () => {
         </FormulateForm>
       `
     })
-    const form = wrapper.find(FormulateForm)
+    const form = wrapper.findComponent(FormulateForm)
     await form.vm.formSubmitted()
     expect(wrapper.find('[data-classification="text"] .formulate-input-error').exists()).toBe(true);
   })
@@ -228,7 +228,7 @@ describe('FormulateInputGroup', () => {
         </FormulateForm>
       `
     })
-    const form = wrapper.find(FormulateForm)
+    const form = wrapper.findComponent(FormulateForm)
     await form.vm.formSubmitted()
     // Click the add more button
     wrapper.find('button[type="button"]').trigger('click')
@@ -251,7 +251,7 @@ describe('FormulateInputGroup', () => {
         </FormulateForm>
       `
     })
-    const form = wrapper.find(FormulateForm)
+    const form = wrapper.findComponent(FormulateForm)
     await form.vm.formSubmitted()
     // Click the add more button
     wrapper.find('button[type="button"]').trigger('click')
@@ -374,7 +374,7 @@ describe('FormulateInputGroup', () => {
         }
       }
     })
-    const form = wrapper.find(FormulateForm)
+    const form = wrapper.findComponent(FormulateForm)
     await form.vm.formSubmitted()
     expect(wrapper.find('[data-classification="group"] > .formulate-input-errors').exists()).toBe(false)
   })
@@ -416,7 +416,7 @@ describe('FormulateInputGroup', () => {
       }
     })
     await flushPromises();
-    expect(wrapper.find(FormulateGrouping).vm.items).toEqual([{}])
+    expect(wrapper.findComponent(FormulateGrouping).vm.items).toEqual([{}])
   })
 
   it('allows repeatable groups to initialize with an empty array', async () => {
@@ -438,6 +438,6 @@ describe('FormulateInputGroup', () => {
       }
     })
     await flushPromises();
-    expect(wrapper.find(FormulateGrouping).vm.items).toEqual([])
+    expect(wrapper.findComponent(FormulateGrouping).vm.items).toEqual([])
   })
 })

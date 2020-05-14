@@ -60,21 +60,21 @@ export default {
     optionsWithContext () {
       const {
         // The following are a list of items to pull out of the context object
-        options,
-        labelPosition,
         attributes: { id, ...groupApplicableAttributes },
-        classification,
         blurHandler,
-        performValidation,
-        hasValidationErrors,
-        getValidationErrors,
-        validationErrors,
-        setErrors,
-        visibleValidationErrors,
+        classification,
         component,
+        getValidationErrors,
         hasLabel,
-        slotComponents,
+        hasValidationErrors,
         isSubField,
+        labelPosition,
+        options,
+        performValidation,
+        setErrors,
+        slotComponents,
+        validationErrors,
+        visibleValidationErrors,
         ...context
       } = this.context
       return this.options.map(option => this.groupItemContext(
@@ -100,7 +100,9 @@ export default {
     },
     groupItemContext (context, option, groupAttributes) {
       const optionAttributes = {}
-      const ctx = Object.assign({}, context, option, groupAttributes, optionAttributes)
+      const ctx = Object.assign({}, context, option, groupAttributes, optionAttributes, !context.hasGivenName ? {
+        name: true
+      } : {})
       return ctx
     }
   }

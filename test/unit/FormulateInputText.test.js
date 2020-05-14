@@ -15,62 +15,62 @@ Vue.use(Formulate)
 describe('FormulateInputText', () => {
   it('renders text input when type is "text"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders search input when type is "search"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'search' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders email input when type is "email"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'email' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders number input when type is "number"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'number' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders color input when type is "color"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'color' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders date input when type is "date"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'date' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders month input when type is "month"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'month' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders password input when type is "password"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'password' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders tel input when type is "tel"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'tel' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders time input when type is "time"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'time' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders url input when type is "url"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'url' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders week input when type is "week"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'week' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   /**
@@ -81,6 +81,26 @@ describe('FormulateInputText', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text' } })
     expect(wrapper.vm.context).toHaveProperty('id')
     expect(wrapper.find(`input[id="${wrapper.vm.context.attributes.id}"]`).exists()).toBe(true)
+  })
+
+  it('passes an explicitly given name prop through to the root text element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', name: 'foo' } })
+    expect(wrapper.find('input[name="foo"]').exists()).toBe(true)
+  })
+
+  it('passes an explicitly given name prop through to the root textarea element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'textarea', name: 'foo' } })
+    expect(wrapper.find('textarea[name="foo"]').exists()).toBe(true)
+  })
+
+  it('additional context does not bleed through to text input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text' } } )
+    expect(Object.keys(wrapper.find('input[type="text"]').attributes())).toEqual(["type", "id"])
+  })
+
+  it('additional context does not bleed through to textarea input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'textarea' } } )
+    expect(Object.keys(wrapper.find('textarea').attributes())).toEqual(["id"])
   })
 
   it('doesn’t automatically add a label', () => {
@@ -130,15 +150,15 @@ describe('FormulateInputText', () => {
       `
     })
     await flushPromises()
-    const firstContext = wrapper.find({ref: "first"}).vm.context
-    const secondContext = wrapper.find({ref: "second"}).vm.context
+    const firstContext = wrapper.findComponent({ref: "first"}).vm.context
+    const secondContext = wrapper.findComponent({ref: "second"}).vm.context
     wrapper.find('input').setValue('new value')
     await flushPromises()
     expect(firstContext).toBeTruthy()
     expect(wrapper.vm.valueA === 'new value').toBe(true)
     expect(wrapper.vm.valueB === 'second value').toBe(true)
-    expect(wrapper.find({ref: "first"}).vm.context === firstContext).toBe(false)
-    expect(wrapper.find({ref: "second"}).vm.context === secondContext).toBe(true)
+    expect(wrapper.findComponent({ref: "first"}).vm.context === firstContext).toBe(false)
+    expect(wrapper.findComponent({ref: "second"}).vm.context === secondContext).toBe(true)
   })
 
   it('uses the v-model value as the initial value', () => {

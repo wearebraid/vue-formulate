@@ -28,13 +28,11 @@ describe('FormulateForm', () => {
     const wrapper = mount(FormulateForm, {
       slots: {
         default: "<button type='submit' />"
-      },
-      methods: {
-        formSubmitted
       }
     })
+    const spy = jest.spyOn(wrapper.vm, 'formSubmitted')
     wrapper.find('form').trigger('submit')
-    expect(formSubmitted).toBeCalled()
+    expect(spy).toHaveBeenCalled()
   })
 
   it('registers its subcomponents', () => {
@@ -43,6 +41,27 @@ describe('FormulateForm', () => {
       slots: { default: '<FormulateInput type="text" name="subinput1" /><FormulateInput type="checkbox" name="subinput2" />' }
     })
     expect(wrapper.vm.registry.keys()).toEqual(['subinput1', 'subinput2'])
+  })
+
+  it('deregisters a subcomponents', async () => {
+    const wrapper = mount({
+      data () {
+        return {
+          active: true
+        }
+      },
+      template: `
+        <FormulateForm>
+          <FormulateInput v-if="active" type="text" name="subinput1" />
+          <FormulateInput type="checkbox" name="subinput2" />
+        </FormulateForm>
+      `
+    })
+    await flushPromises()
+    expect(wrapper.findComponent(FormulateForm).vm.registry.keys()).toEqual(['subinput1', 'subinput2'])
+    wrapper.setData({ active: false })
+    await flushPromises()
+    expect(wrapper.findComponent(FormulateForm).vm.registry.keys()).toEqual(['subinput2'])
   })
 
   it('can set a field’s initial value', async () => {
@@ -81,7 +100,7 @@ describe('FormulateForm', () => {
       propsData: { formulateValue: { box1: true } },
       slots: { default: '<FormulateInput type="checkbox" name="box1" />' }
     })
-    expect(wrapper.find('input[type="checkbox"]').is(':checked')).toBe(true)
+    expect(wrapper.find('input[type="checkbox"]').element.checked).toBeTruthy()
   });
 
   it('can set initial unchecked attribute on single checkboxes', () => {
@@ -89,7 +108,7 @@ describe('FormulateForm', () => {
       propsData: { formulateValue: { box1: false } },
       slots: { default: '<FormulateInput type="checkbox" name="box1" />' }
     })
-    expect(wrapper.find('input[type="checkbox"]').is(':checked')).toBe(false)
+    expect(wrapper.find('input[type="checkbox"]').element.checked).toBeFalsy()
   });
 
   it('can set checkbox initial value with options', async () => {
@@ -326,7 +345,7 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(wrapper.findAll('.formulate-form-errors').length).toBe(1)
     // Ensure that we moved the position of the errors
-    expect(wrapper.find('h1 + *').is('.formulate-form-errors')).toBe(true)
+    expect(wrapper.find('h1 + *').element.classList.contains('formulate-form-errors')).toBe(true)
   })
 
   it('allows rendering multiple locations', async () => {
@@ -443,10 +462,10 @@ describe('FormulateForm', () => {
         `
     })
     await flushPromises()
-    expect(wrapper.find(FormulateForm).vm.errorObservers.length).toBe(1)
+    expect(wrapper.findComponent(FormulateForm).vm.errorObservers.length).toBe(1)
     wrapper.setData({ hasField: false })
     await flushPromises()
-    expect(wrapper.find(FormulateForm).vm.errorObservers.length).toBe(0)
+    expect(wrapper.findComponent(FormulateForm).vm.errorObservers.length).toBe(0)
   })
 
   it('emits correct validation event on entry', async () => {
@@ -494,4 +513,26 @@ describe('FormulateForm', () => {
       hasErrors: false
     })
   })
+
+  // it('removes field data when that field is de-registered', async () => {
+  //   const wrapper = mount({
+  //     template: `
+  //       <FormulateForm
+  //         v-model="formData"
+  //       >
+  //         <FormulateInput type="text" name="foo" value="abc123" />
+  //         <FormulateInput type="checkbox" name="bar" v-if="formData.foo !== 'bar'" :value="true" />
+  //       </FormulateForm>
+  //     `,
+  //     data () {
+  //       return {
+  //         formData: {}
+  //       }
+  //     }
+  //   })
+  //   await flushPromises()
+  //   wrapper.find('input[type="text"]').setValue('bar')
+  //   await flushPromises()
+  //   expect(wrapper.vm.formData).toEqual({ bar: true })
+  // })
 })
