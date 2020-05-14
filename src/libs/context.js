@@ -316,7 +316,7 @@ function defineModel (context) {
  * Get the value from a model.
  **/
 function modelGetter () {
-  const model = this.isVmodeled ? 'formulateValue' : 'internalModelProxy'
+  const model = this.isVmodeled ? 'formulateValue' : 'proxy'
   if (this.type === 'checkbox' && !Array.isArray(this[model]) && this.options) {
     return []
   }
@@ -330,8 +330,8 @@ function modelGetter () {
  * Set the value from a model.
  **/
 function modelSetter (value) {
-  if (!shallowEqualObjects(value, this.internalModelProxy)) {
-    this.internalModelProxy = value
+  if (!shallowEqualObjects(value, this.proxy)) {
+    this.proxy = value
   }
   this.$emit('input', value)
   if (this.context.name && typeof this.formulateSetter === 'function') {

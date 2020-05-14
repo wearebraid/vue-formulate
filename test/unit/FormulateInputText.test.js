@@ -180,7 +180,7 @@ describe('FormulateInputText', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'textarea' } })
     const input = wrapper.find('textarea')
     input.setValue('changed value')
-    expect(wrapper.vm.internalModelProxy).toBe('changed value')
+    expect(wrapper.vm.proxy).toBe('changed value')
   })
 
 

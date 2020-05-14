@@ -514,25 +514,26 @@ describe('FormulateForm', () => {
     })
   })
 
-  // it('removes field data when that field is de-registered', async () => {
-  //   const wrapper = mount({
-  //     template: `
-  //       <FormulateForm
-  //         v-model="formData"
-  //       >
-  //         <FormulateInput type="text" name="foo" value="abc123" />
-  //         <FormulateInput type="checkbox" name="bar" v-if="formData.foo !== 'bar'" :value="true" />
-  //       </FormulateForm>
-  //     `,
-  //     data () {
-  //       return {
-  //         formData: {}
-  //       }
-  //     }
-  //   })
-  //   await flushPromises()
-  //   wrapper.find('input[type="text"]').setValue('bar')
-  //   await flushPromises()
-  //   expect(wrapper.vm.formData).toEqual({ bar: true })
-  // })
+  it('removes field data when that field is de-registered', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+        >
+          <FormulateInput type="text" name="foo" value="abc123" />
+          <FormulateInput type="checkbox" name="bar" v-if="formData.foo !== 'bar'" :value="1" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          formData: {}
+        }
+      }
+    })
+    await flushPromises()
+    wrapper.find('input[type="text"]').setValue('bar')
+    await flushPromises()
+    expect(wrapper.findComponent(FormulateForm).vm.proxy).toEqual({ foo: 'bar' })
+    expect(wrapper.vm.formData).toEqual({ foo: 'bar' })
+  })
 })

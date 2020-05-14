@@ -240,7 +240,7 @@ export default {
       defaultId: this.$formulate.nextId(this),
       localAttributes: {},
       localErrors: [],
-      internalModelProxy: this.getInitialValue(),
+      proxy: this.getInitialValue(),
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
       validationErrors: [],
@@ -284,7 +284,7 @@ export default {
       },
       deep: true
     },
-    internalModelProxy (newValue, oldValue) {
+    proxy (newValue, oldValue) {
       this.performValidation()
       if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
         this.context.model = newValue
@@ -339,11 +339,11 @@ export default {
       // This should only be run immediately on created and ensures that the
       // proxy and the model are both the same before any additional registration.
       if (
-        !shallowEqualObjects(this.context.model, this.internalModelProxy) &&
+        !shallowEqualObjects(this.context.model, this.proxy) &&
         // we dont' want to set the model if we are a sub-box of a multi-box field
         (Object.prototype.hasOwnProperty(this.$options.propsData, 'options') && this.classification === 'box')
       ) {
-        this.context.model = this.internalModelProxy
+        this.context.model = this.proxy
       }
     },
     updateLocalAttributes (value) {

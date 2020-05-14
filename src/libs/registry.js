@@ -30,6 +30,8 @@ class Registry {
    */
   remove (name) {
     this.registry.delete(name)
+    const { [name]: value, ...newProxy } = this.ctx.proxy
+    this.ctx.proxy = newProxy
     return this
   }
 
@@ -88,11 +90,11 @@ class Registry {
       component.context.model = this.ctx.initialValues[field]
     } else if (
       (hasVModelValue || hasValue) &&
-      !shallowEqualObjects(component.internalModelProxy, this.ctx.initialValues[field])
+      !shallowEqualObjects(component.proxy, this.ctx.initialValues[field])
     ) {
       // In this case, the field is v-modeled or has an initial value and the
       // form has no value or a different value, so use the field value
-      this.ctx.setFieldValue(field, component.internalModelProxy)
+      this.ctx.setFieldValue(field, component.proxy)
     }
     if (this.childrenShouldShowErrors) {
       component.formShouldShowErrors = true
@@ -118,7 +120,7 @@ class Registry {
       proxy: {},
       registry: this,
       register: this.register.bind(this),
-      deregister: field => this.registry.delete(field),
+      deregister: field => this.remove(field),
       childrenShouldShowErrors: false
     }
   }

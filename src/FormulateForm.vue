@@ -104,7 +104,7 @@ export default {
           for (const field in newValue) {
             if (this.registry.has(field) &&
               !shallowEqualObjects(newValue[field], this.proxy[field]) &&
-              !shallowEqualObjects(newValue[field], this.registry.get(field).internalModelProxy[field])
+              !shallowEqualObjects(newValue[field], this.registry.get(field).proxy[field])
             ) {
               this.setFieldValue(field, newValue[field])
               this.registry.get(field).context.model = newValue[field]
