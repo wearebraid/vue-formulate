@@ -1,37 +1,37 @@
-import { parseRules, parseLocale, regexForFormat, cloneDeep, isValueType, snakeToCamel } from '@/libs/utils'
+import { parseRules, parseLocale, regexForFormat, cloneDeep, isValueType, snakeToCamel, groupBails } from '@/libs/utils'
 import rules from '@/libs/rules'
 import FileUpload from '@/FileUpload';
 
 describe('parseRules', () => {
   it('parses single string rules, returning empty arguments array', () => {
     expect(parseRules('required', rules)).toEqual([
-      [rules.required, [], 'required']
+      [rules.required, [], 'required', null]
     ])
   })
 
   it('throws errors for invalid validation rules', () => {
     expect(() => {
-      parseRules('required|notarule', rules)
+      parseRules('required|notarule', rules, null)
     }).toThrow()
   })
 
   it('parses arguments for a rule', () => {
     expect(parseRules('in:foo,bar', rules)).toEqual([
-      [rules.in, ['foo', 'bar'], 'in']
+      [rules.in, ['foo', 'bar'], 'in', null]
     ])
   })
 
   it('parses multiple string rules and arguments', () => {
     expect(parseRules('required|in:foo,bar', rules)).toEqual([
-      [rules.required, [], 'required'],
-      [rules.in, ['foo', 'bar'], 'in']
+      [rules.required, [], 'required', null],
+      [rules.in, ['foo', 'bar'], 'in', null]
     ])
   })
 
   it('parses multiple array rules and arguments', () => {
     expect(parseRules(['required', 'in:foo,bar'], rules)).toEqual([
-      [rules.required, [], 'required'],
-      [rules.in, ['foo', 'bar'], 'in']
+      [rules.required, [], 'required', null],
+      [rules.in, ['foo', 'bar'], 'in', null]
     ])
   })
 
@@ -39,7 +39,21 @@ describe('parseRules', () => {
     expect(parseRules([
       ['matches', /^abc/, '1234']
     ], rules)).toEqual([
-      [rules.matches, [/^abc/, '1234'], 'matches']
+      [rules.matches, [/^abc/, '1234'], 'matches', null]
+    ])
+  })
+
+  it('parses string rules with caret modifier', () => {
+    expect(parseRules('^required|min:10', rules)).toEqual([
+      [rules.required, [], 'required', '^'],
+      [rules.min, ['10'], 'min', null],
+    ])
+  })
+
+  it('parses array rule with caret modifier', () => {
+    expect(parseRules([['required'], ['^max', '10']], rules)).toEqual([
+      [rules.required, [], 'required', null],
+      [rules.max, ['10'], 'max', '^'],
     ])
   })
 })
@@ -170,5 +184,74 @@ describe('parseLocale', () => {
 
   it('properly parses a single option', () => {
     expect(parseLocale('en')).toEqual(['en'])
+  })
+})
+
+describe('groupBails', () => {
+  it('wraps non bailed rules in an array', () => {
+    const bailGroups = groupBails([[,,'required'], [,,'min']])
+    expect(bailGroups).toEqual(
+      [ [[,,'required'], [,,'min']] ] // dont bail on either of these
+    )
+    expect(bailGroups.map(group => !!group.bail)).toEqual([false])
+  })
+
+  it('splits bailed rules into two arrays array', () => {
+    const bailGroups = groupBails([[,,'required'], [,,'max'], [,, 'bail'], [,, 'matches'], [,,'min']])
+    expect(bailGroups).toEqual([
+      [ [,,'required'], [,,'max'] ], // dont bail on these
+      [ [,, 'matches'] ], // bail on this one
+      [ [,,'min'] ] // bail on this one
+    ])
+    expect(bailGroups.map(group => !!group.bail)).toEqual([false, true, true])
+  })
+
+  it('splits entire rule set when bail is at the beginning', () => {
+    const bailGroups = groupBails([[,, 'bail'], [,,'required'], [,,'max'], [,, 'matches'], [,,'min']])
+    expect(bailGroups).toEqual([
+      [ [,, 'required'] ], // bail on this one
+      [ [,, 'max'] ],  // bail on this one
+      [ [,, 'matches'] ],  // bail on this one
+      [ [,, 'min'] ]  // bail on this one
+    ])
+    expect(bailGroups.map(group => !!group.bail)).toEqual([true, true, true, true])
+  })
+
+  it('splits no rules when bail is at the end', () => {
+    const bailGroups = groupBails([[,,'required'], [,,'max'], [,, 'matches'], [,,'min'], [,, 'bail']])
+    expect(bailGroups).toEqual([
+      [ [,, 'required'], [,, 'max'], [,, 'matches'], [,, 'min'] ] // dont bail on these
+    ])
+    expect(bailGroups.map(group => !!group.bail)).toEqual([false])
+  })
+
+  it('splits individual modified names into two groups when at the begining', () => {
+    const bailGroups = groupBails([[,,'required', '^'], [,,'max'], [,, 'matches'], [,,'min'] ])
+    expect(bailGroups).toEqual([
+      [ [,, 'required', '^'] ], // bail on this one
+      [ [,, 'max'], [,, 'matches'], [,, 'min'] ] // dont bail on these
+    ])
+    expect(bailGroups.map(group => !!group.bail)).toEqual([true, false])
+  })
+
+  it('splits individual modified names into three groups when in the middle', () => {
+    const bailGroups = groupBails([[,,'required'], [,,'max'], [,, 'matches', '^'], [,,'min'] ])
+    expect(bailGroups).toEqual([
+      [ [,, 'required'], [,, 'max'] ], // dont bail on these
+      [ [,, 'matches', '^'] ], // bail on this one
+      [ [,, 'min'] ] // dont bail on this
+    ])
+    expect(bailGroups.map(group => !!group.bail)).toEqual([false, true, false])
+  })
+
+  it('splits individual modified names into four groups when used twice', () => {
+    const bailGroups = groupBails([[,,'required', '^'], [,,'max'], [,, 'matches', '^'], [,,'min'] ])
+    expect(bailGroups).toEqual([
+      [ [,, 'required', '^'] ], // bail on this
+      [ [,, 'max'] ], // dont bail on this
+      [ [,, 'matches', '^'] ], // bail on this
+      [ [,, 'min'] ] // dont bail on this
+    ])
+    expect(bailGroups.map(group => !!group.bail)).toEqual([true, false, true, false])
   })
 })

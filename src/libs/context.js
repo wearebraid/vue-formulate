@@ -119,6 +119,11 @@ function elementAttributes () {
     attrs.name = this.name
   }
 
+  // If there is help text, have this element be described by it.
+  if (this.help) {
+    attrs['aria-describedby'] = `${attrs.id}-help`
+  }
+
   return attrs
 }
 

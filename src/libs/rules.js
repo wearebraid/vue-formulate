@@ -147,6 +147,9 @@ export default {
    */
   matches: function ({ value }, ...stack) {
     return Promise.resolve(!!stack.find(pattern => {
+      if (typeof pattern === 'string' && pattern.substr(0, 1) === '/' && pattern.substr(-1) === '/') {
+        pattern = new RegExp(pattern.substr(1, pattern.length - 2))
+      }
       if (pattern instanceof RegExp) {
         return pattern.test(value)
       }
@@ -278,5 +281,12 @@ export default {
    */
   url: function ({ value }) {
     return Promise.resolve(isUrl(value))
+  },
+
+  /**
+   * Rule: not a true rule — more like a compiler flag.
+   */
+  bail: function () {
+    return Promise.resolve(true)
   }
 }

@@ -220,5 +220,76 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.find('.my-errors').html())
       .toBe(`<ul class="my-errors">\n  <li>Text is required.</li>\n</ul>`)
+    // Clean up after this call — we should probably get rid of the singleton all together....
+    Formulate.extend({ slotComponents: { errors: 'FormulateErrors' }})
+  })
+
+  it('links help text with `aria-describedby`', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'text',
+        validation: 'required',
+        errorBehavior: 'live',
+        value: 'bar',
+        help: 'Some help text'
+      }
+    })
+    await flushPromises()
+    const id = `${wrapper.vm.context.id}-help`
+    expect(wrapper.find('input').attributes('aria-describedby')).toBe(id)
+    expect(wrapper.find('.formulate-input-help').attributes().id).toBe(id)
+  });
+
+  it('it does not use aria-describedby if there is no help text', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'text',
+        validation: 'required',
+        errorBehavior: 'live',
+        value: 'bar',
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('input').attributes('aria-describedby')).toBeFalsy()
+  });
+
+  it('can bail on validation when encountering the bail rule', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', validation: 'bail|required|in:xyz', errorBehavior: 'live' }
+    })
+    await flushPromises();
+    expect(wrapper.vm.context.visibleValidationErrors.length).toBe(1);
+  })
+
+  it('can show multiple validation errors if they occur before the bail rule', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', validation: 'required|in:xyz|bail', errorBehavior: 'live' }
+    })
+    await flushPromises();
+    expect(wrapper.vm.context.visibleValidationErrors.length).toBe(2);
+  })
+
+  it('can avoid bail behavior by using modifier', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', validation: '^required|in:xyz|min:10,length', errorBehavior: 'live', value: '123' }
+    })
+    await flushPromises();
+    expect(wrapper.vm.context.visibleValidationErrors.length).toBe(2);
+  })
+
+  it('prevents later error messages when modified rule fails', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', validation: '^required|in:xyz|min:10,length', errorBehavior: 'live' }
+    })
+    await flushPromises();
+    expect(wrapper.vm.context.visibleValidationErrors.length).toBe(1);
+  })
+
+  it('can bail in the middle of the rule set with a modifier', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', validation: 'required|^in:xyz|min:10,length', errorBehavior: 'live' }
+    })
+    await flushPromises();
+    expect(wrapper.vm.context.visibleValidationErrors.length).toBe(2);
   })
 })

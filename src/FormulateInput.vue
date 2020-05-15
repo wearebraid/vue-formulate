@@ -80,7 +80,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, snakeToCamel, has, arrayify } from './libs/utils'
+import { shallowEqualObjects, parseRules, snakeToCamel, has, arrayify, groupBails } from './libs/utils'
 
 export default {
   name: 'FormulateInput',
@@ -355,21 +355,42 @@ export default {
       let rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
       // Add in ruleRegistry rules. These are added directly via injection from
       // children and not part of the standard validation rule set.
-      rules = this.ruleRegistry.length ? rules.concat(this.ruleRegistry) : rules
-      this.pendingValidation = Promise.all(
-        rules.map(([rule, args, ruleName]) => {
-          var res = rule({
-            value: this.context.model,
-            getFormValues: this.getFormValues.bind(this),
-            name: this.context.name
-          }, ...args)
-          res = (res instanceof Promise) ? res : Promise.resolve(res)
-          return res.then(result => result ? false : this.getMessage(ruleName, args))
-        })
-      )
-        .then(result => result.filter(result => result))
+      rules = this.ruleRegistry.length ? this.ruleRegistry.concat(rules) : rules
+      this.pendingValidation = this.runRules(rules)
         .then(messages => this.didValidate(messages))
       return this.pendingValidation
+    },
+    runRules (rules) {
+      const run = ([rule, args, ruleName, modifier]) => {
+        var res = rule({
+          value: this.context.model,
+          getFormValues: this.getFormValues.bind(this),
+          name: this.context.name
+        }, ...args)
+        res = (res instanceof Promise) ? res : Promise.resolve(res)
+        return res.then(result => result ? false : this.getMessage(ruleName, args))
+      }
+
+      return new Promise(resolve => {
+        const resolveGroups = (groups, allMessages = []) => {
+          const ruleGroup = groups.shift()
+          if (Array.isArray(ruleGroup) && ruleGroup.length) {
+            Promise.all(ruleGroup.map(run))
+              .then(messages => messages.filter(m => !!m))
+              .then(messages => {
+                messages = Array.isArray(messages) ? messages : []
+                // The rule passed or its a non-bailing group, and there are additional groups to check, continue
+                if ((!messages.length || !ruleGroup.bail) && groups.length) {
+                  return resolveGroups(groups, allMessages.concat(messages))
+                }
+                return resolve(allMessages.concat(messages))
+              })
+          } else {
+            resolve([])
+          }
+        }
+        resolveGroups(groupBails(rules))
+      })
     },
     didValidate (messages) {
       const validationChanged = !shallowEqualObjects(messages, this.validationErrors)
