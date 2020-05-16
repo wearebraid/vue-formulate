@@ -87,7 +87,7 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "@braid/vue-formulate-i18n": "^1.6.0",
+    "@braid/vue-formulate-i18n": "^1.6.1",
     "is-plain-object": "^3.0.0",
     "is-url": "^1.2.4",
     "nanoid": "^2.1.11"
