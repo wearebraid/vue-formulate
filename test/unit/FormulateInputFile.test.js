@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
-import Formulate from '../../src/Formulate.js'
-import FileUpload from '../../src/FileUpload.js'
+import Formulate from '@/Formulate.js'
+import FileUpload from '@/FileUpload.js'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateInputFile from '@/inputs/FormulateInputFile.vue'
 
@@ -12,12 +12,12 @@ describe('FormulateInputFile', () => {
 
   it('type "file" renders a file element', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'file' } })
-    expect(wrapper.contains(FormulateInputFile)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputFile).exists()).toBe(true)
   })
 
   it('type "image" renders a file element', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'image' } })
-    expect(wrapper.contains(FormulateInputFile)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputFile).exists()).toBe(true)
   })
 
   it('forces an error-behavior live mode when upload-behavior is live and it has content', () => {
@@ -35,6 +35,16 @@ describe('FormulateInputFile', () => {
     const file = wrapper.find('[data-has-preview]')
     expect(file.exists()).toBe(true)
     expect(file.attributes('data-has-preview')).toBe('true')
+  })
+
+  it('passes an explicitly given name prop through to the root element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', name: 'foo' } })
+    expect(wrapper.find('input[name="foo"]').exists()).toBe(true)
+  })
+
+  it('additional context does not bleed through to file input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image' } } )
+    expect(Object.keys(wrapper.find('input[type="file"]').attributes())).toEqual(["type", "id"])
   })
 
   /**

@@ -62,17 +62,24 @@ describe('Formulate', () => {
 
   it('installs on vue instance', () => {
     const components = [
+      'FormulateSlot',
       'FormulateForm',
+      'FormulateHelp',
+      'FormulateLabel',
       'FormulateInput',
       'FormulateErrors',
+      'FormulateAddMore',
+      'FormulateGrouping',
       'FormulateInputBox',
       'FormulateInputText',
       'FormulateInputFile',
+      'FormulateRepeatable',
       'FormulateInputGroup',
       'FormulateInputButton',
       'FormulateInputSelect',
       'FormulateInputSlider',
-      'FormulateInputTextArea'
+      'FormulateInputTextArea',
+      'FormulateRepeatableProvider'
     ]
     const registry = []
     function Vue () {}

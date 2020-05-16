@@ -13,7 +13,7 @@ Vue.use(Formulate)
 describe('FormulateInputSlider', () => {
   it('renders range input when type is "range"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'range' } })
-    expect(wrapper.contains(FormulateInputSlider)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputSlider).exists()).toBe(true)
   })
 
   it('does not show value if the show-value prop is not set', () => {
@@ -24,5 +24,15 @@ describe('FormulateInputSlider', () => {
   it('renders the value when type is "range" and show-value prop is set', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'range', showValue: 'true', value: '15', min: '0', max: '100' } })
     expect(wrapper.find('.formulate-input-element-range-value').text()).toBe('15')
+  })
+
+  it('passes an explicitly given name prop through to the root element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'range', name: 'foo' } })
+    expect(wrapper.find('input[name="foo"]').exists()).toBe(true)
+  })
+
+  it('additional context does not bleed through to range input attributes', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'range' } } )
+    expect(Object.keys(wrapper.find('input[type="range"]').attributes())).toEqual(["type", "id"])
   })
 })

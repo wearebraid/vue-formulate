@@ -1,4 +1,3 @@
-import nanoid from 'nanoid/non-secure'
 import { map, arrayify, shallowEqualObjects } from './utils'
 
 /**
@@ -9,38 +8,50 @@ import { map, arrayify, shallowEqualObjects } from './utils'
 export default {
   context () {
     return defineModel.call(this, {
-      type: this.type,
-      value: this.value,
-      name: this.nameOrFallback,
+      addLabel: this.logicalAddLabel,
+      attributes: this.elementAttributes,
+      blurHandler: blurHandler.bind(this),
       classification: this.classification,
       component: this.component,
-      id: this.id || this.defaultId,
+      disableErrors: this.disableErrors,
+      errors: this.explicitErrors,
+      formShouldShowErrors: this.formShouldShowErrors,
+      getValidationErrors: this.getValidationErrors.bind(this),
+      hasGivenName: this.hasGivenName,
       hasLabel: (this.label && this.classification !== 'button'),
+      hasValidationErrors: this.hasValidationErrors.bind(this),
+      help: this.help,
+      helpPosition: this.logicalHelpPosition,
+      id: this.id || this.defaultId,
+      imageBehavior: this.imageBehavior,
       label: this.label,
       labelPosition: this.logicalLabelPosition,
-      attributes: this.elementAttributes,
+      limit: this.limit,
+      name: this.nameOrFallback,
       performValidation: this.performValidation.bind(this),
-      blurHandler: blurHandler.bind(this),
-      imageBehavior: this.imageBehavior,
-      uploadUrl: this.mergedUploadUrl,
-      uploader: this.uploader || this.$formulate.getUploader(),
-      uploadBehavior: this.uploadBehavior,
       preventWindowDrops: this.preventWindowDrops,
-      hasValidationErrors: this.hasValidationErrors,
-      getValidationErrors: this.getValidationErrors.bind(this),
-      validationErrors: this.validationErrors,
-      errors: this.explicitErrors,
+      repeatable: this.repeatable,
       setErrors: this.setErrors.bind(this),
       showValidationErrors: this.showValidationErrors,
+      slotComponents: this.slotComponents,
+      type: this.type,
+      uploadBehavior: this.uploadBehavior,
+      uploadUrl: this.mergedUploadUrl,
+      uploader: this.uploader || this.$formulate.getUploader(),
+      validationErrors: this.validationErrors,
+      value: this.value,
       visibleValidationErrors: this.visibleValidationErrors,
+      isSubField: this.isSubField,
       ...this.typeContext
     })
   },
   // Used in sub-context
   nameOrFallback,
+  hasGivenName,
   typeContext,
   elementAttributes,
   logicalLabelPosition,
+  logicalHelpPosition,
   mergedUploadUrl,
 
   // These items are not passed as context
@@ -51,7 +62,19 @@ export default {
   hasErrors,
   hasVisibleErrors,
   showValidationErrors,
-  visibleValidationErrors
+  visibleValidationErrors,
+  slotComponents,
+  logicalAddLabel
+}
+
+/**
+ * The label to display when adding a new group.
+ */
+function logicalAddLabel () {
+  if (typeof this.addLabel === 'boolean') {
+    return `+ ${this.label || this.name || 'Add'}`
+  }
+  return this.addLabel
 }
 
 /**
@@ -85,16 +108,27 @@ function typeContext () {
  */
 function elementAttributes () {
   const attrs = Object.assign({}, this.localAttributes)
+  // pass the ID prop through to the root element
   if (this.id) {
     attrs.id = this.id
   } else {
     attrs.id = this.defaultId
   }
+  // pass an explicitly given name prop through to the root element
+  if (this.hasGivenName) {
+    attrs.name = this.name
+  }
+
+  // If there is help text, have this element be described by it.
+  if (this.help) {
+    attrs['aria-describedby'] = `${attrs.id}-help`
+  }
+
   return attrs
 }
 
 /**
- * Determine the a best-guess location for the label (before or after).
+ * Determine the best-guess location for the label (before or after).
  * @return {string} before|after
  */
 function logicalLabelPosition () {
@@ -106,6 +140,21 @@ function logicalLabelPosition () {
       return 'after'
     default:
       return 'before'
+  }
+}
+
+/**
+ * Determine the best location for the label based on type (before or after).
+ */
+function logicalHelpPosition () {
+  if (this.helpPosition) {
+    return this.helpPosition
+  }
+  switch (this.classification) {
+    case 'group':
+      return 'before'
+    default:
+      return 'after'
   }
 }
 
@@ -169,6 +218,13 @@ function nameOrFallback () {
 }
 
 /**
+ * determine if an input has a user-defined name
+ */
+function hasGivenName () {
+  return typeof this.name !== 'boolean'
+}
+
+/**
  * Determines if this formulate element is v-modeled or not.
  */
 function isVmodeled () {
@@ -192,8 +248,6 @@ function createOptionList (options) {
       optionList.push({ value, label: options[value], id: `${that.elementAttributes.id}_${value}` })
     }
     return optionList
-  } else if (Array.isArray(options) && !options.length) {
-    return [{ value: this.value, label: (this.label || this.name), id: this.context.id || nanoid(9) }]
   }
   return options
 }
@@ -230,6 +284,19 @@ function hasVisibleErrors () {
 }
 
 /**
+ * The component that should be rendered in the label slot as default.
+ */
+function slotComponents () {
+  return {
+    label: this.$formulate.slotComponent(this.type, 'label'),
+    help: this.$formulate.slotComponent(this.type, 'help'),
+    errors: this.$formulate.slotComponent(this.type, 'errors'),
+    repeatable: this.$formulate.slotComponent(this.type, 'repeatable'),
+    addMore: this.$formulate.slotComponent(this.type, 'addMore')
+  }
+}
+
+/**
  * Bound into the context object.
  */
 function blurHandler () {
@@ -254,7 +321,7 @@ function defineModel (context) {
  * Get the value from a model.
  **/
 function modelGetter () {
-  const model = this.isVmodeled ? 'formulateValue' : 'internalModelProxy'
+  const model = this.isVmodeled ? 'formulateValue' : 'proxy'
   if (this.type === 'checkbox' && !Array.isArray(this[model]) && this.options) {
     return []
   }
@@ -268,11 +335,11 @@ function modelGetter () {
  * Set the value from a model.
  **/
 function modelSetter (value) {
-  if (!shallowEqualObjects(value, this.internalModelProxy)) {
-    this.internalModelProxy = value
+  if (!shallowEqualObjects(value, this.proxy)) {
+    this.proxy = value
   }
   this.$emit('input', value)
-  if (this.context.name && typeof this.formulateFormSetter === 'function') {
-    this.formulateFormSetter(this.context.name, value)
+  if (this.context.name && typeof this.formulateSetter === 'function') {
+    this.formulateSetter(this.context.name, value)
   }
 }

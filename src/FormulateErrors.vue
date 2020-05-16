@@ -52,6 +52,7 @@ export default {
     },
     visibleErrors () {
       return Array.from(new Set(this.mergedErrors.concat(this.visibleValidationErrors)))
+        .filter(message => typeof message === 'string')
     }
   },
   created () {
