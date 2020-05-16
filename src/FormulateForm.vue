@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { shallowEqualObjects, arrayify, has } from './libs/utils'
+import { arrayify, has } from './libs/utils'
 import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
 import FormSubmission from './FormSubmission'
 
@@ -96,20 +96,12 @@ export default {
   },
   watch: {
     formulateValue: {
-      handler (newValue, oldValue) {
+      handler (values) {
         if (this.isVmodeled &&
-          newValue &&
-          typeof newValue === 'object'
+          values &&
+          typeof values === 'object'
         ) {
-          for (const field in newValue) {
-            if (this.registry.has(field) &&
-              !shallowEqualObjects(newValue[field], this.proxy[field]) &&
-              !shallowEqualObjects(newValue[field], this.registry.get(field).proxy[field])
-            ) {
-              this.setFieldValue(field, newValue[field])
-              this.registry.get(field).context.model = newValue[field]
-            }
-          }
+          this.setValues(values)
         }
       },
       deep: true

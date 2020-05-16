@@ -294,9 +294,9 @@ describe('FormulateInput', () => {
     expect(wrapper.vm.context.visibleValidationErrors.length).toBe(2);
   })
 
-  it('doesnt show errors on blur when set error-behavior is submit', async () => {
+  it('does not show errors on blur when set error-behavior is submit', async () => {
     const wrapper = mount(FormulateInput, { propsData: {
-      type: 'special',
+      type: 'text',
       validation: 'required',
       errorBehavior: 'submit',
     } })

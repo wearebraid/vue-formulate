@@ -536,4 +536,65 @@ describe('FormulateForm', () => {
     expect(wrapper.findComponent(FormulateForm).vm.proxy).toEqual({ foo: 'bar' })
     expect(wrapper.vm.formData).toEqual({ foo: 'bar' })
   })
+
+  it('it allows the removal of properties in proxy.', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+          name="login"
+          ref="form"
+        >
+          <FormulateInput type="text" name="username" validation="required" v-model="username" />
+          <FormulateInput type="password" name="password" validation="required|min:4,length" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          formData: {},
+          username: undefined
+        }
+      }
+    })
+    wrapper.find('input[type="text"]').setValue('foo')
+    await flushPromises()
+    expect(wrapper.vm.username).toEqual('foo')
+    expect(wrapper.vm.formData).toEqual({ username: 'foo' })
+    wrapper.vm.$refs.form.setValues({})
+    await flushPromises()
+    expect(wrapper.vm.formData).toEqual({ username: '' })
+  })
+
+  it('it allows resetting a form, hiding validation and clearing inputs.', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+          name="login"
+        >
+          <FormulateInput type="text" name="username" validation="required" />
+          <FormulateInput type="password" name="password" validation="required|min:4,length" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          formData: {}
+        }
+      }
+    })
+    const password = wrapper.find('input[type="password"]')
+    password.setValue('foo')
+    password.trigger('blur')
+    wrapper.find('form').trigger('submit')
+    wrapper.vm.$formulate.handle({
+      inputErrors: { username: ['Failed'] }
+    }, 'login')
+    await flushPromises()
+    // First make sure we showed the errors
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(3)
+    wrapper.vm.$formulate.reset('login')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-input-error').length).toBe(0)
+    expect(wrapper.vm.formData).toEqual({})
+  })
 })

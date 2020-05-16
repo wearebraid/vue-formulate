@@ -187,7 +187,12 @@ export function useRegistryMethods (without = []) {
       }
     },
     setFieldValue (field, value) {
-      Object.assign(this.proxy, { [field]: value })
+      if (value === undefined) {
+        const { [field]: value, ...proxy } = this.proxy
+        this.proxy = proxy
+      } else {
+        Object.assign(this.proxy, { [field]: value })
+      }
       this.$emit('input', Object.assign({}, this.proxy))
     },
     getFormValues () {
@@ -203,6 +208,26 @@ export function useRegistryMethods (without = []) {
       this.childrenShouldShowErrors = true
       this.registry.map(input => {
         input.formShouldShowErrors = true
+      })
+    },
+    hideErrors () {
+      this.childrenShouldShowErrors = false
+      this.registry.map(input => {
+        input.formShouldShowErrors = false
+        input.behavioralErrorVisibility = false
+      })
+    },
+    setValues (values) {
+      // Collect all keys, existing and incoming
+      const keys = Array.from(new Set(Object.keys(values).concat(Object.keys(this.proxy))))
+      keys.forEach(field => {
+        if (this.registry.has(field) &&
+          !shallowEqualObjects(values[field], this.proxy[field]) &&
+          !shallowEqualObjects(values[field], this.registry.get(field).proxy)
+        ) {
+          this.setFieldValue(field, values[field])
+          this.registry.get(field).context.model = values[field]
+        }
       })
     }
   }

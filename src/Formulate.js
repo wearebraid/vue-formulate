@@ -103,10 +103,10 @@ class Formulate {
    * implementation is open to community review.
    */
   nextId (vm) {
-    const path = vm.$route && vm.$route.path || false
-    const pathPrefix = path ? vm.$route.path.replace(/[\/\\.\s]/g, '-') : 'global';
+    const path = vm.$route && vm.$route.path ? vm.$route.path : false
+    const pathPrefix = path ? vm.$route.path.replace(/[/\\.\s]/g, '-') : 'global'
     if (!Object.prototype.hasOwnProperty.call(this.idRegistry, pathPrefix)) {
-      this.idRegistry[pathPrefix] = 0;
+      this.idRegistry[pathPrefix] = 0
     }
     return `${this.options.idPrefix}${pathPrefix}-${++this.idRegistry[pathPrefix]}`
   }
@@ -183,7 +183,7 @@ class Formulate {
    */
   slotComponent (type, slot) {
     const def = this.options.library[type]
-    if (def.slotComponents && def.slotComponents[slot]) {
+    if (def && def.slotComponents && def.slotComponents[slot]) {
       return def.slotComponents[slot]
     }
     return this.options.slotComponents[slot]
@@ -295,6 +295,39 @@ class Formulate {
       })
     }
     return e
+  }
+
+  /**
+   * Reset a form.
+   * @param {string} formName
+   * @param {object} initialValue
+   */
+  reset (formName, initialValue = {}) {
+    this.resetValidation(formName)
+    this.setValues(formName, initialValue)
+  }
+
+  /**
+   * Reset the form's validation messages.
+   * @param {string} formName
+   */
+  resetValidation (formName) {
+    const form = this.registry.get(formName)
+    form.hideErrors(formName)
+    form.namedErrors = []
+    form.namedFieldErrors = {}
+  }
+
+  /**
+   * Set the form values.
+   * @param {string} formName
+   * @param {object} values
+   */
+  setValues (formName, values) {
+    if (values && !Array.isArray(values) && typeof values === 'object') {
+      const form = this.registry.get(formName)
+      form.setValues({ ...values })
+    }
   }
 
   /**

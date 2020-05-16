@@ -413,12 +413,12 @@
         &-remove {
           position: absolute;
           display: block;
-          top: calc(50% - .75em);
-          width: 1.5em;
-          height: 1.5em;
+          top: calc(50% - .65em + .5em);
+          width: 1.3em;
+          height: 1.3em;
           background-color: $formulate-gray-d;
-          right: .75em;
-          border-radius: 1.5em;
+          right: .85em;
+          border-radius: 1.3em;
           cursor: pointer;
           transition: background-color .2s;
 
@@ -426,11 +426,11 @@
           &::after {
             content: '';
             position: absolute;
-            top: calc(50% - .125em);
-            left: 0.375em;
+            top: calc(50% - .1em);
+            left: .325em;
             display: block;
-            width: .75em;
-            height: .25em;
+            width: .65em;
+            height: .2em;
             background-color: white;
             transform-origin: center center;
             transition: transform .25s;
@@ -443,8 +443,8 @@
               &::after,
               &::before {
                 height: .2em;
-                width: .9em;
-                left: .3em;
+                width: .75em;
+                left: .25em;
                 top: calc(50% - .075em);
               }
 

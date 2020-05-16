@@ -155,10 +155,6 @@ export default {
       type: [String, Boolean],
       default: false
     },
-    debug: {
-      type: Boolean,
-      default: false
-    },
     errors: {
       type: [String, Array, Boolean],
       default: false
