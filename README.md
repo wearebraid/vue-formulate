@@ -15,6 +15,8 @@
 
 Vue Formulate is the easiest way to build forms using Vue. Please read the [comprehensive documentation](https://vueformulate.com) for guidance on using Vue Formulate within your own projects.
 
+<p align="center"><a href="https://vueformulate.com"><img src="https://assets.wearebraid.com/vue-formulate/read-the-docs.png" /></a></p>
+
 
 <table style="width: 100%;">
 	<tr>
@@ -56,6 +58,8 @@ Vue Formulate is the easiest way to build forms using Vue. Please read the [comp
 
 
 These features and many more are thoroughly covered at the [documentation website](https://vueformulate.com).
+
+<p align="center"><a href="https://vueformulate.com"><img src="https://assets.wearebraid.com/vue-formulate/read-the-docs.png" /></a></p>
 
 
 ## Contributing
