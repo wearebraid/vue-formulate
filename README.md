@@ -13,7 +13,7 @@
 
 ### What is Vue Formulate?
 
-Vue Formulate is the easiest way to build forms using Vue. Please read the [comprehensive documentation](https://vueformulate.com) for guidance on using Vue Formulate within your own projects.
+Vue Formulate is the easiest way to build forms with Vue. Please read the [comprehensive documentation](https://vueformulate.com) for live code examples and guidance on using Vue Formulate in your own projects.
 
 <p align="center"><a href="https://vueformulate.com"><img src="https://assets.wearebraid.com/vue-formulate/read-the-docs.png" /></a></p>
 
@@ -57,16 +57,22 @@ Vue Formulate is the easiest way to build forms using Vue. Please read the [comp
 </table>
 
 
-These features and many more are thoroughly covered at the [documentation website](https://vueformulate.com).
+These features and many more are covered thoroughly at the [documentation website](https://vueformulate.com).
 
 <p align="center"><a href="https://vueformulate.com"><img src="https://assets.wearebraid.com/vue-formulate/read-the-docs.png" /></a></p>
 
 
 ## Contributing
-Vue Formulate is and always will be free and open source. There are many ways available for you to [contribute to Vue Formulate](https://vueformulate.com/guide/contributing/).  
+Vue Formulate is and always will be _free_ and _open source_. There are many ways available for you to [contribute to Vue Formulate](https://vueformulate.com/guide/contributing/).  
 
 ### Code Contributors
 
 This project exists thanks to all the people who take the time to [contribute](https://vueformulate.com/guide/contributing/).
 
 <a href="https://github.com/wearebraid/vue-formulate/graphs/contributors"><img src="https://opencollective.com/vue-formulate/contributors.svg?width=890&button=false" /></a>
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
+
+Copyright (c) 2020-present, Braid LLC
