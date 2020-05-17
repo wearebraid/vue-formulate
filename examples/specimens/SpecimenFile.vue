@@ -1,6 +1,6 @@
 <template>
   <div class="specimens specimens--text">
-    <h2>File classifications</h2>
+    <h2>File classification</h2>
     <div class="specimen specimen">
       <h3>Text</h3>
       <FormulateInput

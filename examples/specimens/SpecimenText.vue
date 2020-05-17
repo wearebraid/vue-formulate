@@ -1,6 +1,6 @@
 <template>
   <div class="specimens specimens--text">
-    <h2>Text classifications</h2>
+    <h2>Text classification</h2>
     <div class="specimen">
       <h3>Color</h3>
       <FormulateInput
