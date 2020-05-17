@@ -63,9 +63,19 @@ These features and many more are covered thoroughly at the [documentation websit
 
 
 ## Contributing
-Vue Formulate is and always will be _free_ and _open source_. There are many ways available for you to [contribute to Vue Formulate](https://vueformulate.com/guide/contributing/). This project exists thanks to all the people who volunteer their time to [contribute](https://vueformulate.com/guide/contributing/).
+Vue Formulate is and always will be _free_ and _open source_. There are many ways available for you to [contribute to Vue Formulate](https://vueformulate.com/guide/contributing/).
 
-<a href="https://github.com/wearebraid/vue-formulate/graphs/contributors"><img src="https://opencollective.com/vue-formulate/contributors.svg?width=890&button=false" /></a>
+#### Core Codebase Contributors
+
+This project exists thanks to all the people who volunteer their time to [contribute](https://vueformulate.com/guide/contributing/)
+
+<a href="https://github.com/wearebraid/vue-formulate/graphs/contributors"><img src="https://contributors-img.web.app/image?repo=wearebraid/vue-formulate" /></a>
+
+#### Localization Contributors
+
+Vue Formulate is translated into different languages by volunteer native language speakers. Localizations are located in the [Vue Formulate Internationalization repo](https://github.com/wearebraid/vue-formulate-i18n).
+
+<a href="https://github.com/wearebraid/vue-formulate-i18n/graphs/contributors"><img src="https://contributors-img.web.app/image?repo=wearebraid/vue-formulate-i18n" /></a>
 
 ## License
 
