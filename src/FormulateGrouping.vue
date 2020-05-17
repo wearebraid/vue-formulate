@@ -13,6 +13,7 @@
       :set-field-value="(field, value) => setFieldValue(index, field, value)"
       :context="context"
       @remove="removeItem"
+      @move="moveItem"
     >
       <slot />
     </FormulateRepeatableProvider>
@@ -95,6 +96,13 @@ export default {
     removeItem (index) {
       if (Array.isArray(this.context.model)) {
         this.context.model.splice(index, 1)
+      }
+    },
+    moveItem ({ oldIndex, newIndex }) {
+      if (Array.isArray(this.context.model)) {
+        const item = this.context.model[oldIndex]
+        this.context.model.splice(oldIndex, 1)
+        this.context.model.splice(newIndex, 0, item)
       }
     }
   }

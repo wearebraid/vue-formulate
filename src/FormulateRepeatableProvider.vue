@@ -4,12 +4,14 @@
     :context="context"
     :index="index"
     :remove-item="removeItem"
+    :move-item="moveItem"
   >
     <component
       :is="context.slotComponents.repeatable"
       :context="context"
       :index="index"
       :remove-item="removeItem"
+      :move-item="moveItem"
     >
       <FormulateSlot
         :context="context"
@@ -57,6 +59,9 @@ export default {
     ...useRegistryMethods(['setFieldValue']),
     removeItem () {
       this.$emit('remove', this.index)
+    },
+    moveItem (args) {
+      this.$emit('move', args)
     }
   }
 }
