@@ -75,4 +75,4 @@ This project exists thanks to all the people who take the time to [contribute](h
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2020-present, Braid LLC
+Copyright (c) 2020-present, [Braid LLC](https://www.wearebraid.com/)
