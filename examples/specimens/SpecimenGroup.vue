@@ -1,28 +1,27 @@
 <template>
   <div class="specimens specimens--group">
-    <h2>Non-repeatable group</h2>
-    <FormulateInput
-      type="group"
-    >
+    <h2>Group classification</h2>
+    <div class="specimen">
+      <h3>Non-repeatable group</h3>
       <FormulateInput
-        label="City"
-        type="text"
-        name="city"
-      />
+        type="group"
+      >
+        <FormulateInput
+          label="City"
+          type="text"
+          name="city"
+        />
+        <FormulateInput
+          label="State"
+          type="select"
+          :options="{NE: 'Nebraska', MO: 'Missouri', VA: 'Virginia'}"
+          placeholder="Select a state"
+        />
+      </FormulateInput>
+    </div>
+    <div class="specimen">
+      <h3>Repeatable group</h3>
       <FormulateInput
-        label="State"
-        type="select"
-        :options="{NE: 'Nebraska', MO: 'Missouri', VA: 'Virginia'}"
-        placeholder="Select a state"
-      />
-    </FormulateInput>
-    <h2>Repeatable group</h2>
-    <FormulateForm
-      v-model="formData"
-      @submit="save"
-    >
-      <FormulateInput
-        v-model="users"
         name="users"
         label="Invite some new users"
         type="group"
@@ -38,7 +37,6 @@
           validation="required"
         />
         <FormulateInput
-          v-model="email"
           name="email"
           label="Email address"
           type="email"
@@ -49,34 +47,11 @@
       <FormulateInput
         type="submit"
       />
-    </FormulateForm>
-    <!-- <span>Form Values</span>
-    <pre>{{ formData }}</pre>
-    <span>Save Values</span> -->
-    <pre>{{ saveValues }}</pre>
-    <!-- <pre>{{ email }}</pre>
-    <pre>{{ users }}</pre> -->
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  data () {
-    return {
-      formData: {
-      },
-      users: [
-        { name: 'Justin' },
-        {}
-      ],
-      email: 'justin@wearebraid.com',
-      saveValues: null
-    }
-  },
-  methods: {
-    save (values) {
-      this.saveValues = values
-    }
-  }
 }
 </script>

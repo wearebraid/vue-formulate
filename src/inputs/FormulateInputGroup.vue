@@ -75,6 +75,7 @@ export default {
         slotComponents,
         validationErrors,
         visibleValidationErrors,
+        help,
         ...context
       } = this.context
       return this.options.map(option => this.groupItemContext(

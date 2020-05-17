@@ -103,6 +103,7 @@
     input[type="color"] {
       height: 1.1em;
       box-sizing: content-box;
+      width: auto;
 
       @mixin color-swatch {
         display: block;
