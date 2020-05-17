@@ -11,7 +11,7 @@
   <a href="https://vueformulate.com">Documentation Website</a>
 </p>
 
-### What is Vue Formulate?
+## What is Vue Formulate?
 
 Vue Formulate is the easiest way to build forms with Vue. Please read the [comprehensive documentation](https://vueformulate.com) for live code examples and guidance on using Vue Formulate in your own projects.
 
