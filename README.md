@@ -11,76 +11,74 @@
   <a href="https://vueformulate.com">Documentation Website</a>
 </p>
 
-### What is Vue Formulate?
+## What is Vue Formulate?
 
-Vue Formulate is the easiest way to build forms using Vue. Key features include
-form and field validation, file uploads, form generation, single-element inputs that support labels, help text, error messages, placeholders and more, and [comprehensive documentation](https://vueformulate.com) for use within your own projects.
+Vue Formulate is the easiest way to build forms with Vue. Please read the [comprehensive documentation](https://vueformulate.com) for live code examples and guidance on using Vue Formulate in your own projects.
 
-### Vue Formulate lets you:
-✓ Create any input element with a single component<br>
-✓ Use `v-model` [binding](https://vueformulate.com/guide/#model-binding) on fields and entire forms<br>
-✓ [Re-populate an entire form](https://vueformulate.com/guide/forms/#setting-initial-values) from a single object<br>
-✓ [Generate a form](https://vueformulate.com/guide/forms/#generating-forms) using json<br>
-✓ Easily add field labels<br>
-✓ Easily add help text<br>
-✓ Easily add [form validation](https://vueformulate.com/guide/validation)<br>
-✓ Easily add [custom validation](https://vueformulate.com/guide/validation/#custom-validation-rules) rules<br>
-✓ Easily create custom [validation messages](https://vueformulate.com/guide/validation/#customize-validation-messages)<br>
-✓ Easily create [custom inputs](https://vueformulate.com/guide/custom-inputs)
+<p align="center"><a href="https://vueformulate.com"><img src="https://assets.wearebraid.com/vue-formulate/read-the-docs.png" /></a></p>
 
-There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
 
-v-model an entire form    |  Well-considered file uploads
-:-------------------------:|:------------------------------:
-![v-model an entire form](https://assets.wearebraid.com/vue-formulate/formulate-form.gif) | ![well-considered file uploads](https://assets.wearebraid.com/vue-formulate/formulate-uploads.gif)
+<table style="width: 100%;">
+	<tr>
+		<th colspan="2">
+			<h3>Key features</h3>
+		</th>
+	<tr>
+	<tr>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em">😎 Developer happiness</h4> 
+			<p>Forms are everywhere, yet surprisingly tedious to author — well, not anymore. Vue Formulate provides a <a href="https://vueformulate.com/guide/inputs/#all-options">powerful and flexible API</a> to developers that makes complex form creation a breeze.</p>
+		</td>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em;">☝️ A single input element</h4>
+			<p>With Vue Formulate you don't need to remember the names of a dozen components — all form elements are created with a <a href="https://vueformulate.com/guide/#inputs">single component</a>. Easy!</p>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em">💪 Grouped fields</h4> 
+			<p>Vue Formulate ships with <a href="https://vueformulate.com/guide/inputs/types/group/#repeatable-groups">repeatable field groups</a> out of the box. Create complex UIs such as multi-person booking forms with ease.</p>
+		</td>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em;">🎯 Built-in validation</h4>
+			<p>Ridiculously easy <a href="https://vueformulate.com/guide/validation">validation</a> out-of-the-box to handle 95% of use-cases. Help text, validation rules, and validation messages are simple props. Need more? You can add custom validations too.</p>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em">🔌 Plugin system</h4> 
+			<p>Extend Vue Formulate's functionality or reuse custom inputs, validation rules, and messages across projects by tapping into the <a href="https://vueformulate.com/guide/plugins/#creating-a-new-plugin">plugin system</a>. Make your plugin open source to share with others!</p>
+		</td>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em;">✨ Generate forms</h4>
+			<p><a href="https://vueformulate.com/guide/forms/#generating-forms">Generate an entire form</a> from a JSON string. Because Vue Formulate uses a single input component, you can easily loop through an array and dynamically generate a form.</p>
+		</td>
+	</tr>
+</table>
 
-### How is Vue Formulate used?
 
-The syntax is what developers would expect. To create an input you use the `FormulateInput` element and provide it with a few props:
+These features and many more are covered thoroughly at the [documentation website](https://vueformulate.com).
 
-```vue
-<FormulateInput
-  v-model="value"
-  type="email"
-  name="email"
-  label="What is your email address"
-  help="Where should we contact you?"
-  validation="required|email"
-/>
-```
+<p align="center"><a href="https://vueformulate.com"><img src="https://assets.wearebraid.com/vue-formulate/read-the-docs.png" /></a></p>
 
-Collecting multiple `FormulateInput` elements within a single `FormulateForm` element (even deeply nested) allows you to `v-model` your entire form.
 
-### Comprehensive Documentation
+## Contributing
+Vue Formulate is and always will be _free_ and _open source_. There are many ways available for you to [contribute to Vue Formulate](https://vueformulate.com/guide/contributing/).
 
-There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
+#### Core Codebase Contributors
 
-## Contributors
+This project exists thanks to all the people who volunteer their time to [contribute](https://vueformulate.com/guide/contributing/)
 
-### Code Contributors
+<a href="https://github.com/wearebraid/vue-formulate/graphs/contributors"><img src="https://contributors-img.web.app/image?repo=wearebraid/vue-formulate" /></a>
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/wearebraid/vue-formulate/graphs/contributors"><img src="https://opencollective.com/vue-formulate/contributors.svg?width=890&button=false" /></a>
+#### Localization Contributors
 
-### Financial Contributors
+Vue Formulate is translated into different languages by volunteer native language speakers. Localizations are located in the [Vue Formulate Internationalization repo](https://github.com/wearebraid/vue-formulate-i18n).
 
-Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/vue-formulate/contribute)]
+<a href="https://github.com/wearebraid/vue-formulate-i18n/graphs/contributors"><img src="https://contributors-img.web.app/image?repo=wearebraid/vue-formulate-i18n" /></a>
 
-#### Individuals
+## License
 
-<a href="https://opencollective.com/vue-formulate"><img src="https://opencollective.com/vue-formulate/individuals.svg?width=890"></a>
+[MIT](https://opensource.org/licenses/MIT)
 
-#### Organizations
-
-Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/vue-formulate/contribute)]
-
-<a href="https://opencollective.com/vue-formulate/organization/0/website"><img src="https://opencollective.com/vue-formulate/organization/0/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/1/website"><img src="https://opencollective.com/vue-formulate/organization/1/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/2/website"><img src="https://opencollective.com/vue-formulate/organization/2/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/3/website"><img src="https://opencollective.com/vue-formulate/organization/3/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/4/website"><img src="https://opencollective.com/vue-formulate/organization/4/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/5/website"><img src="https://opencollective.com/vue-formulate/organization/5/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/6/website"><img src="https://opencollective.com/vue-formulate/organization/6/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/7/website"><img src="https://opencollective.com/vue-formulate/organization/7/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/8/website"><img src="https://opencollective.com/vue-formulate/organization/8/avatar.svg"></a>
-<a href="https://opencollective.com/vue-formulate/organization/9/website"><img src="https://opencollective.com/vue-formulate/organization/9/avatar.svg"></a>
+Copyright (c) 2020-present, [Braid LLC](https://www.wearebraid.com/)
