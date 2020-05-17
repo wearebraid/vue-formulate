@@ -13,58 +13,31 @@
 
 ### What is Vue Formulate?
 
-Vue Formulate is the easiest way to build forms using Vue. Key features include
-form and field validation, file uploads, form generation, single-element inputs that support labels, help text, error messages, placeholders and more, and [comprehensive documentation](https://vueformulate.com) for use within your own projects.
+Vue Formulate is the easiest way to build forms using Vue. Please read the [comprehensive documentation](https://vueformulate.com) for guidance on using Vue Formulate within your own projects.
 
-### Vue Formulate lets you:
-✓ Create any input element with a single component<br>
-✓ Use `v-model` [binding](https://vueformulate.com/guide/#model-binding) on fields and entire forms<br>
-✓ [Re-populate an entire form](https://vueformulate.com/guide/forms/#setting-initial-values) from a single object<br>
-✓ [Generate a form](https://vueformulate.com/guide/forms/#generating-forms) using json<br>
-✓ Easily add field labels<br>
-✓ Easily add help text<br>
-✓ Easily add [form validation](https://vueformulate.com/guide/validation)<br>
-✓ Easily add [custom validation](https://vueformulate.com/guide/validation/#custom-validation-rules) rules<br>
-✓ Easily create custom [validation messages](https://vueformulate.com/guide/validation/#customize-validation-messages)<br>
-✓ Easily create [custom inputs](https://vueformulate.com/guide/custom-inputs)
 
-There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
+| <h3>Key features</h3> | |
+|:-------------|:----------|
+| <h4>😎 Developer happiness</h4> Forms are everywhere, yet surprisingly tedious to author — well, not anymore. Vue Formulate provides a [powerful and flexible API](https://vueformulate.com/guide/inputs/#all-options) to developers that makes complex form creation a breeze. | <h4>☝️ A single input element</h4> With Vue Formulate you don't need to remember the names of a dozen components — all form elements are created with a [single component](https://vueformulate.com/guide/#inputs). Easy! |
+| <h4>💪 Grouped fields</h4> Vue Formulate ships with [repeatable field groups](https://vueformulate.com/guide/inputs/types/group/#repeatable-groups) out of the box. Create complex UIs such as multi-person booking forms with ease. | <h4>🎯 Built-in validation</h4> Ridiculously easy [validation](https://vueformulate.com/guide/validation) out-of-the-box to handle 95% of use-cases. Help text, validation rules, and validation messages are simple props. Need more? You can add custom validations too. | 
+| <h4>🔌 Plugin system</h4> Extend Vue Formulate's functionality or reuse custom inputs, validation rules, and messages across projects by tapping into the [plugin system](https://vueformulate.com/guide/plugins/#creating-a-new-plugin). Make your plugin open source to share with others! | <h4>✨ Generate forms</h4> [Generate an entire form](https://vueformulate.com/guide/forms/#generating-forms) from a JSON string. Because Vue Formulate uses a single input component, you can easily loop through an array and dynamically generate a form. |
 
-v-model an entire form    |  Well-considered file uploads
-:-------------------------:|:------------------------------:
-![v-model an entire form](https://assets.wearebraid.com/vue-formulate/formulate-form.gif) | ![well-considered file uploads](https://assets.wearebraid.com/vue-formulate/formulate-uploads.gif)
 
-### How is Vue Formulate used?
+These features and many more are thoroughly covered an the [documentation website](https://vueformulate.com).
 
-The syntax is what developers would expect. To create an input you use the `FormulateInput` element and provide it with a few props:
 
-```vue
-<FormulateInput
-  v-model="value"
-  type="email"
-  name="email"
-  label="What is your email address"
-  help="Where should we contact you?"
-  validation="required|email"
-/>
-```
-
-Collecting multiple `FormulateInput` elements within a single `FormulateForm` element (even deeply nested) allows you to `v-model` your entire form.
-
-### Comprehensive Documentation
-
-There's a lot more available to read at the comprehensive [documentation website](https://vueformulate.com).
-
-## Contributors
+## Contributing
+Vue Formulate is and always will be free and open source. There are many ways available for you to [contribute to Vue Formulate](https://vueformulate.com/guide/contributing/).  
 
 ### Code Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+This project exists thanks to all the people who take the time to [contribute](https://vueformulate.com/guide/contributing/).
+
 <a href="https://github.com/wearebraid/vue-formulate/graphs/contributors"><img src="https://opencollective.com/vue-formulate/contributors.svg?width=890&button=false" /></a>
 
 ### Financial Contributors
 
-Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/vue-formulate/contribute)]
+Become a financial contributor and help us sustain our the development of Vue Formulate. [[Contribute](https://opencollective.com/vue-formulate/contribute)]
 
 #### Individuals
 
@@ -72,7 +45,7 @@ Become a financial contributor and help us sustain our community. [[Contribute](
 
 #### Organizations
 
-Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/vue-formulate/contribute)]
+Support this project with your organization. Your organizations's logo will show up here with a link to your website. [[Contribute](https://opencollective.com/vue-formulate/contribute)]
 
 <a href="https://opencollective.com/vue-formulate/organization/0/website"><img src="https://opencollective.com/vue-formulate/organization/0/avatar.svg"></a>
 <a href="https://opencollective.com/vue-formulate/organization/1/website"><img src="https://opencollective.com/vue-formulate/organization/1/avatar.svg"></a>
