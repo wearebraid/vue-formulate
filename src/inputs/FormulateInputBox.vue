@@ -24,9 +24,18 @@
       v-bind="attributes"
       @blur="context.blurHandler"
     >
-    <label
+    <!--
+      Ok, so for reasons that we cannot explain, the <label> here will not
+      update when the attribute.id changes. Possible bug in core? Either way,
+      making this a <component> forces vue to re-render this label when the
+      id changes.
+
+      https://github.com/wearebraid/vue-formulate/issues/75
+    -->
+    <component
+      :is="`label`"
       class="formulate-input-element-decorator"
-      :for="id"
+      :for="attributes.id"
     />
   </div>
 </template>
