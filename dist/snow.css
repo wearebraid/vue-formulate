@@ -338,7 +338,9 @@
         right: .85em;
         border-radius: 1.3em;
         cursor: pointer;
-        transition: background-color .2s; }
+        transition: background-color .2s;
+        overflow: hidden;
+        text-indent: -1000px; }
         .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove::before, .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove::after {
           content: '';
           position: absolute;

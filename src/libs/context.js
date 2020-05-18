@@ -292,7 +292,8 @@ function slotComponents () {
     help: this.$formulate.slotComponent(this.type, 'help'),
     errors: this.$formulate.slotComponent(this.type, 'errors'),
     repeatable: this.$formulate.slotComponent(this.type, 'repeatable'),
-    addMore: this.$formulate.slotComponent(this.type, 'addMore')
+    addMore: this.$formulate.slotComponent(this.type, 'addMore'),
+    remove: this.$formulate.slotComponent(this.type, 'remove')
   }
 }
 

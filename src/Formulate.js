@@ -24,6 +24,7 @@ import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
 import FormulateRepeatableProvider from './FormulateRepeatableProvider.vue'
+import FormulateRepeatableRemove from './slots/FormulateRepeatableRemove.vue'
 
 /**
  * The base formulate library.
@@ -53,6 +54,7 @@ class Formulate {
         FormulateInputSelect,
         FormulateInputSlider,
         FormulateInputTextArea,
+        FormulateRepeatableRemove,
         FormulateRepeatableProvider
       },
       slotComponents: {
@@ -60,7 +62,8 @@ class Formulate {
         help: 'FormulateHelp',
         errors: 'FormulateErrors',
         repeatable: 'FormulateRepeatable',
-        addMore: 'FormulateAddMore'
+        addMore: 'FormulateAddMore',
+        remove: 'FormulateRepeatableRemove'
       },
       library,
       rules,

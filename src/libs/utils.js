@@ -277,9 +277,10 @@ export function has (ctx, prop) {
 }
 
 /**
- * Given a registry object, map over it recursively entering groups.
- * @param {Object} registry key => component
+ * Set a unique Symbol identifier on an object.
+ * @param {object} o
+ * @param {Symbol} id
  */
-export function mapRegistry (registry) {
-  //
+export function setId (o, id) {
+  return Object.defineProperty(o, '__id', Object.assign(Object.create(null), { value: id || Symbol('uuid') }))
 }

@@ -422,6 +422,8 @@
           border-radius: 1.3em;
           cursor: pointer;
           transition: background-color .2s;
+          overflow: hidden;
+          text-indent: -1000px;
 
           &::before,
           &::after {

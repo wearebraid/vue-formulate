@@ -44,14 +44,12 @@
           validation="required|email"
         />
       </FormulateInput>
-      <FormulateInput
-        type="submit"
-      />
     </div>
   </div>
 </template>
 
 <script>
 export default {
+
 }
 </script>

@@ -30,6 +30,10 @@ export default {
       formulateSetter: (field, value) => this.setFieldValue(field, value)
     }
   },
+  inject: {
+    registerProvider: 'registerProvider',
+    deregisterProvider: 'deregisterProvider'
+  },
   props: {
     index: {
       type: Number,
@@ -52,6 +56,12 @@ export default {
   },
   computed: {
     ...useRegistryComputed()
+  },
+  created () {
+    this.registerProvider(this)
+  },
+  beforeDestroy () {
+    this.deregisterProvider(this)
   },
   methods: {
     ...useRegistryMethods(['setFieldValue']),

@@ -7,8 +7,7 @@
   >
     <FormulateRepeatableProvider
       v-for="(item, index) in items"
-      :ref="`provider-${index}`"
-      :key="index"
+      :key="item.__id"
       :index="index"
       :set-field-value="(field, value) => setFieldValue(index, field, value)"
       :context="context"
@@ -20,6 +19,7 @@
 </template>
 
 <script>
+import { setId } from './libs/utils'
 
 export default {
   name: 'FormulateGrouping',
@@ -31,7 +31,14 @@ export default {
   },
   provide () {
     return {
-      isSubField: () => true
+      isSubField: () => true,
+      registerProvider: this.registerProvider,
+      deregisterProvider: this.deregisterProvider
+    }
+  },
+  data () {
+    return {
+      providers: []
     }
   },
   inject: ['formulateRegisterRule', 'formulateRemoveRule'],
@@ -39,14 +46,11 @@ export default {
     items () {
       if (Array.isArray(this.context.model)) {
         if (!this.context.repeatable && this.context.model.length === 0) {
-          return [{}]
+          return [setId({})]
         }
-        return this.context.model
+        return this.context.model.map(item => setId(item, item.__id))
       }
-      return [{}]
-    },
-    providers () {
-      return this.items.map((item, i) => Array.isArray(this.$refs[`provider-${i}`]) ? this.$refs[`provider-${i}`][0] : false)
+      return [setId({})]
     },
     formShouldShowErrors () {
       return this.context.formShouldShowErrors
@@ -72,13 +76,21 @@ export default {
     this.formulateRemoveRule('formulateGrouping')
   },
   methods: {
+    getAtIndex (index) {
+      if (typeof this.context.model[index] !== 'undefined' && this.context.model[index].__id) {
+        return this.context.model[index]
+      } else if (typeof this.context.model[index] !== 'undefined') {
+        return setId(this.context.model[index])
+      } else if (typeof this.context.model[index] === 'undefined' && typeof this.items[index] !== 'undefined') {
+        return setId({}, this.items[index].__id)
+      }
+      return setId({})
+    },
     setFieldValue (index, field, value) {
       const values = Array.isArray(this.context.model) ? this.context.model : []
-      values.splice(index, 1, Object.assign(
-        {},
-        typeof this.context.model[index] === 'object' ? this.context.model[index] : {},
-        { [field]: value }
-      ))
+      const previous = this.getAtIndex(index)
+      const updated = setId(Object.assign({}, previous, { [field]: value }), previous.__id)
+      values.splice(index, 1, updated)
       this.context.model = values
     },
     validateGroup () {
@@ -90,12 +102,20 @@ export default {
       }, [])).then(providersHasErrors => !providersHasErrors.some(hasErrors => !!hasErrors))
     },
     showErrors () {
-      this.providers.map(p => p && typeof p.showErrors === 'function' && p.showErrors())
+      this.providers.forEach(p => p && typeof p.showErrors === 'function' && p.showErrors())
     },
     removeItem (index) {
       if (Array.isArray(this.context.model)) {
         this.context.model.splice(index, 1)
       }
+    },
+    registerProvider (provider) {
+      if (!this.providers.some(p => p === provider)) {
+        this.providers.push(provider)
+      }
+    },
+    deregisterProvider (provider) {
+      this.providers = this.providers.filter(p => p !== provider)
     }
   }
 }

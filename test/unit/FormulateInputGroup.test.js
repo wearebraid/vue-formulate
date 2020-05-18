@@ -210,6 +210,7 @@ describe('FormulateInputGroup', () => {
     })
     const form = wrapper.findComponent(FormulateForm)
     await form.vm.formSubmitted()
+    await flushPromises()
     expect(wrapper.find('[data-classification="text"] .formulate-input-error').exists()).toBe(true);
   })
 
@@ -346,6 +347,44 @@ describe('FormulateInputGroup', () => {
     wrapper.find('.remove').trigger('click')
     await flushPromises()
     expect(wrapper.findAll('.repeat').length).toBe(1)
+  })
+
+  it('allows a slot override of the remove area', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'group', repeatable: true, value: [{phone: 'iPhone'}, {phone: 'Android'}]},
+      scopedSlots: {
+        default: '<FormulateInput type="text" name="phone" />',
+        remove: '<button @click="props.removeItem" class="remove-this">Get outta here</button>',
+      }
+    })
+    const repeats = wrapper.findAll('.remove-this')
+    expect(repeats.length).toBe(2)
+    const button = wrapper.find('.remove-this')
+    expect(button.text()).toBe('Get outta here')
+    button.trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('input').wrappers.map(w => w.element.value)).toEqual(['Android'])
+  })
+
+  it('removes the proper item from the group', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'group', repeatable: true },
+      slots: {
+        default: '<FormulateInput type="text" name="foo" />'
+      }
+    })
+    wrapper.find('input').setValue('first entry')
+    wrapper.find('.formulate-input-group-add-more button').trigger('click')
+    wrapper.find('.formulate-input-group-add-more button').trigger('click')
+    await flushPromises();
+    wrapper.findAll('input').at(1).setValue('second entry')
+    wrapper.findAll('input').at(2).setValue('third entry')
+    // First verify all the proper entries are where we expect
+    expect(wrapper.findAll('input').wrappers.map(input => input.element.value)).toEqual(['first entry', 'second entry', 'third entry'])
+    // Now remove the middle one
+    wrapper.findAll('.formulate-input-group-repeatable-remove').at(1).trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('input').wrappers.map(input => input.element.value)).toEqual(['first entry', 'third entry'])
   })
 
   it('does not show an error message on group input when child has an error', async () => {

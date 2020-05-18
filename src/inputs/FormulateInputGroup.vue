@@ -42,6 +42,8 @@
 </template>
 
 <script>
+import { setId } from '../libs/utils'
+
 export default {
   name: 'FormulateInputGroup',
   props: {
@@ -94,10 +96,10 @@ export default {
   methods: {
     addItem () {
       if (Array.isArray(this.context.model)) {
-        this.context.model.push({})
+        this.context.model.push(setId({}))
         return
       }
-      this.context.model = this.items.concat([{}])
+      this.context.model = this.items.concat([setId({})])
     },
     groupItemContext (context, option, groupAttributes) {
       const optionAttributes = {}

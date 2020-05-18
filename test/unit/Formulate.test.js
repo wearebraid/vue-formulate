@@ -79,6 +79,7 @@ describe('Formulate', () => {
       'FormulateInputSelect',
       'FormulateInputSlider',
       'FormulateInputTextArea',
+      'FormulateRepeatableRemove',
       'FormulateRepeatableProvider'
     ]
     const registry = []

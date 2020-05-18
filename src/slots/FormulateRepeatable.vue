@@ -2,13 +2,17 @@
   <div
     class="formulate-input-group-repeatable"
   >
-    <a
-      v-if="context.repeatable"
-      class="formulate-input-group-repeatable-remove"
-      role="button"
-      @click.prevent="removeItem"
-      @keypress.enter="removeItem"
-    />
+    <FormulateSlot
+      name="remove"
+      :context="context"
+      :remove-item="removeItem"
+    >
+      <component
+        :is="context.slotComponents.remove"
+        :context="context"
+        :remove-item="removeItem"
+      />
+    </FormulateSlot>
     <slot />
   </div>
 </template>
