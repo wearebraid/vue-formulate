@@ -306,6 +306,18 @@ describe('matches', () => {
   it('passes on matching mixed regex and string', async () => {
     expect(await rules.matches({ value: 'first-fourth' }, 'second', /^third/, /fourth$/)).toBe(true)
   })
+
+  it('fails on a regular expression encoded as a string', async () => {
+    expect(await rules.matches({ value: 'mypassword' }, '/[0-9]/')).toBe(false)
+  })
+
+  it('passes on a regular expression encoded as a string', async () => {
+    expect(await rules.matches({ value: 'mypa55word' }, '/[0-9]/')).toBe(true)
+  })
+
+  it('passes on a regular expression containing slashes', async () => {
+    expect(await rules.matches({ value: 'https://' }, '/https?:///')).toBe(true)
+  })
 })
 
 /**

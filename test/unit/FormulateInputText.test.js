@@ -15,62 +15,62 @@ Vue.use(Formulate)
 describe('FormulateInputText', () => {
   it('renders text input when type is "text"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders search input when type is "search"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'search' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders email input when type is "email"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'email' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders number input when type is "number"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'number' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders color input when type is "color"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'color' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders date input when type is "date"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'date' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders month input when type is "month"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'month' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders password input when type is "password"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'password' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders tel input when type is "tel"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'tel' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders time input when type is "time"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'time' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders url input when type is "url"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'url' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   it('renders week input when type is "week"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'week' } })
-    expect(wrapper.contains(FormulateInputText)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputText).exists()).toBe(true)
   })
 
   /**
@@ -150,15 +150,15 @@ describe('FormulateInputText', () => {
       `
     })
     await flushPromises()
-    const firstContext = wrapper.find({ref: "first"}).vm.context
-    const secondContext = wrapper.find({ref: "second"}).vm.context
+    const firstContext = wrapper.findComponent({ref: "first"}).vm.context
+    const secondContext = wrapper.findComponent({ref: "second"}).vm.context
     wrapper.find('input').setValue('new value')
     await flushPromises()
     expect(firstContext).toBeTruthy()
     expect(wrapper.vm.valueA === 'new value').toBe(true)
     expect(wrapper.vm.valueB === 'second value').toBe(true)
-    expect(wrapper.find({ref: "first"}).vm.context === firstContext).toBe(false)
-    expect(wrapper.find({ref: "second"}).vm.context === secondContext).toBe(true)
+    expect(wrapper.findComponent({ref: "first"}).vm.context === firstContext).toBe(false)
+    expect(wrapper.findComponent({ref: "second"}).vm.context === secondContext).toBe(true)
   })
 
   it('uses the v-model value as the initial value', () => {
@@ -180,7 +180,7 @@ describe('FormulateInputText', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'textarea' } })
     const input = wrapper.find('textarea')
     input.setValue('changed value')
-    expect(wrapper.vm.internalModelProxy).toBe('changed value')
+    expect(wrapper.vm.proxy).toBe('changed value')
   })
 
 
@@ -260,5 +260,54 @@ describe('FormulateInputText', () => {
     await wrapper.vm.$nextTick()
     await flushPromises()
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
+  })
+
+
+  it('allows label-before override with scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', label: 'flavor' },
+      scopedSlots: {
+        label: '<label>{{ props.label }} town</label>'
+      }
+    })
+    expect(wrapper.find('label').text()).toBe('flavor town')
+  })
+
+  it('allows label-after override with scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', label: 'flavor', labelPosition: 'after' },
+      scopedSlots: {
+        label: '<label>{{ props.label }} town</label>'
+      }
+    })
+    expect(wrapper.find('label').text()).toBe('flavor town')
+  })
+
+  it('allows help-before override', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', label: 'flavor', help: 'I love this next field...', helpPosition: 'before' },
+    })
+    expect(wrapper.find('label + *').classes('formulate-input-help')).toBe(true)
+  })
+
+  it('Allow help text override with scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', name: 'soda', help: 'Do you want some'},
+      scopedSlots: {
+        help: '<small>{{ props.help }} {{ props.name }}?</small>'
+      }
+    })
+    expect(wrapper.find('small').text()).toBe('Do you want some soda?')
+  })
+
+  it('Allow errors override with scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', name: 'soda', validation: 'required|in:foo,bar', errorBehavior: 'live' },
+      scopedSlots: {
+        errors: '<ul class="my-errors"><li v-for="error in props.visibleValidationErrors">{{ error }}</li></ul>'
+      }
+    })
+    await flushPromises();
+    expect(wrapper.findAll('.my-errors li').length).toBe(2)
   })
 })

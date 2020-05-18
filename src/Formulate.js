@@ -2,21 +2,29 @@ import library from './libs/library'
 import rules from './libs/rules'
 import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
-import { arrayify, parseLocale } from './libs/utils'
+import { arrayify, parseLocale, has } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import { en } from '@braid/vue-formulate-i18n'
 import fauxUploader from './libs/faux-uploader'
-import FormulateInput from './FormulateInput.vue'
+import FormulateSlot from './FormulateSlot'
 import FormulateForm from './FormulateForm.vue'
+import FormulateInput from './FormulateInput.vue'
 import FormulateErrors from './FormulateErrors.vue'
-import FormulateInputGroup from './FormulateInputGroup.vue'
+import FormulateHelp from './slots/FormulateHelp.vue'
+import FormulateGrouping from './FormulateGrouping.vue'
+import FormulateLabel from './slots/FormulateLabel.vue'
+import FormulateAddMore from './slots/FormulateAddMore.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
 import FormulateInputFile from './inputs/FormulateInputFile.vue'
+import FormulateRepeatable from './slots/FormulateRepeatable.vue'
+import FormulateInputGroup from './inputs/FormulateInputGroup.vue'
 import FormulateInputButton from './inputs/FormulateInputButton.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
+import FormulateRepeatableProvider from './FormulateRepeatableProvider.vue'
+import FormulateRepeatableRemove from './slots/FormulateRepeatableRemove.vue'
 
 /**
  * The base formulate library.
@@ -29,17 +37,33 @@ class Formulate {
     this.options = {}
     this.defaults = {
       components: {
+        FormulateSlot,
         FormulateForm,
+        FormulateHelp,
+        FormulateLabel,
         FormulateInput,
         FormulateErrors,
+        FormulateAddMore,
+        FormulateGrouping,
         FormulateInputBox,
         FormulateInputText,
         FormulateInputFile,
+        FormulateRepeatable,
         FormulateInputGroup,
         FormulateInputButton,
         FormulateInputSelect,
         FormulateInputSlider,
-        FormulateInputTextArea
+        FormulateInputTextArea,
+        FormulateRepeatableRemove,
+        FormulateRepeatableProvider
+      },
+      slotComponents: {
+        label: 'FormulateLabel',
+        help: 'FormulateHelp',
+        errors: 'FormulateErrors',
+        repeatable: 'FormulateRepeatable',
+        addMore: 'FormulateAddMore',
+        remove: 'FormulateRepeatableRemove'
       },
       library,
       rules,
@@ -82,10 +106,10 @@ class Formulate {
    * implementation is open to community review.
    */
   nextId (vm) {
-    const path = vm.$route && vm.$route.path || false
-    const pathPrefix = path ? vm.$route.path.replace(/[\/\\.\s]/g, '-') : 'global';
+    const path = vm.$route && vm.$route.path ? vm.$route.path : false
+    const pathPrefix = path ? vm.$route.path.replace(/[/\\.\s]/g, '-') : 'global'
     if (!Object.prototype.hasOwnProperty.call(this.idRegistry, pathPrefix)) {
-      this.idRegistry[pathPrefix] = 0;
+      this.idRegistry[pathPrefix] = 0
     }
     return `${this.options.idPrefix}${pathPrefix}-${++this.idRegistry[pathPrefix]}`
   }
@@ -156,7 +180,20 @@ class Formulate {
   }
 
   /**
-   * Get validation rules.
+   * What component should be rendered for the given slot location and type.
+   * @param {string} type the type of component
+   * @param {string} slot the name of the slot
+   */
+  slotComponent (type, slot) {
+    const def = this.options.library[type]
+    if (def && def.slotComponents && def.slotComponents[slot]) {
+      return def.slotComponents[slot]
+    }
+    return this.options.slotComponents[slot]
+  }
+
+  /**
+   * Get validation rules by merging any passed in with global rules.
    * @return {object} object of validation functions
    */
   rules (rules = {}) {
@@ -167,8 +204,13 @@ class Formulate {
    * Attempt to get the vue-i18n configured locale.
    */
   i18n (vm) {
-    if (vm.$i18n && vm.$i18n.locale) {
-      return vm.$i18n.locale
+    if (vm.$i18n) {
+      switch (typeof vm.$i18n.locale) {
+        case 'string':
+          return vm.$i18n.locale
+        case 'function':
+          return vm.$i18n.locale()
+      }
     }
     return false
   }
@@ -188,7 +230,7 @@ class Formulate {
         }
         if (locale) {
           const option = parseLocale(locale)
-            .find(locale => Object.prototype.hasOwnProperty.call(this.options.locales, locale))
+            .find(locale => has(this.options.locales, locale))
           if (option) {
             selection = option
           }
@@ -256,6 +298,39 @@ class Formulate {
       })
     }
     return e
+  }
+
+  /**
+   * Reset a form.
+   * @param {string} formName
+   * @param {object} initialValue
+   */
+  reset (formName, initialValue = {}) {
+    this.resetValidation(formName)
+    this.setValues(formName, initialValue)
+  }
+
+  /**
+   * Reset the form's validation messages.
+   * @param {string} formName
+   */
+  resetValidation (formName) {
+    const form = this.registry.get(formName)
+    form.hideErrors(formName)
+    form.namedErrors = []
+    form.namedFieldErrors = {}
+  }
+
+  /**
+   * Set the form values.
+   * @param {string} formName
+   * @param {object} values
+   */
+  setValues (formName, values) {
+    if (values && !Array.isArray(values) && typeof values === 'object') {
+      const form = this.registry.get(formName)
+      form.setValues({ ...values })
+    }
   }
 
   /**

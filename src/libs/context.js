@@ -8,25 +8,40 @@ import { map, arrayify, shallowEqualObjects } from './utils'
 export default {
   context () {
     return defineModel.call(this, {
-      type: this.type,
-      value: this.value,
-      name: this.nameOrFallback,
-      hasGivenName: this.hasGivenName,
+      addLabel: this.logicalAddLabel,
+      attributes: this.elementAttributes,
+      blurHandler: blurHandler.bind(this),
       classification: this.classification,
       component: this.component,
-      id: this.id || this.defaultId,
+      disableErrors: this.disableErrors,
+      errors: this.explicitErrors,
+      formShouldShowErrors: this.formShouldShowErrors,
+      getValidationErrors: this.getValidationErrors.bind(this),
+      hasGivenName: this.hasGivenName,
       hasLabel: (this.label && this.classification !== 'button'),
+      hasValidationErrors: this.hasValidationErrors.bind(this),
+      help: this.help,
+      helpPosition: this.logicalHelpPosition,
+      id: this.id || this.defaultId,
+      imageBehavior: this.imageBehavior,
       label: this.label,
       labelPosition: this.logicalLabelPosition,
-      attributes: this.elementAttributes,
+      limit: this.limit,
+      name: this.nameOrFallback,
       performValidation: this.performValidation.bind(this),
-      blurHandler: blurHandler.bind(this),
-      imageBehavior: this.imageBehavior,
+      preventWindowDrops: this.preventWindowDrops,
+      repeatable: this.repeatable,
+      setErrors: this.setErrors.bind(this),
+      showValidationErrors: this.showValidationErrors,
+      slotComponents: this.slotComponents,
+      type: this.type,
+      uploadBehavior: this.uploadBehavior,
       uploadUrl: this.mergedUploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
-      uploadBehavior: this.uploadBehavior,
-      preventWindowDrops: this.preventWindowDrops,
-      hasValidationErrors: this.hasValidationErrors,
+      validationErrors: this.validationErrors,
+      value: this.value,
+      visibleValidationErrors: this.visibleValidationErrors,
+      isSubField: this.isSubField,
       ...this.typeContext
     })
   },
@@ -36,6 +51,7 @@ export default {
   typeContext,
   elementAttributes,
   logicalLabelPosition,
+  logicalHelpPosition,
   mergedUploadUrl,
 
   // These items are not passed as context
@@ -45,7 +61,20 @@ export default {
   allErrors,
   hasErrors,
   hasVisibleErrors,
-  showValidationErrors
+  showValidationErrors,
+  visibleValidationErrors,
+  slotComponents,
+  logicalAddLabel
+}
+
+/**
+ * The label to display when adding a new group.
+ */
+function logicalAddLabel () {
+  if (typeof this.addLabel === 'boolean') {
+    return `+ ${this.label || this.name || 'Add'}`
+  }
+  return this.addLabel
 }
 
 /**
@@ -90,11 +119,16 @@ function elementAttributes () {
     attrs.name = this.name
   }
 
+  // If there is help text, have this element be described by it.
+  if (this.help) {
+    attrs['aria-describedby'] = `${attrs.id}-help`
+  }
+
   return attrs
 }
 
 /**
- * Determine the a best-guess location for the label (before or after).
+ * Determine the best-guess location for the label (before or after).
  * @return {string} before|after
  */
 function logicalLabelPosition () {
@@ -106,6 +140,21 @@ function logicalLabelPosition () {
       return 'after'
     default:
       return 'before'
+  }
+}
+
+/**
+ * Determine the best location for the label based on type (before or after).
+ */
+function logicalHelpPosition () {
+  if (this.helpPosition) {
+    return this.helpPosition
+  }
+  switch (this.classification) {
+    case 'group':
+      return 'before'
+    default:
+      return 'after'
   }
 }
 
@@ -141,10 +190,18 @@ function showValidationErrors () {
   if (this.showErrors || this.formShouldShowErrors) {
     return true
   }
-  if (this.classification === 'file' && this.uploadBehavior === 'live' && this.context.model) {
+  if (this.classification === 'file' && this.uploadBehavior === 'live' && modelGetter.call(this)) {
     return true
   }
   return this.behavioralErrorVisibility
+}
+
+/**
+ * All of the currently visible validation errors (does not include error handling)
+ * @return {array}
+ */
+function visibleValidationErrors () {
+  return (this.showValidationErrors && this.validationErrors.length) ? this.validationErrors : []
 }
 
 /**
@@ -200,6 +257,7 @@ function createOptionList (options) {
  */
 function explicitErrors () {
   return arrayify(this.errors)
+    .concat(this.localErrors)
     .concat(arrayify(this.error))
 }
 
@@ -219,10 +277,24 @@ function hasErrors () {
 }
 
 /**
- * Checks if form has actively visible errors.
+ * Returns if form has actively visible errors (of any kind)
  */
 function hasVisibleErrors () {
   return ((this.validationErrors && this.showValidationErrors) || !!this.explicitErrors.length)
+}
+
+/**
+ * The component that should be rendered in the label slot as default.
+ */
+function slotComponents () {
+  return {
+    label: this.$formulate.slotComponent(this.type, 'label'),
+    help: this.$formulate.slotComponent(this.type, 'help'),
+    errors: this.$formulate.slotComponent(this.type, 'errors'),
+    repeatable: this.$formulate.slotComponent(this.type, 'repeatable'),
+    addMore: this.$formulate.slotComponent(this.type, 'addMore'),
+    remove: this.$formulate.slotComponent(this.type, 'remove')
+  }
 }
 
 /**
@@ -250,7 +322,7 @@ function defineModel (context) {
  * Get the value from a model.
  **/
 function modelGetter () {
-  const model = this.isVmodeled ? 'formulateValue' : 'internalModelProxy'
+  const model = this.isVmodeled ? 'formulateValue' : 'proxy'
   if (this.type === 'checkbox' && !Array.isArray(this[model]) && this.options) {
     return []
   }
@@ -264,11 +336,11 @@ function modelGetter () {
  * Set the value from a model.
  **/
 function modelSetter (value) {
-  if (!shallowEqualObjects(value, this.internalModelProxy)) {
-    this.internalModelProxy = value
+  if (!shallowEqualObjects(value, this.proxy)) {
+    this.proxy = value
   }
   this.$emit('input', value)
-  if (this.context.name && typeof this.formulateFormSetter === 'function') {
-    this.formulateFormSetter(this.context.name, value)
+  if (this.context.name && typeof this.formulateSetter === 'function') {
+    this.formulateSetter(this.context.name, value)
   }
 }

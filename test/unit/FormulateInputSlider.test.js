@@ -13,7 +13,7 @@ Vue.use(Formulate)
 describe('FormulateInputSlider', () => {
   it('renders range input when type is "range"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'range' } })
-    expect(wrapper.contains(FormulateInputSlider)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputSlider).exists()).toBe(true)
   })
 
   it('does not show value if the show-value prop is not set', () => {

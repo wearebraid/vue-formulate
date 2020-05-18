@@ -106,24 +106,86 @@ function parseRule (rule, rules) {
   }
   if (Array.isArray(rule) && rule.length) {
     rule = rule.map(r => r) // light clone
-    const ruleName = snakeToCamel(rule.shift())
+    const [ruleName, modifier] = parseModifier(rule.shift())
     if (typeof ruleName === 'string' && rules.hasOwnProperty(ruleName)) {
-      return [rules[ruleName], rule, ruleName]
+      return [rules[ruleName], rule, ruleName, modifier]
     }
     if (typeof ruleName === 'function') {
-      return [ruleName, rule, ruleName]
+      return [ruleName, rule, ruleName, modifier]
     }
   }
   if (typeof rule === 'string') {
     const segments = rule.split(':')
-    const ruleName = snakeToCamel(segments.shift())
+    const [ruleName, modifier] = parseModifier(segments.shift())
     if (rules.hasOwnProperty(ruleName)) {
-      return [rules[ruleName], segments.length ? segments.join(':').split(',') : [], ruleName]
+      return [rules[ruleName], segments.length ? segments.join(':').split(',') : [], ruleName, modifier]
     } else {
       throw new Error(`Unknown validation rule ${rule}`)
     }
   }
   return false
+}
+
+/**
+ * Return the rule name with the applicable modifier as an array.
+ * @param {string} ruleName
+ * @return {array} [ruleName, modifier]
+ */
+function parseModifier (ruleName) {
+  if (/^[\^]/.test(ruleName.charAt(0))) {
+    return [snakeToCamel(ruleName.substr(1)), ruleName.charAt(0)]
+  }
+  return [snakeToCamel(ruleName), null]
+}
+
+/**
+ * Given an array of rules, group them by bail signals. For example for this:
+ * bail|required|min:10|max:20
+ * we would expect:
+ * [[required], [min], [max]]
+ * because any sub-array failure would cause a shutdown. While
+ * ^required|min:10|max:10
+ * would return:
+ * [[required], [min, max]]
+ * and no bailing would produce:
+ * [[required, min, max]]
+ * @param {array} rules
+ */
+export function groupBails (rules) {
+  const groups = []
+  const bailIndex = rules.findIndex(([,, rule]) => rule.toLowerCase() === 'bail')
+  if (bailIndex >= 0) {
+    // Get all the rules until the first bail rule (dont include the bail)
+    const preBail = rules.splice(0, bailIndex + 1).slice(0, -1)
+    // Rules before the `bail` rule are non-bailing
+    preBail.length && groups.push(preBail)
+    // All remaining rules are bailing rule groups
+    rules.map(rule => groups.push(Object.defineProperty([rule], 'bail', { value: true })))
+  } else {
+    groups.push(rules)
+  }
+
+  return groups.reduce((groups, group) => {
+    const splitByMod = (group, bailGroup = false) => {
+      if (group.length < 2) {
+        return Object.defineProperty([group], 'bail', { value: bailGroup })
+      }
+      const splits = []
+      const modIndex = group.findIndex(([,,, modifier]) => modifier === '^')
+      if (modIndex >= 0) {
+        const preMod = group.splice(0, modIndex)
+        // rules before the modifier are non-bailing rules.
+        preMod.length && splits.push(...splitByMod(preMod, bailGroup))
+        splits.push(Object.defineProperty([group.shift()], 'bail', { value: true }))
+        // rules after the modifier are non-bailing rules.
+        group.length && splits.push(...splitByMod(group, bailGroup))
+      } else {
+        splits.push(group)
+      }
+      return splits
+    }
+    return groups.concat(splitByMod(group))
+  }, [])
 }
 
 /**
@@ -178,7 +240,11 @@ export function isValueType (data) {
  * case of needing to unbind reactive watchers.
  */
 export function cloneDeep (obj) {
-  const newObj = {}
+  if (typeof obj !== 'object') {
+    return obj
+  }
+  const isArr = Array.isArray(obj)
+  const newObj = isArr ? [] : {}
   for (const key in obj) {
     if (obj[key] instanceof FileUpload || isValueType(obj[key])) {
       newObj[key] = obj[key]
@@ -201,4 +267,20 @@ export function parseLocale (locale) {
     }
     return options.length ? options : [segment]
   }, [])
+}
+
+/**
+ * Shorthand for Object.prototype.hasOwnProperty.call (space saving)
+ */
+export function has (ctx, prop) {
+  return Object.prototype.hasOwnProperty.call(ctx, prop)
+}
+
+/**
+ * Set a unique Symbol identifier on an object.
+ * @param {object} o
+ * @param {Symbol} id
+ */
+export function setId (o, id) {
+  return Object.defineProperty(o, '__id', Object.assign(Object.create(null), { value: id || Symbol('uuid') }))
 }

@@ -5,27 +5,24 @@
   >
     <FormulateErrors
       v-if="!hasFormErrorObservers"
-      type="form"
-      :errors="mergedFormErrors"
-      :prevent-registration="true"
+      :context="formContext"
     />
     <slot />
   </form>
 </template>
 
 <script>
-import { shallowEqualObjects, arrayify } from './libs/utils'
+import { arrayify, has } from './libs/utils'
+import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
 import FormSubmission from './FormSubmission'
 
 export default {
   provide () {
     return {
-      formulateFormSetter: this.setFieldValue,
-      formulateFormRegister: this.register,
-      formulateFormDeregister: this.deregister,
-      getFormValues: this.getFormValues,
+      ...useRegistryProviders(this),
       observeErrors: this.addErrorObserver,
-      removeErrorObserver: this.removeErrorObserver
+      removeErrorObserver: this.removeErrorObserver,
+      formulateFieldValidation: this.formulateFieldValidation
     }
   },
   name: 'FormulateForm',
@@ -57,8 +54,7 @@ export default {
   },
   data () {
     return {
-      registry: {},
-      internalFormModelProxy: {},
+      ...useRegistry(this),
       formShouldShowErrors: false,
       errorObservers: [],
       namedErrors: [],
@@ -66,33 +62,11 @@ export default {
     }
   },
   computed: {
-    hasInitialValue () {
-      return (
-        (this.formulateValue && typeof this.formulateValue === 'object') ||
-        (this.values && typeof this.values === 'object')
-      )
-    },
-    isVmodeled () {
-      return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
-        this._events &&
-        Array.isArray(this._events.input) &&
-        this._events.input.length)
-    },
-    initialValues () {
-      if (
-        Object.prototype.hasOwnProperty.call(this.$options.propsData, 'formulateValue') &&
-        typeof this.formulateValue === 'object'
-      ) {
-        // If there is a v-model on the form, use those values as first priority
-        return Object.assign({}, this.formulateValue) // @todo - use a deep clone to detach reference types
-      } else if (
-        Object.prototype.hasOwnProperty.call(this.$options.propsData, 'values') &&
-        typeof this.values === 'object'
-      ) {
-        // If there are values, use them as secondary priority
-        return Object.assign({}, this.values)
+    ...useRegistryComputed(),
+    formContext () {
+      return {
+        errors: this.mergedFormErrors
       }
-      return {}
     },
     classes () {
       const classes = { 'formulate-form': true }
@@ -122,20 +96,12 @@ export default {
   },
   watch: {
     formulateValue: {
-      handler (newValue, oldValue) {
+      handler (values) {
         if (this.isVmodeled &&
-          newValue &&
-          typeof newValue === 'object'
+          values &&
+          typeof values === 'object'
         ) {
-          for (const field in newValue) {
-            if (this.registry.hasOwnProperty(field) &&
-              !shallowEqualObjects(newValue[field], this.internalFormModelProxy[field]) &&
-              !shallowEqualObjects(newValue[field], this.registry[field].internalModelProxy[field])
-            ) {
-              this.setFieldValue(field, newValue[field])
-              this.registry[field].context.model = newValue[field]
-            }
-          }
+          this.setValues(values)
         }
       },
       deep: true
@@ -162,11 +128,7 @@ export default {
     this.$formulate.deregister(this)
   },
   methods: {
-    applyInitialValues () {
-      if (this.hasInitialValue) {
-        this.internalFormModelProxy = this.initialValues
-      }
-    },
+    ...useRegistryMethods(),
     applyErrors ({ formErrors, inputErrors }) {
       // given an object of errors, apply them to this form
       this.namedErrors = formErrors
@@ -177,49 +139,13 @@ export default {
         this.errorObservers.push(observer)
         if (observer.type === 'form') {
           observer.callback(this.mergedFormErrors)
-        } else if (Object.prototype.hasOwnProperty.call(this.mergedFieldErrors, observer.field)) {
+        } else if (has(this.mergedFieldErrors, observer.field)) {
           observer.callback(this.mergedFieldErrors[observer.field])
         }
       }
     },
     removeErrorObserver (observer) {
       this.errorObservers = this.errorObservers.filter(obs => obs.callback !== observer)
-    },
-    setFieldValue (field, value) {
-      Object.assign(this.internalFormModelProxy, { [field]: value })
-      this.$emit('input', Object.assign({}, this.internalFormModelProxy))
-    },
-    getUniqueRegistryName (base, count = 0) {
-      if (Object.prototype.hasOwnProperty.call(this.registry, base + (count || ''))) {
-        return this.getUniqueRegistryName(base, count + 1)
-      }
-      return base + (count || '')
-    },
-    register (field, component) {
-      // Don't re-register fields... @todo come up with another way of handling this that doesn't break multi option
-      if (Object.prototype.hasOwnProperty.call(this.registry, field)) {
-        return false
-      }
-      this.registry[field] = component
-      const hasVModelValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'formulateValue')
-      const hasValue = Object.prototype.hasOwnProperty.call(component.$options.propsData, 'value')
-      if (
-        !hasVModelValue &&
-        this.hasInitialValue &&
-        this.initialValues[field]
-      ) {
-        // In the case that the form is carrying an initial value and the
-        // element is not, set it directly.
-        component.context.model = this.initialValues[field]
-      } else if (
-        (hasVModelValue || hasValue) &&
-        !shallowEqualObjects(component.internalModelProxy, this.initialValues[field])
-      ) {
-        this.setFieldValue(field, component.internalModelProxy)
-      }
-    },
-    deregister (field) {
-      delete this.registry[field]
     },
     registerErrorComponent (component) {
       if (!this.errorComponents.includes(component)) {
@@ -241,22 +167,8 @@ export default {
           return undefined
         })
     },
-    showErrors () {
-      for (const fieldName in this.registry) {
-        this.registry[fieldName].formShouldShowErrors = true
-      }
-    },
-    getFormValues () {
-      return this.internalFormModelProxy
-    },
-    hasValidationErrors () {
-      const resolvers = []
-      for (const fieldName in this.registry) {
-        if (typeof this.registry[fieldName].hasValidationErrors === 'function') {
-          resolvers.push(this.registry[fieldName].hasValidationErrors())
-        }
-      }
-      return Promise.all(resolvers).then(fields => !!fields.find(hasErrors => hasErrors))
+    formulateFieldValidation (errorObject) {
+      this.$emit('validation', errorObject)
     }
   }
 }
