@@ -10,7 +10,7 @@ Vue.use(Formulate)
 describe('FormulateInputSelect', () => {
   it('renders select input when type is "select"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'select' } })
-    expect(wrapper.contains(FormulateInputSelect)).toBe(true)
+    expect(wrapper.findComponent(FormulateInputSelect).exists()).toBe(true)
   })
 
   it('renders select options when options object is passed', () => {

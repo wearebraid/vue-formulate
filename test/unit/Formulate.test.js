@@ -62,17 +62,25 @@ describe('Formulate', () => {
 
   it('installs on vue instance', () => {
     const components = [
+      'FormulateSlot',
       'FormulateForm',
+      'FormulateHelp',
+      'FormulateLabel',
       'FormulateInput',
       'FormulateErrors',
+      'FormulateAddMore',
+      'FormulateGrouping',
       'FormulateInputBox',
       'FormulateInputText',
       'FormulateInputFile',
+      'FormulateRepeatable',
       'FormulateInputGroup',
       'FormulateInputButton',
       'FormulateInputSelect',
       'FormulateInputSlider',
-      'FormulateInputTextArea'
+      'FormulateInputTextArea',
+      'FormulateRepeatableRemove',
+      'FormulateRepeatableProvider'
     ]
     const registry = []
     function Vue () {}
@@ -153,7 +161,7 @@ describe('Formulate', () => {
     expect(Vue.prototype.$formulate.getLocale(vm)).toBe('nl-BE')
   })
 
-  it('can select a matching locale using i18n', () => {
+  it('can select a matching locale using i18n locale string', () => {
     Formulate.selectedLocale = false // reset the memoization
     function Vue () {}
     Vue.component = function (name, instance) {}
@@ -165,5 +173,20 @@ describe('Formulate', () => {
       }
     })
     expect(Vue.prototype.$formulate.getLocale(vm)).toBe('cn')
+  })
+
+  it('can select a matching locale using i18n locale function', () => {
+    Formulate.selectedLocale = false // reset the memoization
+    function Vue () {}
+    Vue.component = function (name, instance) {}
+    const vm = { $i18n: {locale: () => 'en-US' } }
+    Formulate.install(Vue, {
+      locales: {
+        cn: {},
+        em: {},
+        en: {}
+      }
+    })
+    expect(Vue.prototype.$formulate.getLocale(vm)).toBe('en')
   })
 })

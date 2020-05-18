@@ -47,5 +47,8 @@ export default {
 
   // === FILE TYPE
   file: add('file'),
-  image: add('file')
+  image: add('file'),
+
+  // === GROUP TYPE
+  group: add('group')
 }

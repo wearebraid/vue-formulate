@@ -8,14 +8,25 @@
   >
     <div class="formulate-input-wrapper">
       <slot
-        v-if="context.hasLabel && context.labelPosition === 'before'"
+        v-if="context.labelPosition === 'before'"
         name="label"
         v-bind="context"
       >
-        <label
-          class="formulate-input-label formulate-input-label--before"
-          :for="context.attributes.id"
-          v-text="context.label"
+        <component
+          :is="context.slotComponents.label"
+          v-if="context.hasLabel"
+          :context="context"
+        />
+      </slot>
+      <slot
+        v-if="context.helpPosition === 'before'"
+        name="help"
+        v-bind="context"
+      >
+        <component
+          :is="context.slotComponents.help"
+          v-if="context.help"
+          :context="context"
         />
       </slot>
       <slot
@@ -25,50 +36,71 @@
         <component
           :is="context.component"
           :context="context"
+          @click="$emit('click', $event)"
         >
           <slot v-bind="context" />
         </component>
       </slot>
       <slot
-        v-if="context.hasLabel && context.labelPosition === 'after'"
+        v-if="context.labelPosition === 'after'"
         name="label"
-        v-bind="context.label"
+        v-bind="context"
       >
-        <label
-          class="formulate-input-label formulate-input-label--after"
-          :for="context.attributes.id"
-          v-text="context.label"
+        <component
+          :is="context.slotComponents.label"
+          v-if="context.hasLabel"
+          :context="context"
         />
       </slot>
     </div>
-    <div
-      v-if="help"
-      class="formulate-input-help"
-      v-text="help"
-    />
-    <FormulateErrors
-      v-if="!disableErrors"
-      :type="`input`"
-      :errors="explicitErrors"
-      :field-name="nameOrFallback"
-      :validation-errors="validationErrors"
-      :show-validation-errors="showValidationErrors"
-    />
+    <slot
+      v-if="context.helpPosition === 'after'"
+      name="help"
+      v-bind="context"
+    >
+      <component
+        :is="context.slotComponents.help"
+        v-if="context.help"
+        :context="context"
+      />
+    </slot>
+    <slot
+      name="errors"
+      v-bind="context"
+    >
+      <component
+        :is="context.slotComponents.errors"
+        v-if="!context.disableErrors"
+        :type="context.slotComponents.errors === 'FormulateErrors' ? 'input' : false"
+        :context="context"
+      />
+    </slot>
   </div>
 </template>
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, snakeToCamel } from './libs/utils'
+import { shallowEqualObjects, parseRules, snakeToCamel, has, arrayify, groupBails } from './libs/utils'
 
 export default {
   name: 'FormulateInput',
   inheritAttrs: false,
+  provide () {
+    return {
+      // Allows sub-components of this input to register arbitrary rules.
+      formulateRegisterRule: this.registerRule,
+      formulateRemoveRule: this.removeRule
+    }
+  },
   inject: {
-    formulateFormSetter: { default: undefined },
-    formulateFormRegister: { default: undefined },
-    formulateFormDeregister: { default: undefined },
-    getFormValues: { default: () => () => ({}) }
+    formulateSetter: { default: undefined },
+    formulateFieldValidation: { default: () => () => ({}) },
+    formulateRegister: { default: undefined },
+    formulateDeregister: { default: undefined },
+    getFormValues: { default: () => () => ({}) },
+    observeErrors: { default: undefined },
+    removeErrorObserver: { default: undefined },
+    isSubField: { default: () => () => false }
   },
   model: {
     prop: 'formulateValue',
@@ -111,16 +143,24 @@ export default {
       type: [String, Boolean],
       default: false
     },
+    limit: {
+      type: Number,
+      default: Infinity
+    },
     help: {
       type: [String, Boolean],
       default: false
     },
-    debug: {
-      type: Boolean,
+    helpPosition: {
+      type: [String, Boolean],
       default: false
     },
     errors: {
       type: [String, Array, Boolean],
+      default: false
+    },
+    repeatable: {
+      type: Boolean,
       default: false
     },
     validation: {
@@ -139,7 +179,7 @@ export default {
       type: String,
       default: 'blur',
       validator: function (value) {
-        return ['blur', 'live'].includes(value)
+        return ['blur', 'live', 'submit'].includes(value)
       }
     },
     showErrors: {
@@ -185,17 +225,25 @@ export default {
     disableErrors: {
       type: Boolean,
       default: false
+    },
+    addLabel: {
+      type: [Boolean, String],
+      default: false
     }
   },
   data () {
     return {
       defaultId: this.$formulate.nextId(this),
       localAttributes: {},
-      internalModelProxy: this.getInitialValue(),
+      localErrors: [],
+      proxy: this.getInitialValue(),
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
       validationErrors: [],
-      pendingValidation: Promise.resolve()
+      pendingValidation: Promise.resolve(),
+      // These registries are used for injected messages registrants only (mostly internal).
+      ruleRegistry: [],
+      messageRegistry: {}
     }
   },
   computed: {
@@ -209,7 +257,7 @@ export default {
     },
     parsedValidationRules () {
       const parsedValidationRules = {}
-      Object.keys(this.validationRules).forEach((key) => {
+      Object.keys(this.validationRules).forEach(key => {
         parsedValidationRules[snakeToCamel(key)] = this.validationRules[key]
       })
       return parsedValidationRules
@@ -218,6 +266,9 @@ export default {
       const messages = {}
       Object.keys(this.validationMessages).forEach((key) => {
         messages[snakeToCamel(key)] = this.validationMessages[key]
+      })
+      Object.keys(this.messageRegistry).forEach((key) => {
+        messages[snakeToCamel(key)] = this.messageRegistry[key]
       })
       return messages
     }
@@ -229,7 +280,7 @@ export default {
       },
       deep: true
     },
-    internalModelProxy (newValue, oldValue) {
+    proxy (newValue, oldValue) {
       this.performValidation()
       if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
         this.context.model = newValue
@@ -239,19 +290,31 @@ export default {
       if (this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
         this.context.model = newValue
       }
+    },
+    showValidationErrors: {
+      handler (val) {
+        this.$emit('error-visibility', val)
+      },
+      immediate: true
     }
   },
   created () {
     this.applyInitialValue()
-    if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
-      this.formulateFormRegister(this.nameOrFallback, this)
+    if (this.formulateRegister && typeof this.formulateRegister === 'function') {
+      this.formulateRegister(this.nameOrFallback, this)
+    }
+    if (!this.disableErrors && typeof this.observeErrors === 'function') {
+      this.observeErrors({ callback: this.setErrors, type: 'input', field: this.nameOrFallback })
     }
     this.updateLocalAttributes(this.$attrs)
     this.performValidation()
   },
   beforeDestroy () {
-    if (this.formulateFormDeregister && typeof this.formulateFormDeregister === 'function') {
-      this.formulateFormDeregister(this.nameOrFallback)
+    if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
+      this.removeErrorObserver(this.setErrors)
+    }
+    if (typeof this.formulateDeregister === 'function') {
+      this.formulateDeregister(this.nameOrFallback)
     }
   },
   methods: {
@@ -261,9 +324,9 @@ export default {
       classification = (classification === 'box' && this.options) ? 'group' : classification
       if (classification === 'box' && this.checked) {
         return this.value || true
-      } else if (Object.prototype.hasOwnProperty.call(this.$options.propsData, 'value') && classification !== 'box') {
+      } else if (has(this.$options.propsData, 'value') && classification !== 'box') {
         return this.value
-      } else if (Object.prototype.hasOwnProperty.call(this.$options.propsData, 'formulateValue')) {
+      } else if (has(this.$options.propsData, 'formulateValue')) {
         return this.formulateValue
       }
       return ''
@@ -272,11 +335,11 @@ export default {
       // This should only be run immediately on created and ensures that the
       // proxy and the model are both the same before any additional registration.
       if (
-        !shallowEqualObjects(this.context.model, this.internalModelProxy) &&
+        !shallowEqualObjects(this.context.model, this.proxy) &&
         // we dont' want to set the model if we are a sub-box of a multi-box field
         (Object.prototype.hasOwnProperty(this.$options.propsData, 'options') && this.classification === 'box')
       ) {
-        this.context.model = this.internalModelProxy
+        this.context.model = this.proxy
       }
     },
     updateLocalAttributes (value) {
@@ -285,21 +348,56 @@ export default {
       }
     },
     performValidation () {
-      const rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
-      this.pendingValidation = Promise.all(
-        rules.map(([rule, args, ruleName]) => {
-          var res = rule({
-            value: this.context.model,
-            getFormValues: this.getFormValues.bind(this),
-            name: this.context.name
-          }, ...args)
-          res = (res instanceof Promise) ? res : Promise.resolve(res)
-          return res.then(res => res ? false : this.getMessage(ruleName, args))
-        })
-      )
-        .then(result => result.filter(result => result))
-        .then(errorMessages => { this.validationErrors = errorMessages })
+      let rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
+      // Add in ruleRegistry rules. These are added directly via injection from
+      // children and not part of the standard validation rule set.
+      rules = this.ruleRegistry.length ? this.ruleRegistry.concat(rules) : rules
+      this.pendingValidation = this.runRules(rules)
+        .then(messages => this.didValidate(messages))
       return this.pendingValidation
+    },
+    runRules (rules) {
+      const run = ([rule, args, ruleName, modifier]) => {
+        var res = rule({
+          value: this.context.model,
+          getFormValues: this.getFormValues.bind(this),
+          name: this.context.name
+        }, ...args)
+        res = (res instanceof Promise) ? res : Promise.resolve(res)
+        return res.then(result => result ? false : this.getMessage(ruleName, args))
+      }
+
+      return new Promise(resolve => {
+        const resolveGroups = (groups, allMessages = []) => {
+          const ruleGroup = groups.shift()
+          if (Array.isArray(ruleGroup) && ruleGroup.length) {
+            Promise.all(ruleGroup.map(run))
+              .then(messages => messages.filter(m => !!m))
+              .then(messages => {
+                messages = Array.isArray(messages) ? messages : []
+                // The rule passed or its a non-bailing group, and there are additional groups to check, continue
+                if ((!messages.length || !ruleGroup.bail) && groups.length) {
+                  return resolveGroups(groups, allMessages.concat(messages))
+                }
+                return resolve(allMessages.concat(messages))
+              })
+          } else {
+            resolve([])
+          }
+        }
+        resolveGroups(groupBails(rules))
+      })
+    },
+    didValidate (messages) {
+      const validationChanged = !shallowEqualObjects(messages, this.validationErrors)
+      this.validationErrors = messages
+      if (validationChanged) {
+        const errorObject = this.getErrorObject()
+        this.$emit('validation', errorObject)
+        if (this.formulateFieldValidation && typeof this.formulateFieldValidation === 'function') {
+          this.formulateFieldValidation(errorObject)
+        }
+      }
     },
     getMessage (ruleName, args) {
       return this.getMessageFunc(ruleName)({
@@ -317,6 +415,7 @@ export default {
           case 'function':
             return this.messages[ruleName]
           case 'string':
+          case 'boolean':
             return () => this.messages[ruleName]
         }
       }
@@ -328,6 +427,37 @@ export default {
           this.pendingValidation.then(() => resolve(!!this.validationErrors.length))
         })
       })
+    },
+    getValidationErrors () {
+      return new Promise(resolve => {
+        this.$nextTick(() => this.pendingValidation.then(() => resolve(this.getErrorObject())))
+      })
+    },
+    getErrorObject () {
+      return {
+        name: this.context.nameOrFallback || this.context.name,
+        errors: this.validationErrors.filter(s => typeof s === 'string'),
+        hasErrors: !!this.validationErrors.length
+      }
+    },
+    setErrors (errors) {
+      this.localErrors = arrayify(errors)
+    },
+    registerRule (rule, args, ruleName, message = null) {
+      if (!this.ruleRegistry.some(r => r[2] === ruleName)) {
+        // These are the raw rule format since they will be used directly.
+        this.ruleRegistry.push([rule, args, ruleName])
+        if (message !== null) {
+          this.messageRegistry[ruleName] = message
+        }
+      }
+    },
+    removeRule (key) {
+      const ruleIndex = this.ruleRegistry.findIndex(r => r[2] === key)
+      if (ruleIndex >= 0) {
+        this.ruleRegistry.splice(ruleIndex, 1)
+        delete this.messageRegistry[key]
+      }
     }
   }
 }
