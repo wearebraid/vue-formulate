@@ -1,12 +1,12 @@
 <template>
   <div
-    class="formulate-input"
+    :class="context.classes.outer"
     :data-classification="classification"
     :data-has-errors="hasErrors"
     :data-is-showing-errors="hasVisibleErrors"
     :data-type="type"
   >
-    <div class="formulate-input-wrapper">
+    <div :class="context.classes.wrapper">
       <slot
         v-if="context.labelPosition === 'before'"
         name="label"

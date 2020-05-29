@@ -1,5 +1,6 @@
 import library from './libs/library'
 import rules from './libs/rules'
+import classes from './libs/classes'
 import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
 import { arrayify, parseLocale, has } from './libs/utils'
@@ -65,6 +66,7 @@ class Formulate {
         addMore: 'FormulateAddMore',
         remove: 'FormulateRepeatableRemove'
       },
+      classes,
       library,
       rules,
       mimes,
@@ -166,6 +168,15 @@ class Formulate {
       return this.options.library[type].classification
     }
     return 'unknown'
+  }
+
+  /**
+   * Generate classes for a particular context.
+   * @param {string} element The name of the element slot ('outer', label')
+   * @param {Object} context
+   */
+  classes (element, context) {
+    return this.options.classes(element, context)
   }
 
   /**

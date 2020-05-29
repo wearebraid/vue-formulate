@@ -77,6 +77,7 @@ export default {
         slotComponents,
         validationErrors,
         visibleValidationErrors,
+        classes,
         help,
         ...context
       } = this.context

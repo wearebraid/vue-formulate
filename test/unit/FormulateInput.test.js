@@ -316,4 +316,22 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
   })
+
+  it('allows you to change classes on the primary element, but does not replace others', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', class: 'my-custom-class' }})
+    const classes = wrapper.find('input').element.classList
+    expect(classes.contains('my-custom-class')).toBe(true)
+  })
+
+  it('has formulate-input wrapper classes by default', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text' }})
+    expect(wrapper.attributes('class')).toBe('formulate-input');
+    expect(wrapper.find('.formulate-input > *').attributes('class')).toBe('formulate-input-wrapper')
+
+  })
+
+  // it('allows you to change the classes on the label element', () => {
+  //   const wrapper = mount(FormulateInput, { propsData: { type: 'text', labelClass: 'my-custom-class' }})
+  //   expect(wrapper.find('label').element.classList.contains('my-custom-class')).toBe(true)
+  // })
 })

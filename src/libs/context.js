@@ -42,6 +42,7 @@ export default {
       value: this.value,
       visibleValidationErrors: this.visibleValidationErrors,
       isSubField: this.isSubField,
+      classes: this.classes,
       ...this.typeContext
     })
   },
@@ -64,7 +65,8 @@ export default {
   showValidationErrors,
   visibleValidationErrors,
   slotComponents,
-  logicalAddLabel
+  logicalAddLabel,
+  classes
 }
 
 /**
@@ -125,6 +127,16 @@ function elementAttributes () {
   }
 
   return attrs
+}
+
+/**
+ * Returns a map of classes for all markup in the element.
+ */
+function classes () {
+  return {
+    outer: this.$formulate.classes('input'),
+    wrapper: this.$formulate.classes('wrapper')
+  }
 }
 
 /**
