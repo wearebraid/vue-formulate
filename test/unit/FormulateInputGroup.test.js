@@ -479,4 +479,32 @@ describe('FormulateInputGroup', () => {
     await flushPromises();
     expect(wrapper.findComponent(FormulateGrouping).vm.items).toEqual([])
   })
+
+  it('sets data-has-value on parent when any child has a value', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="group"
+          name="test"
+          :repeatable="true"
+          v-model="model"
+        >
+          <FormulateInput
+            name="field"
+            type="text"
+          />
+        </FormulateInput>
+      `,
+      data () {
+        return {
+          model: [{}, {}]
+        }
+      }
+    })
+    await flushPromises();
+    expect(wrapper.attributes('data-has-value')).toBe(undefined)
+    wrapper.find('input').setValue('a value')
+    await flushPromises()
+    expect(wrapper.attributes('data-has-value')).toBe('true')
+  })
 })

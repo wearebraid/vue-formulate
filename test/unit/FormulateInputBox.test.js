@@ -225,4 +225,45 @@ describe('FormulateInputBox', () => {
     expect(labelIds.length).toBe(2);
     expect(labelIds.filter(labelId => labelId === id).length).toBe(2);
   })
+
+  it('does not have data-is-showing-errors on well formed box inputs', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'radio', options: {first: 'First', second: 'Second', third: 'Third' }} })
+    const radios = wrapper.findAll('input[type="radio"]')
+    radios.at(0).setChecked()
+    await flushPromises()
+    radios.at(2).setChecked()
+    radios.at(2).trigger('blur')
+    await flushPromises()
+    expect(radios.at(0).attributes('data-is-showing-errors')).toBe(undefined)
+  })
+
+  it('sets data-has-value when single checkbox has value, and removes it when it doesnt', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'checkbox' }
+    })
+    expect(wrapper.attributes('data-has-value')).toBe(undefined)
+    await flushPromises()
+    wrapper.find('input[type="checkbox"]').setChecked()
+    await flushPromises()
+    expect(wrapper.attributes('data-has-value')).toBe('true')
+    wrapper.find('input[type="checkbox"]').setChecked(false)
+    await flushPromises()
+    expect(wrapper.attributes('data-has-value')).toBe(undefined)
+
+  })
+
+  it('sets data-has-value when box input has value and multiple options', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'radio', options: {first: 'First', second: 'Second', third: 'Third' }}
+    })
+    expect(wrapper.attributes('data-has-value')).toBe(undefined)
+    await flushPromises()
+    wrapper.find('input[type="radio"]').setChecked()
+    await flushPromises()
+    expect(wrapper.attributes('data-has-value')).toBe('true')
+    const subBoxes = wrapper.findAll('[data-classification="box"]')
+    expect(subBoxes.at(0).attributes('data-has-value')).toBe('true')
+    expect(subBoxes.at(1).attributes('data-has-value')).toBe(undefined)
+  })
+
 })

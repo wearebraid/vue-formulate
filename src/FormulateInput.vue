@@ -4,6 +4,7 @@
     :data-classification="classification"
     :data-has-errors="hasErrors"
     :data-is-showing-errors="hasVisibleErrors"
+    :data-has-value="hasValue"
     :data-type="type"
   >
     <div class="formulate-input-wrapper">
@@ -153,6 +154,10 @@ export default {
     },
     helpPosition: {
       type: [String, Boolean],
+      default: false
+    },
+    isGrouped: {
+      type: Boolean,
       default: false
     },
     errors: {

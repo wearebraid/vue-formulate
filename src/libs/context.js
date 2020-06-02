@@ -1,4 +1,4 @@
-import { map, arrayify, shallowEqualObjects } from './utils'
+import { map, arrayify, shallowEqualObjects, isEmpty } from './utils'
 
 /**
  * For a single instance of an input, export all of the context needed to fully
@@ -18,6 +18,7 @@ export default {
       formShouldShowErrors: this.formShouldShowErrors,
       getValidationErrors: this.getValidationErrors.bind(this),
       hasGivenName: this.hasGivenName,
+      hasValue: this.hasValue,
       hasLabel: (this.label && this.classification !== 'button'),
       hasValidationErrors: this.hasValidationErrors.bind(this),
       help: this.help,
@@ -53,6 +54,10 @@ export default {
   logicalLabelPosition,
   logicalHelpPosition,
   mergedUploadUrl,
+  hasValue,
+  visibleValidationErrors,
+  slotComponents,
+  logicalAddLabel,
 
   // These items are not passed as context
   isVmodeled,
@@ -61,10 +66,7 @@ export default {
   allErrors,
   hasErrors,
   hasVisibleErrors,
-  showValidationErrors,
-  visibleValidationErrors,
-  slotComponents,
-  logicalAddLabel
+  showValidationErrors
 }
 
 /**
@@ -225,6 +227,20 @@ function hasGivenName () {
 }
 
 /**
+ * Determines if the current input has a value or not. To do this we need to
+ * check for various falsey values. But we cannot assume that all falsey values
+ * mean an empty or unselected field (for example 0) and we cant assume that
+ * all truthy values are empty like [] or {}.
+ */
+function hasValue () {
+  const value = this.proxy
+  if (this.classification === 'box' && this.isGrouped) {
+    return Array.isArray(value) ? value.some(v => v === this.value) : this.value === value
+  }
+  return !isEmpty(value)
+}
+
+/**
  * Determines if this formulate element is v-modeled or not.
  */
 function isVmodeled () {
@@ -280,7 +296,10 @@ function hasErrors () {
  * Returns if form has actively visible errors (of any kind)
  */
 function hasVisibleErrors () {
-  return ((this.validationErrors && this.showValidationErrors) || !!this.explicitErrors.length)
+  return (
+    (Array.isArray(this.validationErrors) && this.validationErrors.length && this.showValidationErrors) ||
+    !!this.explicitErrors.length
+  )
 }
 
 /**
