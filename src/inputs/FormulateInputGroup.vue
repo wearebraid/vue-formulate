@@ -78,6 +78,7 @@ export default {
         validationErrors,
         visibleValidationErrors,
         showValidationErrors,
+        rootEmit,
         help,
         ...context
       } = this.context

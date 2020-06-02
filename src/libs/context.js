@@ -32,6 +32,7 @@ export default {
       performValidation: this.performValidation.bind(this),
       preventWindowDrops: this.preventWindowDrops,
       repeatable: this.repeatable,
+      rootEmit: this.$emit.bind(this),
       setErrors: this.setErrors.bind(this),
       showValidationErrors: this.showValidationErrors,
       slotComponents: this.slotComponents,

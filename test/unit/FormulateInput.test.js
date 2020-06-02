@@ -316,4 +316,13 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
   })
+
+  it('passes $emit to rootEmit inside the context object', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text' }
+    })
+    wrapper.vm.context.rootEmit('foo', 'bar')
+    await flushPromises()
+    expect(wrapper.emitted().foo[0]).toEqual(['bar'])
+  })
 })
