@@ -317,10 +317,16 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
   })
 
-  it('allows you to change classes on the primary element, but does not replace others', () => {
+  it('allows you to replace classes on the primary element', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text', class: 'my-custom-class' }})
     const classes = wrapper.find('input').element.classList
     expect(classes.contains('my-custom-class')).toBe(true)
+  })
+
+  it('allows you to replace classes on the primary element as arrays', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', class: ['my-custom-class', 'my-second-class'] }})
+    const classes = wrapper.find('input').element.classList
+    expect(classes.contains('my-custom-class') && classes.contains('my-second-class')).toBe(true)
   })
 
   it('has formulate-input wrapper classes by default', () => {

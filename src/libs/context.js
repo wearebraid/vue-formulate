@@ -126,17 +126,25 @@ function elementAttributes () {
     attrs['aria-describedby'] = `${attrs.id}-help`
   }
 
+  // @todo Filter out class props.
+
+  // @todo Filter out "local props" for custom inputs.
+
   return attrs
 }
 
 /**
- * Returns a map of classes for all markup in the element.
+ * Apply the result of the classes computed prop to any existing prop classes.
  */
 function classes () {
-  return {
-    outer: this.$formulate.classes('input'),
-    wrapper: this.$formulate.classes('wrapper')
-  }
+  return this.$formulate.classes({
+    ...this.$props,
+    ...{
+      type: this.type,
+      labelPosition: this.logicalLabelPosition,
+      helpPosition: this.logicalHelpPosition
+    }
+  })
 }
 
 /**
