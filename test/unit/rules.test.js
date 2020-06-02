@@ -56,6 +56,8 @@ describe('alpha', () => {
 
   it('passes with accented character', async () => expect(await rules.alpha({ value: 'jüstin' })).toBe(true))
 
+  it('passes with polish diacritic character', async () => expect(await rules.alpha({ value: 'bęlch' })).toBe(true))
+
   it('passes with lots of accented characters', async () => expect(await rules.alpha({ value: 'àáâäïíôöÆ' })).toBe(true))
 
   it('passes with lots of accented characters if invalid set', async () => expect(await rules.alpha({ value: 'àáâäïíôöÆ' }, 'russian')).toBe(true))
@@ -78,6 +80,8 @@ describe('alphanumeric', () => {
   it('passes with single character', async () => expect(await rules.alphanumeric({ value: 'z' })).toBe(true))
 
   it('passes with accented character', async () => expect(await rules.alphanumeric({ value: 'jüst56in' })).toBe(true))
+
+  it('passes with polish diacritic character', async () => expect(await rules.alphanumeric({ value: 'jźąż' })).toBe(true))
 
   it('passes with lots of accented characters', async () => expect(await rules.alphanumeric({ value: 'àáâ7567567äïíôöÆ' })).toBe(true))
 
