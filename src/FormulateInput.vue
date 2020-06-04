@@ -412,7 +412,8 @@ export default {
         name: this.mergedValidationName,
         value: this.context.model,
         vm: this,
-        formValues: this.getFormValues()
+        formValues: this.getFormValues(this),
+        getFormValues: (...args) => this.getFormValues(this, ...args)
       })
     },
     getMessageFunc (ruleName) {

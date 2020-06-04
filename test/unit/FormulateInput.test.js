@@ -325,4 +325,43 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.emitted().foo[0]).toEqual(['bar'])
   })
+
+  it('allows getFormValues inside of custom validation messages', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm>
+          <FormulateInput type="text" name="first" />
+          <FormulateInput type="text"  name="last" />
+          <FormulateInput
+            type="text"
+            name="name"
+            validation="fullName"
+            :validation-rules="{ fullName }"
+            :validation-messages="{ fullName: fullNameMessage }"
+            error-behavior="live"
+          />
+        </FormulateForm>
+      `,
+      methods: {
+        fullName ({ value, getFormValues }) {
+          const values = getFormValues()
+          return `${values.first} ${values.last}` === value
+        },
+        fullNameMessage ({ value, formValues }) {
+          return `${formValues.first} ${formValues.last} does not equal ${value}.`
+        }
+      }
+    })
+    await flushPromises()
+    const inputs = wrapper.findAll('input[type="text"]')
+    inputs.at(0).setValue('jon')
+    inputs.at(1).setValue('baley')
+    inputs.at(2).setValue('jon baley')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(false)
+    inputs.at(1).setValue('parker')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('jon parker does not equal jon baley.')
+  })
 })
