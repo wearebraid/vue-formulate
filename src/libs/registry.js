@@ -29,6 +29,8 @@ class Registry {
    * @param {string} name
    */
   remove (name) {
+    this.ctx.deps.delete(this.registry.get(name))
+    this.ctx.deps.forEach(dependents => dependents.delete(name))
     this.registry.delete(name)
     const { [name]: value, ...newProxy } = this.ctx.proxy
     this.ctx.proxy = newProxy
@@ -121,7 +123,8 @@ class Registry {
       registry: this,
       register: this.register.bind(this),
       deregister: field => this.remove(field),
-      childrenShouldShowErrors: false
+      childrenShouldShowErrors: false,
+      deps: new Map()
     }
   }
 }
@@ -195,8 +198,26 @@ export function useRegistryMethods (without = []) {
       }
       this.$emit('input', Object.assign({}, this.proxy))
     },
-    getFormValues () {
-      return this.proxy
+    valueDeps (callerCmp) {
+      return Object.keys(this.proxy)
+        .reduce((o, k) => Object.defineProperty(o, k, {
+          enumerable: true,
+          get: () => {
+            const callee = this.registry.get(k)
+            this.deps.set(callerCmp, this.deps.get(callerCmp) || new Set())
+            if (callee) {
+              this.deps.set(callee, this.deps.get(callee) || new Set())
+              this.deps.get(callee).add(callerCmp.name)
+            }
+            this.deps.get(callerCmp).add(k)
+            return this.proxy[k]
+          }
+        }), Object.create(null))
+    },
+    validateDeps (callerCmp) {
+      if (this.deps.has(callerCmp)) {
+        this.deps.get(callerCmp).forEach(field => this.registry.has(field) && this.registry.get(field).performValidation())
+      }
     },
     hasValidationErrors () {
       return Promise.all(this.registry.reduce((resolvers, cmp, name) => {
@@ -244,6 +265,7 @@ export function useRegistryProviders (ctx) {
     formulateSetter: ctx.setFieldValue,
     formulateRegister: ctx.register,
     formulateDeregister: ctx.deregister,
-    getFormValues: ctx.getFormValues
+    getFormValues: ctx.valueDeps,
+    validateDependents: ctx.validateDeps
   }
 }

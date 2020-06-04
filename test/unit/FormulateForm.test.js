@@ -597,4 +597,67 @@ describe('FormulateForm', () => {
     expect(wrapper.findAll('.formulate-input-error').length).toBe(0)
     expect(wrapper.vm.formData).toEqual({})
   })
+
+  it('re-validates dependent fields used in validation context', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+          name="login"
+        >
+          <FormulateInput type="password" name="password" error-behavior="live" />
+          <FormulateInput type="password" name="password_confirm" validation="confirm" error-behavior="live" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          formData: {
+            password: 'foobar',
+            password_confirm: 'foobar'
+          }
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(false)
+    const passwords = wrapper.findAll('input[type="password"]')
+    passwords.at(1).setValue('123')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
+    passwords.at(0).setValue('123')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(false)
+  })
+
+  it('gracefully removes dependent fields when removed', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+          name="login"
+        >
+          <FormulateInput type="password" name="password" error-behavior="live" />
+          <FormulateInput type="password" name="password_confirm" validation="confirm" error-behavior="live" v-if="hasConfirm"/>
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          hasConfirm: true,
+          formData: {
+            password: 'foobar',
+            password_confirm: 'foobar'
+          }
+        }
+      }
+    })
+    await flushPromises()
+    var inputs = wrapper.findAllComponents(FormulateInput)
+    expect(wrapper.findComponent(FormulateForm).vm.deps.get(inputs.at(0).vm)).toEqual(new Set(['password_confirm']))
+    expect(wrapper.findComponent(FormulateForm).vm.deps.get(inputs.at(1).vm)).toEqual(new Set(['password']))
+    wrapper.vm.hasConfirm = false
+    await flushPromises();
+    inputs = wrapper.findAllComponents(FormulateInput)
+    expect(inputs.length).toBe(1)
+    expect(wrapper.findComponent(FormulateForm).vm.deps.get(inputs.at(0).vm)).toEqual(new Set([]))
+  })
 })
