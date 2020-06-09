@@ -358,8 +358,8 @@ function modelGetter () {
 function modelSetter (value) {
   if (!shallowEqualObjects(value, this.proxy)) {
     this.proxy = value
+    this.$emit('input', value)
   }
-  this.$emit('input', value)
   if (this.context.name && typeof this.formulateSetter === 'function') {
     this.formulateSetter(this.context.name, value)
   }

@@ -364,4 +364,12 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
     expect(wrapper.find('.formulate-input-errors li').text()).toBe('jon parker does not equal jon baley.')
   })
+
+  it('emits an input event a single time on change', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text' }})
+    await flushPromises()
+    wrapper.find('input').setValue('a')
+    await flushPromises()
+    expect(wrapper.emitted().input.length).toBe(1);
+  })
 })
