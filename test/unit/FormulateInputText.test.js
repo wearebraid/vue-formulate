@@ -310,4 +310,15 @@ describe('FormulateInputText', () => {
     await flushPromises();
     expect(wrapper.findAll('.my-errors li').length).toBe(2)
   })
+
+  it('sets data-has-value when it has a value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text' }})
+    expect(wrapper.attributes('data-has-value')).toBe(undefined)
+    wrapper.find('input').setValue('abc123')
+    await flushPromises()
+    expect(wrapper.attributes('data-has-value')).toBe('true')
+    wrapper.find('input').setValue('')
+    await flushPromises()
+    expect(wrapper.attributes('data-has-value')).toBe(undefined)
+  })
 })

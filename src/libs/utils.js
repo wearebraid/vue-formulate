@@ -284,3 +284,22 @@ export function has (ctx, prop) {
 export function setId (o, id) {
   return Object.defineProperty(o, '__id', Object.assign(Object.create(null), { value: id || Symbol('uuid') }))
 }
+
+/**
+ * Determines if a given value is considered "empty"
+ * @param {any} value
+ */
+export function isEmpty (value) {
+  return (
+    value === undefined ||
+    value === '' ||
+    value === null ||
+    value === false ||
+    (
+      Array.isArray(value) && !value.some(v => !isEmpty(v))
+    ) ||
+    (
+      (value && !Array.isArray(value) && typeof value === 'object' && isEmpty(Object.values(value)))
+    )
+  )
+}

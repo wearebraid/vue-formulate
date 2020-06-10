@@ -4,6 +4,7 @@
     :data-classification="classification"
     :data-has-errors="hasErrors"
     :data-is-showing-errors="hasVisibleErrors"
+    :data-has-value="hasValue"
     :data-type="type"
   >
     <div :class="context.classes.wrapper">
@@ -98,6 +99,7 @@ export default {
     formulateRegister: { default: undefined },
     formulateDeregister: { default: undefined },
     getFormValues: { default: () => () => ({}) },
+    validateDependents: { default: () => () => {} },
     observeErrors: { default: undefined },
     removeErrorObserver: { default: undefined },
     isSubField: { default: () => () => false }
@@ -153,6 +155,10 @@ export default {
     },
     helpPosition: {
       type: [String, Boolean],
+      default: false
+    },
+    isGrouped: {
+      type: Boolean,
       default: false
     },
     errors: {
@@ -285,6 +291,7 @@ export default {
       if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
         this.context.model = newValue
       }
+      this.validateDependents(this)
     },
     formulateValue (newValue, oldValue) {
       if (this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
@@ -360,7 +367,7 @@ export default {
       const run = ([rule, args, ruleName, modifier]) => {
         var res = rule({
           value: this.context.model,
-          getFormValues: this.getFormValues.bind(this),
+          getFormValues: (...args) => this.getFormValues(this, ...args),
           name: this.context.name
         }, ...args)
         res = (res instanceof Promise) ? res : Promise.resolve(res)
@@ -405,7 +412,8 @@ export default {
         name: this.mergedValidationName,
         value: this.context.model,
         vm: this,
-        formValues: this.getFormValues()
+        formValues: this.getFormValues(this),
+        getFormValues: (...args) => this.getFormValues(this, ...args)
       })
     },
     getMessageFunc (ruleName) {

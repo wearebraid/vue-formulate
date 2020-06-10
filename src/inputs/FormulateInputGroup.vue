@@ -78,6 +78,8 @@ export default {
         validationErrors,
         visibleValidationErrors,
         classes,
+        showValidationErrors,
+        rootEmit,
         help,
         ...context
       } = this.context
@@ -103,7 +105,7 @@ export default {
       this.context.model = this.items.concat([setId({})])
     },
     groupItemContext (context, option, groupAttributes) {
-      const optionAttributes = {}
+      const optionAttributes = { isGrouped: true }
       const ctx = Object.assign({}, context, option, groupAttributes, optionAttributes, !context.hasGivenName ? {
         name: true
       } : {})

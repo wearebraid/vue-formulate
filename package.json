@@ -1,6 +1,6 @@
 {
   "name": "@braid/vue-formulate",
-  "version": "2.3.2",
+  "version": "2.3.8",
   "description": "The easiest way to build forms in Vue.",
   "main": "dist/formulate.umd.js",
   "module": "dist/formulate.esm.js",
@@ -87,7 +87,7 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "@braid/vue-formulate-i18n": "^1.7.0",
+    "@braid/vue-formulate-i18n": "^1.9.0",
     "is-plain-object": "^3.0.0",
     "is-url": "^1.2.4",
     "nanoid": "^2.1.11"

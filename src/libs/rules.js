@@ -27,7 +27,7 @@ export default {
    */
   alpha: function ({ value }, set = 'default') {
     const sets = {
-      default: /^[a-zA-ZÀ-ÖØ-öø-ÿ]+$/,
+      default: /^[a-zA-ZÀ-ÖØ-öø-ÿĄąĆćĘęŁłŃńŚśŹźŻż]+$/,
       latin: /^[a-zA-Z]+$/
     }
     const selectedSet = sets.hasOwnProperty(set) ? set : 'default'
@@ -39,7 +39,7 @@ export default {
    */
   alphanumeric: function ({ value }, set = 'default') {
     const sets = {
-      default: /^[a-zA-Z0-9À-ÖØ-öø-ÿ]+$/,
+      default: /^[a-zA-Z0-9À-ÖØ-öø-ÿĄąĆćĘęŁłŃńŚśŹźŻż]+$/,
       latin: /^[a-zA-Z0-9]+$/
     }
     const selectedSet = sets.hasOwnProperty(set) ? set : 'default'

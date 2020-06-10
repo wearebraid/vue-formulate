@@ -76,7 +76,8 @@
   .formulate-input[data-classification='text'] input[type="color"] {
     height: 1.1em;
     box-sizing: content-box;
-    width: auto; }
+    width: auto;
+    min-width: 5em; }
     .formulate-input[data-classification='text'] input[type="color"]::-webkit-color-swatch-wrapper {
       padding: 0 0 0 1.5em;
       display: flex;
@@ -272,7 +273,9 @@
     align-items: center; }
     .formulate-input[data-classification='box'] .formulate-input-element input {
       position: absolute;
-      left: -999px; }
+      left: -999px;
+      opacity: 0;
+      pointer-events: none; }
     .formulate-input[data-classification='box'] .formulate-input-element-decorator {
       display: block;
       width: 1em;

@@ -52,4 +52,12 @@ describe('FormulateInputSelect', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'select' } } )
     expect(Object.keys(wrapper.find('select').attributes())).toEqual(["id"])
   })
+
+  it('sets data-has-value when it has a value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'select', options: {first: 'First', second: 'Second'} }})
+    expect(wrapper.attributes('data-has-value')).toBe(undefined)
+    wrapper.find('select').setValue('second')
+    await flushPromises()
+    expect(wrapper.attributes('data-has-value')).toBe('true')
+  })
 })

@@ -1,4 +1,4 @@
-import { parseRules, parseLocale, regexForFormat, cloneDeep, isValueType, snakeToCamel, groupBails } from '@/libs/utils'
+import { parseRules, parseLocale, regexForFormat, cloneDeep, isValueType, snakeToCamel, groupBails, isEmpty } from '@/libs/utils'
 import rules from '@/libs/rules'
 import FileUpload from '@/FileUpload';
 
@@ -253,5 +253,27 @@ describe('groupBails', () => {
       [ [,, 'min'] ] // dont bail on this
     ])
     expect(bailGroups.map(group => !!group.bail)).toEqual([true, false, true, false])
+  })
+
+  describe('isEmpty', () => {
+    it('is true when undefined', () => expect(isEmpty(undefined)).toBe(true))
+    it('is true when empty string', () => expect(isEmpty('')).toBe(true))
+    it('is true when null', () => expect(isEmpty(null)).toBe(true))
+    it('is true when empty array', () => expect(isEmpty([])).toBe(true))
+    it('is true when false', () => expect(isEmpty(false)).toBe(true))
+    it('is true when empty pojo', () => expect(isEmpty({})).toBe(true))
+    it('is true when empty array with empty pojo', () => expect(isEmpty([{}])).toBe(true))
+    it('is true when object has keys but empty values', () => expect(isEmpty({ first: '' })).toBe(true))
+    it('is true when object has array of objects with empty values', () => expect(isEmpty([
+      { first: '' },
+      { second: null },
+      { third: false },
+      { fourth: [] }
+    ])).toBe(true))
+
+    it('is false when string', () => expect(isEmpty('pizza')).toBe(false))
+    it('is false when zero string', () => expect(isEmpty('0')).toBe(false))
+    it('is false when has array values', () => expect(isEmpty(['first'])).toBe(false))
+    it('is false when has object has values', () => expect(isEmpty([{ key: 'value' }])).toBe(false))
   })
 })

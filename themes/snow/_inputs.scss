@@ -104,6 +104,7 @@
       height: 1.1em;
       box-sizing: content-box;
       width: auto;
+      min-width: 5em;
 
       @mixin color-swatch {
         display: block;
@@ -310,6 +311,8 @@
       input {
         position: absolute;
         left: -999px;
+        opacity: 0;
+        pointer-events: none;
       }
 
       &-decorator {

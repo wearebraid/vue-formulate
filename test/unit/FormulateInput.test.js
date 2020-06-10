@@ -317,6 +317,62 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
   })
 
+  it('passes $emit to rootEmit inside the context object', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text' }
+    })
+    wrapper.vm.context.rootEmit('foo', 'bar')
+    await flushPromises()
+    expect(wrapper.emitted().foo[0]).toEqual(['bar'])
+  })
+
+  it('allows getFormValues inside of custom validation messages', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm>
+          <FormulateInput type="text" name="first" />
+          <FormulateInput type="text"  name="last" />
+          <FormulateInput
+            type="text"
+            name="name"
+            validation="fullName"
+            :validation-rules="{ fullName }"
+            :validation-messages="{ fullName: fullNameMessage }"
+            error-behavior="live"
+          />
+        </FormulateForm>
+      `,
+      methods: {
+        fullName ({ value, getFormValues }) {
+          const values = getFormValues()
+          return `${values.first} ${values.last}` === value
+        },
+        fullNameMessage ({ value, formValues }) {
+          return `${formValues.first} ${formValues.last} does not equal ${value}.`
+        }
+      }
+    })
+    await flushPromises()
+    const inputs = wrapper.findAll('input[type="text"]')
+    inputs.at(0).setValue('jon')
+    inputs.at(1).setValue('baley')
+    inputs.at(2).setValue('jon baley')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(false)
+    inputs.at(1).setValue('parker')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBe(true)
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('jon parker does not equal jon baley.')
+  })
+
+  it('emits an input event a single time on change', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text' }})
+    await flushPromises()
+    wrapper.find('input').setValue('a')
+    await flushPromises()
+    expect(wrapper.emitted().input.length).toBe(1);
+  })
+
   it('allows you to replace classes on the primary element', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text', class: 'my-custom-class' }})
     const classes = wrapper.find('input').element.classList
@@ -333,7 +389,6 @@ describe('FormulateInput', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text' }})
     expect(wrapper.attributes('class')).toBe('formulate-input');
     expect(wrapper.find('.formulate-input > *').attributes('class')).toBe('formulate-input-wrapper')
-
   })
 
   // it('allows you to change the classes on the label element', () => {
