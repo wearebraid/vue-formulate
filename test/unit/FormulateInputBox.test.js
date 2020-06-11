@@ -266,4 +266,25 @@ describe('FormulateInputBox', () => {
     expect(subBoxes.at(1).attributes('data-has-value')).toBe(undefined)
   })
 
+  it('has the proper default element classes', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'radio', options: {first: 'First', second: 'Second', third: 'Third' }, elementClass: ['extra']}
+    })
+
+    // NOTE: the .formulate-input-group class should be deprecated.
+    expect(wrapper.findComponent(FormulateInputGroup).attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--group formulate-input-group extra')
+  })
+
+  it('allows overriding the decorator class', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'checkbox',
+        value: '123',
+        decoratorClass: 'custom-class'
+      }
+    })
+    expect(wrapper.find('label.custom-class').exists()).toBe(true);
+  })
+
 })

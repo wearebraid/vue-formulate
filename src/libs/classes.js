@@ -1,3 +1,5 @@
+import { arrayify } from './utils'
+
 /**
  * A list of available class keys in core. These can be added to by extending
  * the `classKeys` global option when registering formulate.
@@ -46,8 +48,9 @@ const classGenerator = (classKey, context) => {
   // camelCase to dash-case
   const key = classKey.replace(/[A-Z]/g, c => '-' + c.toLowerCase())
   const prefix = key.substr(0, 4) === 'file' ? '' : 'input'
-  const base = `formulate-${prefix}${key !== 'outer' ? `-${key}` : ''}`
-  return [base].concat(classModifiers(base, classKey, context))
+  const element = ['decorator', 'range-value'].includes(key) ? '-element' : ''
+  const base = `formulate-${prefix}${element}${key !== 'outer' ? `-${key}` : ''}`
+  return key === 'input' ? [] : [base].concat(classModifiers(base, classKey, context))
 }
 
 /**
@@ -62,12 +65,53 @@ const classModifiers = (base, classKey, context) => {
       modifiers.push(`${base}--${context.labelPosition}`)
       break
     case 'element':
-      modifiers.push(`${base}--${context.type}`)
+      const type = context.classification === 'group' ? 'group' : context.type
+      modifiers.push(`${base}--${type}`)
+      // @todo DEPRECATED! This should be removed in a future version:
+      if (type === 'group') {
+        modifiers.push('formulate-input-group')
+      }
       break
     case 'help':
       modifiers.push(`${base}--${context.helpPosition}`)
   }
   return modifiers
+}
+
+/**
+ * Generate a list of all the class props to accept.
+ */
+export function classProps () {
+  return classKeys.reduce((props, classKey) => {
+    return Object.assign(props, { [`${classKey}Class`]: {
+      type: [Array, Boolean, Function, String],
+      default: false
+    } })
+  }, {})
+}
+
+/**
+ * Given a string or array of classes and a modifier (function, string etc) apply
+ * the modifications.
+ *
+ * @param {mixed} baseClass The initial class for a given key
+ * @param {mixed} modifier A function, string, array etc that can be a class prop.
+ * @param {Object} context The class context
+ */
+export function applyClasses (baseClass, modifier, context) {
+  switch (typeof modifier) {
+    case 'string':
+      return modifier
+    case 'function':
+      return modifier(context, arrayify(baseClass))
+    case 'object':
+      if (Array.isArray(modifier)) {
+        return arrayify(baseClass).concat(modifier)
+      }
+    /** allow fallthrough if object that isn’t an array */
+    default:
+      return baseClass
+  }
 }
 
 /**

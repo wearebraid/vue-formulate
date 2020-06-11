@@ -1,12 +1,12 @@
 <template>
   <ul
     v-if="visibleErrors.length"
-    :class="`formulate-${type}-errors`"
+    :class="outerClass"
   >
     <li
       v-for="error in visibleErrors"
       :key="error"
-      :class="`formulate-${type}-error`"
+      :class="itemClass"
       v-text="error"
     />
   </ul>
@@ -53,6 +53,18 @@ export default {
     visibleErrors () {
       return Array.from(new Set(this.mergedErrors.concat(this.visibleValidationErrors)))
         .filter(message => typeof message === 'string')
+    },
+    outerClass () {
+      if (this.type === 'input' && this.context.classes) {
+        return this.context.classes.errors
+      }
+      return `formulate-${this.type}-errors`
+    },
+    itemClass () {
+      if (this.type === 'input' && this.context.classes) {
+        return this.context.classes.error
+      }
+      return `formulate-${this.type}-error`
     }
   },
   created () {

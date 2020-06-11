@@ -35,4 +35,23 @@ describe('FormulateInputSlider', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'range' } } )
     expect(Object.keys(wrapper.find('input[type="range"]').attributes())).toEqual(["type", "id"])
   })
+
+  it('has the proper default element classes', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'range', elementClass: ['extra']}
+    })
+    expect(wrapper.findComponent(FormulateInputSlider).attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--range extra')
+  })
+
+  it('allows override of the rangeValue class', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'range',
+        showValue: true,
+        rangeValueClass: ['custom-class']
+      }
+    })
+    expect(wrapper.find('.formulate-input-element-range-value.custom-class').exists()).toBe(true)
+  })
 })

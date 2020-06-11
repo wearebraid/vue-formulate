@@ -82,6 +82,7 @@
 <script>
 import context from './libs/context'
 import { shallowEqualObjects, parseRules, snakeToCamel, has, arrayify, groupBails } from './libs/utils'
+import { classProps } from './libs/classes'
 
 export default {
   name: 'FormulateInput',
@@ -235,7 +236,8 @@ export default {
     addLabel: {
       type: [Boolean, String],
       default: false
-    }
+    },
+    ...classProps()
   },
   data () {
     return {
