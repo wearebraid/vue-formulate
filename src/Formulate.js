@@ -126,7 +126,7 @@ class Formulate {
       this.options = this.merge(this.options, extendWith)
       return this
     }
-    throw new Error(`VueFormulate extend() should be passed an object (was ${typeof extendWith})`)
+    throw new Error(`Formulate.extend expects an object, was ${typeof extendWith}`)
   }
 
   /**
@@ -268,13 +268,11 @@ class Formulate {
     const generators = this.options.locales[this.getLocale(vm)]
     if (generators.hasOwnProperty(rule)) {
       return generators[rule](validationContext)
-    } else if (rule[0] === '_' && generators.hasOwnProperty(rule.substr(1))) {
-      return generators[rule.substr(1)](validationContext)
     }
     if (generators.hasOwnProperty('default')) {
       return generators.default(validationContext)
     }
-    return 'This field does not have a valid value'
+    return 'Invalid field value'
   }
 
   /**

@@ -5,7 +5,7 @@
     :data-has-files="hasFiles"
   >
     <div
-      class="formulate-input-upload-area"
+      :class="context.classes.uploadArea"
       :data-has-files="hasFiles"
     >
       <input
@@ -20,12 +20,13 @@
       >
       <div
         v-show="!hasFiles"
-        class="formulate-input-upload-area-mask"
+        :class="context.classes.uploadAreaMasks"
       />
       <FormulateFiles
         v-if="hasFiles"
         :files="context.model"
         :image-preview="context.type === 'image' && context.imageBehavior === 'preview'"
+        :context="context"
       />
     </div>
   </div>

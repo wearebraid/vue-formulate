@@ -26,13 +26,14 @@ export const classKeys = [
   'fileName',
   'fileRemove',
   'fileProgress',
+  'fileUploadError',
+  'fileImagePreview',
   'fileProgressInner',
   // Groups
-  'group',
   'grouping',
-  'repeatable',
-  'groupRemove',
-  'addMore'
+  'groupRepeatable',
+  'groupRepeatableRemove',
+  'groupAddMore'
 ]
 
 /**
@@ -47,9 +48,9 @@ export const classKeys = [
 const classGenerator = (classKey, context) => {
   // camelCase to dash-case
   const key = classKey.replace(/[A-Z]/g, c => '-' + c.toLowerCase())
-  const prefix = key.substr(0, 4) === 'file' ? '' : 'input'
+  const prefix = key.substr(0, 4) === 'file' ? '' : '-input'
   const element = ['decorator', 'range-value'].includes(key) ? '-element' : ''
-  const base = `formulate-${prefix}${element}${key !== 'outer' ? `-${key}` : ''}`
+  const base = `formulate${prefix}${element}${key !== 'outer' ? `-${key}` : ''}`
   return key === 'input' ? [] : [base].concat(classModifiers(base, classKey, context))
 }
 

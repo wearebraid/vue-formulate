@@ -8,8 +8,7 @@ import FormulateInputBox from '@/inputs/FormulateInputBox.vue'
 import { classKeys } from '@/libs/classes'
 
 const globalRule = jest.fn((context) => { return false })
-
-Vue.use(Formulate, {
+const options = {
   locales: {
     en: {
       email: ({ value }) => `Super invalid email: ${value}`
@@ -24,9 +23,30 @@ Vue.use(Formulate, {
       component: 'FormulateInputBox'
     }
   }
-})
+}
+Vue.use(Formulate, options)
+
+const resetInstance = () => {
+  Formulate.install(Vue, options)
+}
 
 describe('FormulateInput', () => {
+  it('sets unknown classification if not in library', () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'foobar',
+    } })
+    expect(wrapper.vm.classification).toBe('unknown')
+  })
+
+  it('uses a hard-coded fallback validation error if no default rules exist', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, { rules: { foobar: () => false }, locales: { en: 'xyz' } })
+    const wrapper = mount(FormulateInput, { localVue, propsData: { validation: 'foobar', errorBehavior: 'live' }})
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-error').text()).toBe('Invalid field value')
+    resetInstance()
+  })
+
   it('allows custom field-rule level validation strings', async () => {
     const wrapper = mount(FormulateInput, { propsData: {
       type: 'text',
