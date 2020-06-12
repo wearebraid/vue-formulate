@@ -660,4 +660,35 @@ describe('FormulateForm', () => {
     expect(inputs.length).toBe(1)
     expect(wrapper.findComponent(FormulateForm).vm.deps.get(inputs.at(0).vm)).toEqual(new Set([]))
   })
+
+  it('allows form submission via named form', async () => {
+    const submit = jest.fn()
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          name="password"
+          @submit="submit"
+        >
+          <FormulateInput type="password" name="password"/>
+          <FormulateInput type="password" name="password_confirm"/>
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          hasConfirm: true,
+          formData: {
+            password: 'foobar',
+            password_confirm: 'foobar'
+          }
+        }
+      },
+      methods: {
+        submit
+      }
+    })
+    await flushPromises()
+    wrapper.vm.$formulate.submit('password')
+    await flushPromises()
+    expect(submit.mock.calls.length).toBe(1)
+  })
 })
