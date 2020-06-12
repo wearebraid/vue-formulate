@@ -7,6 +7,7 @@ import isPlainObject from 'is-plain-object'
 import { en } from '@braid/vue-formulate-i18n'
 import fauxUploader from './libs/faux-uploader'
 import FormulateSlot from './FormulateSlot'
+import FormulateSchema from './FormulateSchema'
 import FormulateForm from './FormulateForm.vue'
 import FormulateInput from './FormulateInput.vue'
 import FormulateErrors from './FormulateErrors.vue'
@@ -43,6 +44,7 @@ class Formulate {
         FormulateLabel,
         FormulateInput,
         FormulateErrors,
+        FormulateSchema,
         FormulateAddMore,
         FormulateGrouping,
         FormulateInputBox,
