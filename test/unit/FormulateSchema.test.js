@@ -2,7 +2,7 @@ import Vue from 'vue'
 import flushPromises from 'flush-promises'
 import { mount } from '@vue/test-utils'
 import Formulate from '@/Formulate.js'
-import FormulateSchema from '@/FormulateSchema.vue'
+import FormulateSchema from '@/FormulateSchema.js'
 import FormulateInput from '@/FormulateInput.vue'
 
 Vue.use(Formulate)
@@ -33,11 +33,11 @@ describe('FormulateSchema', () => {
     const wrapper = mount(FormulateSchema, { propsData: { schema: [
       { type: 'group', repeatable: true, children: [{}] }
     ]}})
-    expect(wrapper.findAll('.formulate-input-grouping .formulate-input').length)
-      .toBe(1)
+    expect(wrapper.findAll('.formulate-input').length)
+      .toBe(3)
     wrapper.find('.formulate-input-group-add-more button').trigger('click')
     await flushPromises()
-    expect(wrapper.findAll('.formulate-input-grouping .formulate-input').length)
-      .toBe(2)
+    expect(wrapper.findAll('.formulate-input').length)
+      .toBe(4)
   })
 })
