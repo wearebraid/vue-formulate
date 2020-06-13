@@ -20,7 +20,7 @@ export const classKeys = [
   'rangeValue',
   // File
   'uploadArea',
-  'uploadAreaMasks',
+  'uploadAreaMask',
   'files',
   'file',
   'fileName',

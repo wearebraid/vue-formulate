@@ -56,7 +56,7 @@ export default {
       default: () => ([])
     },
     schema: {
-      type: [Object, Boolean],
+      type: [Array, Boolean],
       default: false
     }
   },

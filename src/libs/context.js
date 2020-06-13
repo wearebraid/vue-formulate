@@ -238,7 +238,8 @@ function visibleValidationErrors () {
  */
 function nameOrFallback () {
   if (this.name === true && this.classification !== 'button') {
-    return `${this.type}_${this.elementAttributes.id}`
+    const id = this.id || this.elementAttributes.id.replace(/[^0-9]/g, '')
+    return `${this.type}_${id}`
   }
   if (this.name === false || (this.classification === 'button' && this.name === true)) {
     return false

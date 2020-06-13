@@ -69,7 +69,7 @@ describe('FormulateInputFile', () => {
         type: 'file',
         value: [{ url: '/file.svg' }],
         uploadAreaClass: ['test-1-class'],
-        uploadAreaMasksClass: ['test-2-class'],
+        uploadAreaMaskClass: ['test-2-class'],
         filesClass: ['test-3-class'],
         fileClass: ['test-4-class'],
         fileNameClass: ['test-5-class'],
@@ -83,6 +83,9 @@ describe('FormulateInputFile', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-input-upload-area').attributes('class'))
       .toBe('formulate-input-upload-area test-1-class')
+
+    expect(wrapper.find('.formulate-input-upload-area-mask').attributes('class'))
+      .toBe('formulate-input-upload-area-mask test-2-class')
 
     expect(wrapper.find('ul').attributes('class'))
       .toBe('formulate-files test-3-class')

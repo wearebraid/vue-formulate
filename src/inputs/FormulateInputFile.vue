@@ -20,7 +20,7 @@
       >
       <div
         v-show="!hasFiles"
-        :class="context.classes.uploadAreaMasks"
+        :class="context.classes.uploadAreaMask"
       />
       <FormulateFiles
         v-if="hasFiles"

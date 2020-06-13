@@ -331,6 +331,15 @@ class Formulate {
   }
 
   /**
+   * Submit a named form.
+   * @param {string} formName
+   */
+  submit (formName) {
+    const form = this.registry.get(formName)
+    form.formSubmitted()
+  }
+
+  /**
    * Reset the form's validation messages.
    * @param {string} formName
    */
