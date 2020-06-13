@@ -1,7 +1,7 @@
 <template>
   <FormulateSlot
     name="grouping"
-    class="formulate-input-grouping"
+    :class="context.classes.grouping"
     :context="context"
     :force-wrap="context.repeatable"
   >

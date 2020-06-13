@@ -102,14 +102,30 @@ describe('FormulateInputButton', () => {
     expect(handle.mock.calls.length).toBe(1)
   })
 
-})
+  it('passes an explicitly given name prop through to the root element', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'button', name: 'foo' } })
+    expect(wrapper.find('button[name="foo"]').exists()).toBe(true)
+  })
 
-it('passes an explicitly given name prop through to the root element', () => {
-  const wrapper = mount(FormulateInput, { propsData: { type: 'button', name: 'foo' } })
-  expect(wrapper.find('button[name="foo"]').exists()).toBe(true)
-})
-
-it('additional context does not bleed through to button input attributes', () => {
+  it('additional context does not bleed through to button input attributes', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'button' } } )
     expect(Object.keys(wrapper.find('button').attributes())).toEqual(["type", "id"])
   })
+
+  it('can add classes to the element wrapper', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'button', elementClass: ['test-class']}
+    })
+    expect(wrapper.findComponent(FormulateInputButton).attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--button test-class')
+  })
+
+  it('can add classes to the input element', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'submit', inputClass: ['test-class']}
+    })
+    expect(wrapper.find('button').attributes('class'))
+      .toBe('test-class')
+  })
+})
+

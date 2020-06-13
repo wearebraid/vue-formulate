@@ -507,4 +507,44 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     expect(wrapper.attributes('data-has-value')).toBe('true')
   })
+
+  it('allows group specific classes to be extended', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="group"
+          name="test"
+          :repeatable="true"
+          v-model="model"
+          :grouping-class="['g-1-test']"
+          :group-repeatable-class="['g-2-test']"
+          :group-repeatable-remove-class="['g-3-test']"
+          :group-add-more-class="['g-4-test']"
+        >
+          <FormulateInput
+            name="field"
+            type="text"
+          />
+        </FormulateInput>
+      `,
+      data () {
+        return {
+          model: [{}]
+        }
+      }
+    })
+    await flushPromises();
+
+    expect(wrapper.findComponent(FormulateGrouping).attributes('class'))
+      .toBe('formulate-input-grouping g-1-test')
+
+    expect(wrapper.find('.formulate-input-group-repeatable').attributes('class'))
+      .toBe('formulate-input-group-repeatable g-2-test')
+
+    expect(wrapper.find('.formulate-input-group-repeatable-remove').attributes('class'))
+      .toBe('formulate-input-group-repeatable-remove g-3-test')
+
+    expect(wrapper.find('.formulate-input-group-add-more').attributes('class'))
+      .toBe('formulate-input-group-add-more g-4-test')
+  })
 })

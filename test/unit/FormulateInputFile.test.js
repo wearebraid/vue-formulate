@@ -47,6 +47,62 @@ describe('FormulateInputFile', () => {
     expect(Object.keys(wrapper.find('input[type="file"]').attributes())).toEqual(["type", "id"])
   })
 
+  it('can add classes to the element wrapper', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'file', elementClass: ['test-class']}
+    })
+    expect(wrapper.findComponent(FormulateInputFile).attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--file test-class')
+  })
+
+  it('can add classes to the input element', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'file', inputClass: ['test-class']}
+    })
+    expect(wrapper.find('input').attributes('class'))
+      .toBe('test-class')
+  })
+
+  it('has default upload area class and can override it', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'file',
+        value: [{ url: '/file.svg' }],
+        uploadAreaClass: ['test-1-class'],
+        uploadAreaMaskClass: ['test-2-class'],
+        filesClass: ['test-3-class'],
+        fileClass: ['test-4-class'],
+        fileNameClass: ['test-5-class'],
+        fileRemoveClass: ['test-6-class'],
+        fileProgressClass: ['test-7-class'],
+        fileUploadError: ['test-8-class'],
+        fileImagePreview: ['test-9-class'],
+        fileProgressInnerClass: ['test-10-class']
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-upload-area').attributes('class'))
+      .toBe('formulate-input-upload-area test-1-class')
+
+    expect(wrapper.find('.formulate-input-upload-area-mask').attributes('class'))
+      .toBe('formulate-input-upload-area-mask test-2-class')
+
+    expect(wrapper.find('ul').attributes('class'))
+      .toBe('formulate-files test-3-class')
+
+    expect(wrapper.find('.formulate-file').attributes('class'))
+      .toBe('formulate-file test-4-class')
+
+    expect(wrapper.find('.formulate-file').attributes('class'))
+      .toBe('formulate-file test-4-class')
+
+    expect(wrapper.find('.formulate-file-name').attributes('class'))
+      .toBe('formulate-file-name test-5-class')
+
+    expect(wrapper.find('.formulate-file-remove').attributes('class'))
+      .toBe('formulate-file-remove test-6-class')
+  })
+
   /**
    * ===========================================================================
    * Currently there appears to be no way to properly mock upload data in

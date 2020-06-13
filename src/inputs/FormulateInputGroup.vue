@@ -1,6 +1,6 @@
 <template>
   <div
-    class="formulate-input-group"
+    :class="context.classes.element"
     :data-is-repeatable="context.repeatable"
   >
     <template
@@ -77,6 +77,7 @@ export default {
         slotComponents,
         validationErrors,
         visibleValidationErrors,
+        classes,
         showValidationErrors,
         rootEmit,
         help,

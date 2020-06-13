@@ -1,6 +1,6 @@
 <template>
   <div
-    class="formulate-input-group-repeatable"
+    :class="context.classes.groupRepeatable"
   >
     <FormulateSlot
       name="remove"

@@ -44,10 +44,11 @@ export default {
       value: this.value,
       visibleValidationErrors: this.visibleValidationErrors,
       isSubField: this.isSubField,
+      classes: this.classes,
       ...this.typeContext
     })
   },
-  // Used in sub-context
+  // Used in context
   nameOrFallback,
   hasGivenName,
   typeContext,
@@ -59,15 +60,16 @@ export default {
   visibleValidationErrors,
   slotComponents,
   logicalAddLabel,
+  classes,
+  showValidationErrors,
 
-  // These items are not passed as context
+  // Not used in context
   isVmodeled,
   mergedValidationName,
   explicitErrors,
   allErrors,
-  hasErrors,
   hasVisibleErrors,
-  showValidationErrors
+  hasErrors
 }
 
 /**
@@ -127,7 +129,31 @@ function elementAttributes () {
     attrs['aria-describedby'] = `${attrs.id}-help`
   }
 
+  // Ensure we dont have a class attribute unless we are actually applying classes.
+  if (this.classes.input && (!Array.isArray(this.classes.input) || this.classes.input.length)) {
+    attrs.class = this.classes.input
+  }
+
+  // @todo Filter out "local props" for custom inputs.
+
   return attrs
+}
+
+/**
+ * Apply the result of the classes computed prop to any existing prop classes.
+ */
+function classes () {
+  return this.$formulate.classes({
+    ...this.$props,
+    ...{
+      type: this.type,
+      labelPosition: this.logicalLabelPosition,
+      helpPosition: this.logicalHelpPosition,
+      hasValue: this.hasValue,
+      value: this.proxy,
+      classification: this.classification
+    }
+  })
 }
 
 /**

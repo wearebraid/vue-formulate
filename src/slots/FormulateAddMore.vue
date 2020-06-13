@@ -1,5 +1,5 @@
 <template>
-  <div class="formulate-input-group-add-more">
+  <div :class="context.classes.groupAddMore">
     <FormulateInput
       type="button"
       :label="context.addLabel"

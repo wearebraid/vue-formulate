@@ -1,11 +1,11 @@
 <template>
   <div
-    :class="`formulate-input-element formulate-input-element--${context.type}`"
+    :class="context.classes.element"
     :data-type="context.type"
     :data-has-files="hasFiles"
   >
     <div
-      class="formulate-input-upload-area"
+      :class="context.classes.uploadArea"
       :data-has-files="hasFiles"
     >
       <input
@@ -20,12 +20,13 @@
       >
       <div
         v-show="!hasFiles"
-        class="formulate-input-upload-area-mask"
+        :class="context.classes.uploadAreaMask"
       />
       <FormulateFiles
         v-if="hasFiles"
         :files="context.model"
         :image-preview="context.type === 'image' && context.imageBehavior === 'preview'"
+        :context="context"
       />
     </div>
   </div>

@@ -1,13 +1,13 @@
 <template>
   <div
-    class="formulate-input"
+    :class="context.classes.outer"
     :data-classification="classification"
     :data-has-errors="hasErrors"
     :data-is-showing-errors="hasVisibleErrors"
     :data-has-value="hasValue"
     :data-type="type"
   >
-    <div class="formulate-input-wrapper">
+    <div :class="context.classes.wrapper">
       <slot
         v-if="context.labelPosition === 'before'"
         name="label"
@@ -82,6 +82,7 @@
 <script>
 import context from './libs/context'
 import { shallowEqualObjects, parseRules, snakeToCamel, has, arrayify, groupBails } from './libs/utils'
+import { classProps } from './libs/classes'
 
 export default {
   name: 'FormulateInput',
@@ -235,7 +236,8 @@ export default {
     addLabel: {
       type: [Boolean, String],
       default: false
-    }
+    },
+    ...classProps()
   },
   data () {
     return {
