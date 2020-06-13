@@ -15,21 +15,21 @@ describe('FormulateSchema', () => {
     expect(wrapper.findComponent(FormulateInput).exists()).toBe(true)
   })
 
-  it('it can render a standard div', async () => {
+  it('can render a standard div', async () => {
     const wrapper = mount(FormulateSchema, { propsData: { schema: [
       { component: 'div', class: 'test-div' }
     ]}})
     expect(wrapper.find('.test-div').exists()).toBe(true)
   })
 
-  it('it can render children', async () => {
+  it('can render children', async () => {
     const wrapper = mount(FormulateSchema, { propsData: { schema: [
       { component: 'div', class: 'test-div', children: [{}] }
     ]}})
     expect(wrapper.find('.test-div .formulate-input').exists()).toBe(true)
   })
 
-  it('it can render children inside a group input', async () => {
+  it('can render children inside a group input', async () => {
     const wrapper = mount(FormulateSchema, { propsData: { schema: [
       { type: 'group', repeatable: true, children: [{}] }
     ]}})
@@ -39,5 +39,12 @@ describe('FormulateSchema', () => {
     await flushPromises()
     expect(wrapper.findAll('.formulate-input').length)
       .toBe(4)
+  })
+
+  it('renders text nodes inside dom elements', async () => {
+    const wrapper = mount(FormulateSchema, { propsData: { schema: [
+      { component: 'h2', children: 'Hello world' }
+    ]}})
+    expect(wrapper.find('h2').text()).toBe('Hello world')
   })
 })
