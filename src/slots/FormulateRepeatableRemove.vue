@@ -1,7 +1,7 @@
 <template>
   <a
     v-if="context.repeatable"
-    class="formulate-input-group-repeatable-remove"
+    :class="context.classes.groupRepeatableRemove"
     role="button"
     @click.prevent="removeItem"
     @keypress.enter="removeItem"

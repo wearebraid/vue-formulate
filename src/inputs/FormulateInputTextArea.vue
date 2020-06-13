@@ -1,6 +1,6 @@
 <template>
   <div
-    class="formulate-input-element formulate-input-element--textarea"
+    :class="context.classes.element"
     data-type="textarea"
   >
     <textarea

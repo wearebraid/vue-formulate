@@ -2,6 +2,7 @@ import library from './libs/library'
 import rules from './libs/rules'
 import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
+import baseClasses, { applyClasses } from './libs/classes'
 import { arrayify, parseLocale, has } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import { en } from '@braid/vue-formulate-i18n'
@@ -65,6 +66,7 @@ class Formulate {
         addMore: 'FormulateAddMore',
         remove: 'FormulateRepeatableRemove'
       },
+      baseClasses,
       library,
       rules,
       mimes,
@@ -76,7 +78,8 @@ class Formulate {
       errorHandler: (err) => err,
       plugins: [ en ],
       locales: {},
-      idPrefix: 'formulate-'
+      idPrefix: 'formulate-',
+      classes: {}
     }
     this.registry = new Map()
     this.idRegistry = {}
@@ -123,7 +126,7 @@ class Formulate {
       this.options = this.merge(this.options, extendWith)
       return this
     }
-    throw new Error(`VueFormulate extend() should be passed an object (was ${typeof extendWith})`)
+    throw new Error(`Formulate.extend expects an object, was ${typeof extendWith}`)
   }
 
   /**
@@ -166,6 +169,23 @@ class Formulate {
       return this.options.library[type].classification
     }
     return 'unknown'
+  }
+
+  /**
+   * Generate all classes for a particular context.
+   * @param {Object} context
+   */
+  classes (classContext) {
+    // Step 1: we get the global classes for all keys
+    const baseClasses = this.options.baseClasses(classContext)
+    return Object.keys(baseClasses).reduce((classMap, key) => {
+      // Step 2: For each key, apply any global overrides for that key
+      let classesForKey = applyClasses(baseClasses[key], this.options.classes[key], classContext)
+      // Step 3: Apply any prop-level overrides for that key.
+      classesForKey = applyClasses(classesForKey, classContext[`${key}Class`], classContext)
+      // Now we have our final classes for the given key
+      return Object.assign(classMap, { [key]: classesForKey })
+    }, {})
   }
 
   /**
@@ -248,13 +268,11 @@ class Formulate {
     const generators = this.options.locales[this.getLocale(vm)]
     if (generators.hasOwnProperty(rule)) {
       return generators[rule](validationContext)
-    } else if (rule[0] === '_' && generators.hasOwnProperty(rule.substr(1))) {
-      return generators[rule.substr(1)](validationContext)
     }
     if (generators.hasOwnProperty('default')) {
       return generators.default(validationContext)
     }
-    return 'This field does not have a valid value'
+    return 'Invalid field value'
   }
 
   /**

@@ -321,4 +321,21 @@ describe('FormulateInputText', () => {
     await flushPromises()
     expect(wrapper.attributes('data-has-value')).toBe(undefined)
   })
+
+
+  it('can add classes to the element wrapper', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'number', elementClass: ['test-class']}
+    })
+    expect(wrapper.findComponent(FormulateInputText).attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--number test-class')
+  })
+
+  it('can add classes to the input element', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'datetime-local', inputClass: ['test-class']}
+    })
+    expect(wrapper.find('input').attributes('class'))
+      .toBe('test-class')
+  })
 })

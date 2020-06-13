@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="`formulate-input-element formulate-input-element--${context.type}`"
+    :class="context.classes.element"
     :data-type="context.type"
   >
     <input
@@ -11,7 +11,7 @@
     >
     <div
       v-if="context.showValue"
-      class="formulate-input-element-range-value"
+      :class="context.classes.rangeValue"
       v-text="context.model"
     />
   </div>

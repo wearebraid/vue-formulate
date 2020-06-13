@@ -1,6 +1,6 @@
 <template>
   <label
-    :class="`formulate-input-label formulate-input-label--${context.labelPosition}`"
+    :class="context.classes.label"
     :for="context.id"
     v-text="context.label"
   />

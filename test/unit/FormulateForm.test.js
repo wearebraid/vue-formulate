@@ -287,7 +287,7 @@ describe('FormulateForm', () => {
     expect(mockHandler.mock.calls[0]).toEqual([{ formErrors: ['This is an error message'] }, 'login']);
   })
 
-  it('errors are displayed on correctly named components', async () => {
+  it('errors are displayed on correctly named forms', async () => {
     const wrapper = mount({
       template: `
       <div>
@@ -308,7 +308,7 @@ describe('FormulateForm', () => {
     expect(wrapper.find('.formulate-form--register .formulate-form-errors').exists()).toBe(false)
   })
 
-  it('errors are displayed on correctly named components', async () => {
+  it('errors are displayed on correctly named forms', async () => {
     const wrapper = mount({
       template: `
       <div>
@@ -327,6 +327,32 @@ describe('FormulateForm', () => {
     expect(wrapper.findAll('.formulate-form').length).toBe(2)
     expect(wrapper.find('.formulate-form--login .formulate-form-errors').exists()).toBe(true)
     expect(wrapper.find('.formulate-form--register .formulate-form-errors').exists()).toBe(false)
+  })
+
+  it('de-registers named forms when destroyed', async () => {
+    const wrapper = mount({
+      template: `
+      <div>
+        <FormulateForm
+          name="login"
+          v-if="hasForm"
+        />
+        <FormulateForm
+          name="register"
+        />
+      </div>
+      `,
+      data () {
+        return {
+          hasForm: true
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.vm.$formulate.registry.has('login')).toBe(true)
+    wrapper.vm.hasForm = false
+    await flushPromises()
+    expect(wrapper.vm.$formulate.registry.has('login')).toBe(false)
   })
 
   it('hides root FormError if another form error exists and renders in new location', async () => {

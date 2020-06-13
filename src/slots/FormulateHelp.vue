@@ -2,7 +2,7 @@
   <div
     v-if="context.help"
     :id="`${context.id}-help`"
-    :class="`formulate-input-help formulate-input-help--${context.helpPosition}`"
+    :class="context.classes.help"
     v-text="context.help"
   />
 </template>

@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="`formulate-input-element formulate-input-element--${context.type}`"
+    :class="context.classes.element"
     :data-type="context.type"
   >
     <!--
@@ -34,7 +34,7 @@
     -->
     <component
       :is="`label`"
-      class="formulate-input-element-decorator"
+      :class="context.classes.decorator"
       :for="attributes.id"
     />
   </div>

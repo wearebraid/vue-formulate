@@ -12,9 +12,6 @@ export default {
     type () {
       return this.context.type
     },
-    id () {
-      return this.context.id
-    },
     attributes () {
       return this.context.attributes || {}
     },

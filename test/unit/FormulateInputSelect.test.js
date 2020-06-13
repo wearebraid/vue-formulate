@@ -60,4 +60,20 @@ describe('FormulateInputSelect', () => {
     await flushPromises()
     expect(wrapper.attributes('data-has-value')).toBe('true')
   })
+
+  it('can add classes to the element wrapper', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', elementClass: ['test-class']}
+    })
+    expect(wrapper.findComponent(FormulateInputSelect).attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--select test-class')
+  })
+
+  it('can add classes to the input element', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', inputClass: ['test-class']}
+    })
+    expect(wrapper.find('select').attributes('class'))
+      .toBe('test-class')
+  })
 })
