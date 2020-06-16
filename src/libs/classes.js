@@ -1,4 +1,4 @@
-import { arrayify } from './utils'
+import { arrayify, cap } from './utils'
 
 /**
  * A list of available class keys in core. These can be added to by extending
@@ -35,6 +35,15 @@ export const classKeys = [
   'groupRepeatableRemove',
   'groupAddMore'
 ]
+
+/**
+ * State keys by default
+ */
+export const states = {
+  hasErrors: c => c.hasErrors,
+  hasValue: c => c.hasValue,
+  isValid: c => c.hasValue && !c.hasErrors
+}
 
 /**
  * This function is responsible for providing VueFormulate’s default classes.
@@ -83,11 +92,17 @@ const classModifiers = (base, classKey, context) => {
  * Generate a list of all the class props to accept.
  */
 export function classProps () {
+  const stateKeys = [''].concat(Object.keys(states).map(s => cap(s)))
+  // This reducer produces a key for every element key + state key variation
   return classKeys.reduce((props, classKey) => {
-    return Object.assign(props, { [`${classKey}Class`]: {
-      type: [Array, Boolean, Function, String],
-      default: false
-    } })
+    return Object.assign(props, stateKeys.reduce((keys, stateKey) => {
+      return Object.assign(keys, {
+        [`${classKey}${stateKey}Class`]: {
+          type: [Array, Boolean, Function, String],
+          default: false
+        }
+      })
+    }, {}))
   }, {})
 }
 
@@ -113,6 +128,34 @@ export function applyClasses (baseClass, modifier, context) {
     default:
       return baseClass
   }
+}
+
+/**
+ * Given element class key
+ * @param {string} elementKey the element class key we're generating for
+ * @param {mixed} baseClass The initial classes for this key
+ * @param {object} global Class definitions globally registered with options.classes
+ * @param {Object} context Class context for this particular field, props included.
+ */
+export function applyStates (elementKey, baseClass, globals, context) {
+  return Object.keys(states).reduce((classes, stateKey) => {
+    // Step 1. Call the state function to determine if it has this state
+    if (states[stateKey](context)) {
+      const key = `${elementKey}${cap(stateKey)}`
+      const propKey = `${key}Class`
+      // Step 2. Apply any global state class keys
+      if (globals[key]) {
+        const modifier = (typeof globals[key] === 'string') ? arrayify(globals[key]) : globals[key]
+        classes = applyClasses(classes, modifier, context)
+      }
+      // Step 3. Apply any prop state class keys
+      if (context[propKey]) {
+        const modifier = (typeof context[propKey] === 'string') ? arrayify(context[propKey]) : context[`${key}Class`]
+        classes = applyClasses(classes, modifier, context)
+      }
+    }
+    return classes
+  }, baseClass)
 }
 
 /**

@@ -2,7 +2,7 @@ import library from './libs/library'
 import rules from './libs/rules'
 import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
-import baseClasses, { applyClasses } from './libs/classes'
+import coreClasses, { applyClasses, applyStates } from './libs/classes'
 import { arrayify, parseLocale, has } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import { en } from '@braid/vue-formulate-i18n'
@@ -68,7 +68,6 @@ class Formulate {
         addMore: 'FormulateAddMore',
         remove: 'FormulateRepeatableRemove'
       },
-      baseClasses,
       library,
       rules,
       mimes,
@@ -81,6 +80,8 @@ class Formulate {
       plugins: [ en ],
       locales: {},
       idPrefix: 'formulate-',
+      baseClasses: b => b,
+      coreClasses,
       classes: {}
     }
     this.registry = new Map()
@@ -178,14 +179,18 @@ class Formulate {
    * @param {Object} context
    */
   classes (classContext) {
-    // Step 1: we get the global classes for all keys
-    const baseClasses = this.options.baseClasses(classContext)
+    // Step 1: We get the global classes for all keys.
+    const coreClasses = this.options.coreClasses(classContext)
+    // Step 2: We extend those classes with a user defined baseClasses.
+    const baseClasses = this.options.baseClasses(coreClasses, classContext)
     return Object.keys(baseClasses).reduce((classMap, key) => {
-      // Step 2: For each key, apply any global overrides for that key
+      // Step 3: For each key, apply any global overrides for that key.
       let classesForKey = applyClasses(baseClasses[key], this.options.classes[key], classContext)
-      // Step 3: Apply any prop-level overrides for that key.
+      // Step 4: Apply any prop-level overrides for that key.
       classesForKey = applyClasses(classesForKey, classContext[`${key}Class`], classContext)
-      // Now we have our final classes for the given key
+      // Step 5: Add state based classes from props.
+      classesForKey = applyStates(key, classesForKey, this.options.classes, classContext)
+      // Now we have our final classes, assign to the given key.
       return Object.assign(classMap, { [key]: classesForKey })
     }, {})
   }

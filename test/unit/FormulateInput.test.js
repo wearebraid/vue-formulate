@@ -523,4 +523,78 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-error').attributes('class'))
       .toBe('formulate-input-error custom-8-class');
   })
+
+  it('responds to hasValue state class key', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      labelHasValueClass: 'field-has-value',
+      label: 'My label'
+    }})
+    wrapper.find('input').setValue('some value')
+    await flushPromises()
+    expect(wrapper.find('label').attributes('class')).toBe('formulate-input-label formulate-input-label--before field-has-value')
+  })
+
+  it('responds to isValid and hasErrors state class key', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required',
+      inputIsValidClass: 'is-valid-input',
+      inputHasErrorsClass: 'is-invalid-input',
+      errorBehavior: 'live'
+    }})
+    await flushPromises()
+    expect(wrapper.find('input').attributes('class')).toBe('is-invalid-input')
+    wrapper.find('input').setValue('some value')
+    await flushPromises()
+    expect(wrapper.find('input').attributes('class')).toBe('is-valid-input')
+  })
+
+  it('responds to globally registered hasValue on every element key', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      classes: {
+        outerHasValue: 'has-1-value',
+        wrapperHasValue: 'has-2-value',
+        labelHasValue: 'has-3-value',
+        elementHasValue: 'has-4-value',
+        inputHasValue: 'has-5-value',
+        helpHasValue: 'has-6-value',
+        errorsHasValue: 'has-7-value',
+        errorHasValue: 'has-8-value'
+      }
+    })
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      type: 'text',
+      label: 'foobar',
+      help: 'barfoo',
+      validation: 'required|in:123',
+      errorBehavior: 'live'
+    }})
+    wrapper.find('input').setValue('foobar')
+    await flushPromises()
+
+    expect(wrapper.attributes('class')).toBe('formulate-input has-1-value');
+    // Test the wrapper override
+    expect(wrapper.find('.formulate-input-wrapper').attributes('class'))
+      .toBe('formulate-input-wrapper has-2-value');
+    // Test the label override
+    expect(wrapper.find('label').attributes('class'))
+      .toBe('formulate-input-label formulate-input-label--before has-3-value');
+    // Test the element override
+    expect(wrapper.find('.formulate-input-element').attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--text has-4-value');
+    // Test the input override
+    expect(wrapper.find('input').attributes('class'))
+      .toBe('has-5-value');
+    // Test the input override
+    expect(wrapper.find('.formulate-input-help').attributes('class'))
+      .toBe('formulate-input-help formulate-input-help--after has-6-value');
+    // Test the errors wrapper
+    expect(wrapper.find('.formulate-input-errors').attributes('class'))
+      .toBe('formulate-input-errors has-7-value');
+    // Test the inner error
+    expect(wrapper.find('.formulate-input-error').attributes('class'))
+      .toBe('formulate-input-error has-8-value');
+  })
 })

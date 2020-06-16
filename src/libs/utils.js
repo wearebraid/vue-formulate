@@ -60,6 +60,14 @@ export function snakeToCamel (string) {
 }
 
 /**
+ * Given a string, capitalize it. happyDay => HappyDay
+ * @param {string} str
+ */
+export function cap (str) {
+  return typeof str === 'string' ? str[0].toUpperCase() + str.substr(1) : str
+}
+
+/**
  * Given a string, object, falsey, or array - return an array.
  * @param {mixed} item
  */
