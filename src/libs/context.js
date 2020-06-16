@@ -150,6 +150,7 @@ function classes () {
       labelPosition: this.logicalLabelPosition,
       helpPosition: this.logicalHelpPosition,
       hasValue: this.hasValue,
+      hasErrors: this.hasVisibleErrors,
       value: this.proxy,
       classification: this.classification
     }
