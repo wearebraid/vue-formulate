@@ -26,7 +26,7 @@ Vue Formulate is the easiest way to build forms with Vue. Please read the [compr
 	<tr>
 	<tr>
 		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">😎 Developer happiness</h4> 
+			<h4 style="margin-top: 0.25em">😎 Developer happiness</h4>
 			<p>Forms are everywhere, yet surprisingly tedious to author — well, not anymore. Vue Formulate provides a <a href="https://vueformulate.com/guide/inputs/#all-options">powerful and flexible API</a> to developers that makes complex form creation a breeze.</p>
 		</td>
 		<td style="width: 50%; vertical-align: top;">
@@ -36,7 +36,7 @@ Vue Formulate is the easiest way to build forms with Vue. Please read the [compr
 	</tr>
 	<tr>
 		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">💪 Grouped fields</h4> 
+			<h4 style="margin-top: 0.25em">💪 Grouped fields</h4>
 			<p>Vue Formulate ships with <a href="https://vueformulate.com/guide/inputs/types/group/#repeatable-groups">repeatable field groups</a> out of the box. Create complex UIs such as multi-person booking forms with ease.</p>
 		</td>
 		<td style="width: 50%; vertical-align: top;">
@@ -46,12 +46,30 @@ Vue Formulate is the easiest way to build forms with Vue. Please read the [compr
 	</tr>
 	<tr>
 		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">🔌 Plugin system</h4> 
+			<h4 style="margin-top: 0.25em">🔌 Plugin system</h4>
 			<p>Extend Vue Formulate's functionality or reuse custom inputs, validation rules, and messages across projects by tapping into the <a href="https://vueformulate.com/guide/plugins/#creating-a-new-plugin">plugin system</a>. Make your plugin open source to share with others!</p>
 		</td>
 		<td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em;">✨ Generate forms</h4>
-			<p><a href="https://vueformulate.com/guide/forms/#generating-forms">Generate an entire form</a> from a JSON string. Because Vue Formulate uses a single input component, you can easily loop through an array and dynamically generate a form.</p>
+			<p><a href="https://vueformulate.com/guide/forms/#generating-forms">Generate an entire form</a> from JSON. Vue Formulate includes a schema to allow you to render complex forms from JSON with groups, wrappers, and custom components.</p>
+		</td>
+	</tr>
+  <tr>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em">🎨 Styling Control</h4>
+			<p>With provided <a href="https://vueformulate.com/guide/theming/customizing-classes/">class props</a> you can add your own set of style classes globally or on a case-by-case basis. Tailwind? No problem. Bootstrap? You're covered. Roll your own? Right on, it’s supported.</p>
+		</td>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em;">🔍 Scoped Slots</h4>
+			<p>Need even more control over your form’s markup? Vue Formulate ships with full <a href="https://vueformulate.com/guide/inputs/slots/">scoped slots</a> support so that you can globally or selectively provide your own markup.</p>
+		</td>
+	</tr>
+  <tr>
+		<td style="width: 50%; vertical-align: top;">
+			<h4 style="margin-top: 0.25em">🌐 Internationalization</h4>
+			<p>Thanks to the wonderfully collaborative Vue community, Vue Formulate ships with support for <a href="https://vueformulate.com/guide/internationalization/">over a dozen languages</a> which are selectively importable to keep bundle size light.</p>
+		</td>
+		<td style="width: 50%; vertical-align: top;">
 		</td>
 	</tr>
 </table>
