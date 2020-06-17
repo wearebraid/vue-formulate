@@ -16,6 +16,7 @@
         <component
           :is="context.slotComponents.label"
           v-if="context.hasLabel"
+          v-bind="context.slotProps.label"
           :context="context"
         />
       </slot>
@@ -27,6 +28,7 @@
         <component
           :is="context.slotComponents.help"
           v-if="context.help"
+          v-bind="context.slotProps.help"
           :context="context"
         />
       </slot>
@@ -37,6 +39,7 @@
         <component
           :is="context.component"
           :context="context"
+          v-bind="context.slotProps.component"
           @click="$emit('click', $event)"
         >
           <slot v-bind="context" />
@@ -51,6 +54,7 @@
           :is="context.slotComponents.label"
           v-if="context.hasLabel"
           :context="context"
+          v-bind="context.slotProps.label"
         />
       </slot>
     </div>
@@ -63,6 +67,7 @@
         :is="context.slotComponents.help"
         v-if="context.help"
         :context="context"
+        v-bind="context.slotProps.help"
       />
     </slot>
     <slot
@@ -74,6 +79,7 @@
         v-if="!context.disableErrors"
         :type="context.slotComponents.errors === 'FormulateErrors' ? 'input' : false"
         :context="context"
+        v-bind="context.slotProps.errors"
       />
     </slot>
   </div>
@@ -81,8 +87,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, snakeToCamel, has, arrayify, groupBails } from './libs/utils'
-import { classProps } from './libs/classes'
+import { shallowEqualObjects, parseRules, camel, has, arrayify, groupBails } from './libs/utils'
 
 export default {
   name: 'FormulateInput',
@@ -236,8 +241,7 @@ export default {
     addLabel: {
       type: [Boolean, String],
       default: false
-    },
-    ...classProps()
+    }
   },
   data () {
     return {
@@ -266,17 +270,17 @@ export default {
     parsedValidationRules () {
       const parsedValidationRules = {}
       Object.keys(this.validationRules).forEach(key => {
-        parsedValidationRules[snakeToCamel(key)] = this.validationRules[key]
+        parsedValidationRules[camel(key)] = this.validationRules[key]
       })
       return parsedValidationRules
     },
     messages () {
       const messages = {}
       Object.keys(this.validationMessages).forEach((key) => {
-        messages[snakeToCamel(key)] = this.validationMessages[key]
+        messages[camel(key)] = this.validationMessages[key]
       })
       Object.keys(this.messageRegistry).forEach((key) => {
-        messages[snakeToCamel(key)] = this.messageRegistry[key]
+        messages[camel(key)] = this.messageRegistry[key]
       })
       return messages
     }
@@ -419,7 +423,7 @@ export default {
       })
     },
     getMessageFunc (ruleName) {
-      ruleName = snakeToCamel(ruleName)
+      ruleName = camel(ruleName)
       if (this.messages && typeof this.messages[ruleName] !== 'undefined') {
         switch (typeof this.messages[ruleName]) {
           case 'function':

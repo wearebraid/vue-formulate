@@ -68,6 +68,7 @@ class Formulate {
         addMore: 'FormulateAddMore',
         remove: 'FormulateRepeatableRemove'
       },
+      slotProps: {},
       library,
       rules,
       mimes,
@@ -193,6 +194,37 @@ class Formulate {
       // Now we have our final classes, assign to the given key.
       return Object.assign(classMap, { [key]: classesForKey })
     }, {})
+  }
+
+  /**
+   * Given a particular type, report any "additional" props to pass to the
+   * various slots.
+   * @param {string} type
+   * @return {array}
+   */
+  typeProps (type) {
+    const extract = obj => Object.keys(obj).reduce((props, slot) => {
+      return Array.isArray(obj[slot]) ? props.concat(obj[slot]) : props
+    }, [])
+    const props = extract(this.options.slotProps)
+    return this.options.library[type]
+      ? props.concat(extract(this.options.library[type].slotProps || {}))
+      : props
+  }
+
+  /**
+   * Given a type and a slot, get the relevant slot props object.
+   * @param {string} type
+   * @param {string} slot
+   * @return {object}
+   */
+  slotProps (type, slot, typeProps) {
+    let props = Array.isArray(this.options.slotProps[slot]) ? this.options.slotProps[slot] : []
+    const def = this.options.library[type]
+    if (def && def.slotProps && Array.isArray(def.slotProps[slot])) {
+      props = props.concat(def.slotProps[slot])
+    }
+    return props.reduce((props, prop) => Object.assign(props, { [prop]: typeProps[prop] }), {})
   }
 
   /**

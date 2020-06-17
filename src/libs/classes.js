@@ -42,7 +42,7 @@ export const classKeys = [
 export const states = {
   hasErrors: c => c.hasErrors,
   hasValue: c => c.hasValue,
-  isValid: c => c.hasValue && !c.hasErrors
+  isValid: c => c.isValid
 }
 
 /**
@@ -91,20 +91,16 @@ const classModifiers = (base, classKey, context) => {
 /**
  * Generate a list of all the class props to accept.
  */
-export function classProps () {
+export const classProps = (() => {
   const stateKeys = [''].concat(Object.keys(states).map(s => cap(s)))
   // This reducer produces a key for every element key + state key variation
   return classKeys.reduce((props, classKey) => {
-    return Object.assign(props, stateKeys.reduce((keys, stateKey) => {
-      return Object.assign(keys, {
-        [`${classKey}${stateKey}Class`]: {
-          type: [Array, Boolean, Function, String],
-          default: false
-        }
-      })
-    }, {}))
-  }, {})
-}
+    return props.concat(stateKeys.reduce((keys, stateKey) => {
+      keys.push(`${classKey}${stateKey}Class`)
+      return keys
+    }, []))
+  }, [])
+})()
 
 /**
  * Given a string or array of classes and a modifier (function, string etc) apply

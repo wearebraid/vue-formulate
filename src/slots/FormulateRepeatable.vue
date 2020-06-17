@@ -11,6 +11,7 @@
         :is="context.slotComponents.remove"
         :context="context"
         :remove-item="removeItem"
+        v-bind="context.slotProps.remove"
       />
     </FormulateSlot>
     <slot />

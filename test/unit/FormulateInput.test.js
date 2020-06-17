@@ -596,5 +596,151 @@ describe('FormulateInput', () => {
     // Test the inner error
     expect(wrapper.find('.formulate-input-error').attributes('class'))
       .toBe('formulate-input-error has-8-value');
+    resetInstance()
+  })
+
+  it('assigns isValid irregardless of error-behavior', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      label: 'blah',
+      labelIsValidClass: 'my-valid',
+      errorBehavior: 'submit',
+      validation: "required|in:foobar",
+      value: '123'
+    }})
+    await flushPromises()
+    expect(wrapper.find('label').attributes('class')).toBe('formulate-input-label formulate-input-label--before')
+    wrapper.find('input').setValue('foobar')
+    await flushPromises()
+    expect(wrapper.find('label').attributes('class')).toBe('formulate-input-label formulate-input-label--before my-valid')
+  })
+
+  it('assigns hasErrors only when triggered by error visibility', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      inputHasErrorsClass: 'input-has-errors',
+      errorBehavior: 'blur',
+      validation: "required|in:foobar",
+      value: '123'
+    }})
+    await flushPromises()
+    expect(wrapper.find('input').attributes('class')).toBe(undefined)
+    wrapper.vm.context.blurHandler()
+    await flushPromises()
+    expect(wrapper.find('input').attributes('class')).toBe('input-has-errors')
+  })
+
+  it('extracts pseudoProps when camelCase', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', label: 'blah', labelClass: 'my-class' }})
+    expect(wrapper.vm.pseudoProps['labelClass']).toBe('my-class')
+  })
+
+  it('extracts pseudoProps when kebab case', () => {
+    const wrapper = mount({
+      template: '<FormulateInput type="text" label="blah" label-class="my-class" />'
+    })
+    expect(wrapper.findComponent(FormulateInput).vm.pseudoProps['labelClass']).toBe('my-class')
+  })
+
+  it('removes slotProps from the attributes and passes it', async () => {
+    const localVue = createLocalVue()
+    localVue.component('MyCustomLabel', {
+      functional: true,
+      render: (h, { props }) => h('label', props.infoText)
+    })
+    localVue.component('MyCustomHelp', {
+      functional: true,
+      render: (h, { props }) => h('span', { class: 'my-help' }, props.infoHelp)
+    })
+    localVue.component('MyCustomErrors', {
+      functional: true,
+      render: (h, { props }) => {
+        if (props.context.visibleValidationErrors.length) {
+          return h('div', { class: 'my-errors' }, props.infoErrors)
+        }
+        return null
+      }
+    })
+    localVue.component('MyAddMore', {
+      functional: true,
+      render: (h, { props }) => h('button', { class: 'my-add-more' }, props.infoAddMore)
+    })
+    // localVue.component('MyRepeatable', {
+    //   functional: true,
+    //   render: (h, { props }) => h('div', { class: 'my-repeatable' }, props.infoRepeatable)
+    // })
+    localVue.component('MyRemove', {
+      functional: true,
+      render: (h, { props }) => h('div', { class: 'my-remove' }, props.infoRemove)
+    })
+
+    localVue.use(Formulate, {
+      slotProps: {
+        label: ['infoText'],
+        help: ['infoHelp'],
+        errors: ['infoErrors'],
+        addMore: ['infoAddMore'],
+        // repeatable: ['infoRepeatable'],
+        remove: ['infoRemove'],
+      },
+      slotComponents: {
+        label: 'MyCustomLabel',
+        help: 'MyCustomHelp',
+        errors: 'MyCustomErrors',
+        addMore: 'MyAddMore',
+        // repeatable: 'MyRepeatable',
+        remove: 'MyRemove'
+      }
+    })
+    const wrapper = mount(FormulateInput, {
+      localVue,
+      propsData: {
+        type: 'group',
+        validation: 'min:5,length',
+        value: [{ test: '123' }],
+        repeatable: true,
+        errorBehavior: 'live',
+        help: 'foobar',
+        label: 'blah',
+        infoText: 'Some label text',
+        infoHelp: 'Some help text',
+        infoErrors: 'Some error text',
+        infoAddMore: 'Add some goodies',
+        // infoRepeatable: 'Repeat me',
+        infoRemove: 'Get outta here'
+      },
+      slots: {
+        default: '<FormulateInput type="text" name="test" />'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('[info-text]').exists()).toBe(false)
+    expect(wrapper.find('label').text()).toBe('Some label text')
+    expect(wrapper.find('.my-help').text()).toBe('Some help text')
+    expect(wrapper.find('.my-errors').text()).toBe('Some error text')
+    expect(wrapper.find('.my-add-more').text()).toBe('Add some goodies')
+    // expect(wrapper.find('.my-repeatable').text()).toBe('Repeat me')
+    expect(wrapper.find('.my-remove').text()).toBe('Get outta here')
+  })
+
+  it('can remove all baseClasses globally', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      baseClasses: () => []
+    })
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      type: 'text',
+      validation: 'required|in:abcdef',
+      errorBehavior: 'live',
+      label: 'foobar',
+      help: 'foobar',
+      value: 'other value'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input').exists()).toBe(false)
+    expect(wrapper.find('.formulate-input-label').exists()).toBe(false)
+    expect(wrapper.find('.formulate-input-label--before').exists()).toBe(false)
+    expect(wrapper.find('.formulate-input-help').exists()).toBe(false)
+    resetInstance()
   })
 })

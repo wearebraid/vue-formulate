@@ -1,4 +1,4 @@
-import { parseRules, parseLocale, regexForFormat, cloneDeep, isValueType, snakeToCamel, groupBails, isEmpty } from '@/libs/utils'
+import { parseRules, parseLocale, regexForFormat, cloneDeep, isValueType, camel, groupBails, isEmpty } from '@/libs/utils'
 import rules from '@/libs/rules'
 import FileUpload from '@/FileUpload';
 
@@ -145,34 +145,34 @@ describe('cloneDeep', () => {
   })
 })
 
-describe('snakeToCamel', () => {
+describe('camel', () => {
   it('converts underscore separated words to camelCase', () => {
-    expect(snakeToCamel('this_is_snake_case')).toBe('thisIsSnakeCase')
+    expect(camel('this_is_snake_case')).toBe('thisIsSnakeCase')
   })
 
   it('converts underscore separated words to camelCase even if they start with a number', () => {
-    expect(snakeToCamel('this_is_snake_case_2nd_example')).toBe('thisIsSnakeCase2ndExample')
+    expect(camel('this_is_snake_case_2nd_example')).toBe('thisIsSnakeCase2ndExample')
   })
 
   it('has no effect on already camelCase words', () => {
-    expect(snakeToCamel('thisIsCamelCase')).toBe('thisIsCamelCase')
+    expect(camel('thisIsCamelCase')).toBe('thisIsCamelCase')
   })
 
   it('does not capitalize the first word or strip first underscore if a phrase starts with an underscore', () => {
-    expect(snakeToCamel('_this_starts_with_an_underscore')).toBe('_thisStartsWithAnUnderscore')
+    expect(camel('_this_starts_with_an_underscore')).toBe('_thisStartsWithAnUnderscore')
   })
 
   it('ignores double underscores anywhere in a word', () => {
-    expect(snakeToCamel('__unlikely__thing__')).toBe('__unlikely__thing__')
+    expect(camel('__unlikely__thing__')).toBe('__unlikely__thing__')
   })
 
-  it('has no effect hyphenated words', () => {
-    expect(snakeToCamel('not-a-good-name')).toBe('not-a-good-name')
+  it('also converts hyphenated words', () => {
+    expect(camel('not-a-good-name')).toBe('notAGoodName')
   })
 
   it('returns the same function if passed', () => {
     const fn = () => {}
-    expect(snakeToCamel(fn)).toBe(fn)
+    expect(camel(fn)).toBe(fn)
   })
 })
 

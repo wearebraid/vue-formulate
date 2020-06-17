@@ -1,4 +1,5 @@
-import { map, arrayify, shallowEqualObjects, isEmpty } from './utils'
+import { map, arrayify, shallowEqualObjects, isEmpty, camel } from './utils'
+import { classProps } from './classes'
 
 /**
  * For a single instance of an input, export all of the context needed to fully
@@ -24,18 +25,21 @@ export default {
       help: this.help,
       helpPosition: this.logicalHelpPosition,
       id: this.id || this.defaultId,
+      isValid: this.isValid,
       imageBehavior: this.imageBehavior,
       label: this.label,
       labelPosition: this.logicalLabelPosition,
       limit: this.limit,
       name: this.nameOrFallback,
       performValidation: this.performValidation.bind(this),
+      pseudoProps: this.pseudoProps,
       preventWindowDrops: this.preventWindowDrops,
       repeatable: this.repeatable,
       rootEmit: this.$emit.bind(this),
       setErrors: this.setErrors.bind(this),
       showValidationErrors: this.showValidationErrors,
       slotComponents: this.slotComponents,
+      slotProps: this.slotProps,
       type: this.type,
       uploadBehavior: this.uploadBehavior,
       uploadUrl: this.mergedUploadUrl,
@@ -62,6 +66,9 @@ export default {
   logicalAddLabel,
   classes,
   showValidationErrors,
+  slotProps,
+  pseudoProps,
+  isValid,
 
   // Not used in context
   isVmodeled,
@@ -69,7 +76,9 @@ export default {
   explicitErrors,
   allErrors,
   hasVisibleErrors,
-  hasErrors
+  hasErrors,
+  filteredAttributes,
+  typeProps
 }
 
 /**
@@ -108,11 +117,55 @@ function typeContext () {
 }
 
 /**
+ * Extract a set of attributes.
+ * @param {string} keysToExtract
+ */
+function extractAttributes (obj, keys) {
+  return Object.keys(obj).reduce((props, key) => {
+    // All class keys are "pseudo props"
+    const propKey = camel(key)
+    if (keys.includes(propKey)) {
+      props[propKey] = obj[key]
+    }
+    return props
+  }, {})
+}
+
+/**
+ * Items in $attrs that are better described as props.
+ */
+function pseudoProps () {
+  // Remove any "class key props" from the attributes.
+  return extractAttributes(this.localAttributes, classProps)
+}
+
+/**
+ * Remove props that are defined as slot props.
+ */
+function typeProps () {
+  return extractAttributes(this.localAttributes, this.$formulate.typeProps(this.type))
+}
+
+/**
+ * Attributes with pseudoProps filtered out.
+ */
+function filteredAttributes () {
+  const filterKeys = Object.keys(this.pseudoProps)
+    .concat(Object.keys(this.typeProps))
+  return Object.keys(this.localAttributes).reduce((props, key) => {
+    if (!filterKeys.includes(camel(key))) {
+      props[key] = this.localAttributes[key]
+    }
+    return props
+  }, {})
+}
+
+/**
  * Reducer for attributes that will be applied to each core input element.
  * @return {object}
  */
 function elementAttributes () {
-  const attrs = Object.assign({}, this.localAttributes)
+  const attrs = Object.assign({}, this.filteredAttributes)
   // pass the ID prop through to the root element
   if (this.id) {
     attrs.id = this.id
@@ -145,14 +198,16 @@ function elementAttributes () {
 function classes () {
   return this.$formulate.classes({
     ...this.$props,
+    ...this.pseudoProps,
     ...{
-      type: this.type,
-      labelPosition: this.logicalLabelPosition,
-      helpPosition: this.logicalHelpPosition,
-      hasValue: this.hasValue,
+      classification: this.classification,
       hasErrors: this.hasVisibleErrors,
-      value: this.proxy,
-      classification: this.classification
+      hasValue: this.hasValue,
+      helpPosition: this.logicalHelpPosition,
+      isValid: this.isValid,
+      labelPosition: this.logicalLabelPosition,
+      type: this.type,
+      value: this.proxy
     }
   })
 }
@@ -322,6 +377,13 @@ function hasErrors () {
 }
 
 /**
+ * True when the field has no errors at all.
+ */
+function isValid () {
+  return !this.hasErrors
+}
+
+/**
  * Returns if form has actively visible errors (of any kind)
  */
 function hasVisibleErrors () {
@@ -335,13 +397,29 @@ function hasVisibleErrors () {
  * The component that should be rendered in the label slot as default.
  */
 function slotComponents () {
+  const fn = this.$formulate.slotComponent.bind(this.$formulate)
   return {
-    label: this.$formulate.slotComponent(this.type, 'label'),
-    help: this.$formulate.slotComponent(this.type, 'help'),
-    errors: this.$formulate.slotComponent(this.type, 'errors'),
-    repeatable: this.$formulate.slotComponent(this.type, 'repeatable'),
-    addMore: this.$formulate.slotComponent(this.type, 'addMore'),
-    remove: this.$formulate.slotComponent(this.type, 'remove')
+    label: fn(this.type, 'label'),
+    help: fn(this.type, 'help'),
+    errors: fn(this.type, 'errors'),
+    repeatable: fn(this.type, 'repeatable'),
+    addMore: fn(this.type, 'addMore'),
+    remove: fn(this.type, 'remove')
+  }
+}
+
+/**
+ * Any extra props to pass to slot components.
+ */
+function slotProps () {
+  const fn = this.$formulate.slotProps.bind(this.$formulate)
+  return {
+    label: fn(this.type, 'label', this.typeProps),
+    help: fn(this.type, 'help', this.typeProps),
+    errors: fn(this.type, 'errors', this.typeProps),
+    repeatable: fn(this.type, 'repeatable', this.typeProps),
+    addMore: fn(this.type, 'addMore', this.typeProps),
+    remove: fn(this.type, 'remove', this.typeProps)
   }
 }
 

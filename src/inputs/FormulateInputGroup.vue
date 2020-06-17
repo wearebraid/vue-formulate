@@ -34,6 +34,7 @@
           :is="context.slotComponents.addMore"
           :context="context"
           :add-more="addItem"
+          v-bind="context.slotProps.addMore"
           @add="addItem"
         />
       </FormulateSlot>
@@ -70,17 +71,20 @@ export default {
         hasLabel,
         hasValidationErrors,
         isSubField,
+        isValid,
         labelPosition,
         options,
         performValidation,
         setErrors,
         slotComponents,
+        slotProps,
         validationErrors,
         visibleValidationErrors,
         classes,
         showValidationErrors,
         rootEmit,
         help,
+        pseudoProps,
         ...context
       } = this.context
       return this.options.map(option => this.groupItemContext(
