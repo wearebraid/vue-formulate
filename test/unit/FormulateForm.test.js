@@ -287,7 +287,7 @@ describe('FormulateForm', () => {
     expect(mockHandler.mock.calls[0]).toEqual([{ formErrors: ['This is an error message'] }, 'login']);
   })
 
-  it('errors are displayed on correctly named components', async () => {
+  it('errors are displayed on correctly named forms', async () => {
     const wrapper = mount({
       template: `
       <div>
@@ -308,7 +308,7 @@ describe('FormulateForm', () => {
     expect(wrapper.find('.formulate-form--register .formulate-form-errors').exists()).toBe(false)
   })
 
-  it('errors are displayed on correctly named components', async () => {
+  it('errors are displayed on correctly named forms', async () => {
     const wrapper = mount({
       template: `
       <div>
@@ -327,6 +327,32 @@ describe('FormulateForm', () => {
     expect(wrapper.findAll('.formulate-form').length).toBe(2)
     expect(wrapper.find('.formulate-form--login .formulate-form-errors').exists()).toBe(true)
     expect(wrapper.find('.formulate-form--register .formulate-form-errors').exists()).toBe(false)
+  })
+
+  it('de-registers named forms when destroyed', async () => {
+    const wrapper = mount({
+      template: `
+      <div>
+        <FormulateForm
+          name="login"
+          v-if="hasForm"
+        />
+        <FormulateForm
+          name="register"
+        />
+      </div>
+      `,
+      data () {
+        return {
+          hasForm: true
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.vm.$formulate.registry.has('login')).toBe(true)
+    wrapper.vm.hasForm = false
+    await flushPromises()
+    expect(wrapper.vm.$formulate.registry.has('login')).toBe(false)
   })
 
   it('hides root FormError if another form error exists and renders in new location', async () => {
@@ -659,5 +685,36 @@ describe('FormulateForm', () => {
     inputs = wrapper.findAllComponents(FormulateInput)
     expect(inputs.length).toBe(1)
     expect(wrapper.findComponent(FormulateForm).vm.deps.get(inputs.at(0).vm)).toEqual(new Set([]))
+  })
+
+  it('allows form submission via named form', async () => {
+    const submit = jest.fn()
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          name="password"
+          @submit="submit"
+        >
+          <FormulateInput type="password" name="password"/>
+          <FormulateInput type="password" name="password_confirm"/>
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          hasConfirm: true,
+          formData: {
+            password: 'foobar',
+            password_confirm: 'foobar'
+          }
+        }
+      },
+      methods: {
+        submit
+      }
+    })
+    await flushPromises()
+    wrapper.vm.$formulate.submit('password')
+    await flushPromises()
+    expect(submit.mock.calls.length).toBe(1)
   })
 })

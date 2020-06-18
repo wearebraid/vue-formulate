@@ -5,10 +5,10 @@ import Formulate from '@/Formulate.js'
 import FormulateForm from '@/FormulateForm.vue'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateInputBox from '@/inputs/FormulateInputBox.vue'
+import { classKeys } from '@/libs/classes'
 
 const globalRule = jest.fn((context) => { return false })
-
-Vue.use(Formulate, {
+const options = {
   locales: {
     en: {
       email: ({ value }) => `Super invalid email: ${value}`
@@ -23,9 +23,30 @@ Vue.use(Formulate, {
       component: 'FormulateInputBox'
     }
   }
-})
+}
+Vue.use(Formulate, options)
+
+const resetInstance = () => {
+  Formulate.install(Vue, options)
+}
 
 describe('FormulateInput', () => {
+  it('sets unknown classification if not in library', () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'foobar',
+    } })
+    expect(wrapper.vm.classification).toBe('unknown')
+  })
+
+  it('uses a hard-coded fallback validation error if no default rules exist', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, { rules: { foobar: () => false }, locales: { en: 'xyz' } })
+    const wrapper = mount(FormulateInput, { localVue, propsData: { validation: 'foobar', errorBehavior: 'live' }})
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-error').text()).toBe('Invalid field value')
+    resetInstance()
+  })
+
   it('allows custom field-rule level validation strings', async () => {
     const wrapper = mount(FormulateInput, { propsData: {
       type: 'text',
@@ -371,5 +392,355 @@ describe('FormulateInput', () => {
     wrapper.find('input').setValue('a')
     await flushPromises()
     expect(wrapper.emitted().input.length).toBe(1);
+  })
+
+  it('allows you to replace classes on the outer element', () => {
+    const wrapper = mount({
+      template: `<FormulateInput type='text' class='my-custom-class' />`
+    })
+    expect(wrapper.attributes('class')).toBe('my-custom-class formulate-input')
+  })
+  it('has formulate-input outer classes by default', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text' }})
+    expect(wrapper.attributes('class')).toBe('formulate-input');
+    expect(wrapper.find('.formulate-input > *').attributes('class')).toBe('formulate-input-wrapper')
+  })
+
+  it('has formulate-input-label wrapper classes by default', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', label: 'blah' }})
+    expect(wrapper.find('label').attributes('class')).toBe('formulate-input-label formulate-input-label--before');
+  })
+
+  it('can override the baseClasses function globally', () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      baseClasses () {
+        return classKeys.reduce((classMap, key) => Object.assign(classMap, { [key]: 'my-class' }), {})
+      }
+    })
+    const wrapper = mount(FormulateInput, { localVue, propsData: { type: 'text', label: 'blah' }})
+    expect(wrapper.find('label').attributes('class')).toBe('my-class');
+  })
+
+  it('can override individual classKey globals', () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      classes: {
+        label: 'label-class'
+      }
+    })
+    const wrapper = mount(FormulateInput, { localVue, propsData: { type: 'text', label: 'blah' }})
+    expect(wrapper.attributes('class')).toBe('formulate-input');
+    expect(wrapper.find('label').attributes('class')).toBe('label-class');
+  })
+
+  it('can override individual classKey globals with functions', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      classes: {
+        outer: (c, d) => d.concat(['adds-1-class']),
+        wrapper: (c, d) => d.concat(['adds-2-class']),
+        label: (c, d) => d.concat(['adds-3-class']),
+        element: (c, d) => d.concat(['adds-4-class']),
+        input: (c, d) => d.concat(['adds-5-class']),
+        help: (c, d) => d.concat(['adds-6-class']),
+        errors: (c, d) => d.concat(['adds-7-class']),
+        error: (c, d) => d.concat(['adds-8-class'])
+      }
+    })
+    const wrapper = mount(FormulateInput, { localVue, propsData: { type: 'text', label: 'foo', help: 'bar', errorBehavior: 'live', validation: 'required' }})
+    await flushPromises()
+    expect(wrapper.attributes('class')).toBe('formulate-input adds-1-class');
+    // Test the wrapper override
+    expect(wrapper.find('.formulate-input-wrapper').attributes('class'))
+      .toBe('formulate-input-wrapper adds-2-class');
+    // Test the label override
+    expect(wrapper.find('label').attributes('class'))
+      .toBe('formulate-input-label formulate-input-label--before adds-3-class');
+    // Test the element override
+    expect(wrapper.find('.formulate-input-element').attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--text adds-4-class');
+    // Test the input override
+    expect(wrapper.find('input').attributes('class'))
+      .toBe('adds-5-class');
+    // Test the input override
+    expect(wrapper.find('.formulate-input-help').attributes('class'))
+      .toBe('formulate-input-help formulate-input-help--after adds-6-class');
+    // Test the errors wrapper
+    expect(wrapper.find('.formulate-input-errors').attributes('class'))
+      .toBe('formulate-input-errors adds-7-class');
+    // Test the inner error
+    expect(wrapper.find('.formulate-input-error').attributes('class'))
+      .toBe('formulate-input-error adds-8-class');
+  })
+
+  it('allows you to fully override the class on the label element', () => {
+    // We have to do this because the previous tests messed with the singleton object — ideally we should
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {classes: {}})
+
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', label: 'foobar', labelClass: 'my-custom-class' }})
+    expect(wrapper.find('label').attributes('class')).toBe('my-custom-class')
+  })
+
+  it('allows you to modify all class keys via props', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      label: 'foo',
+      help: 'bar',
+      errorBehavior: 'live',
+      validation: 'required',
+      outerClass: ['custom-1-class'],
+      wrapperClass: ['custom-2-class'],
+      labelClass: ['custom-3-class'],
+      elementClass: ['custom-4-class'],
+      inputClass: ['custom-5-class'],
+      helpClass: ['custom-6-class'],
+      errorsClass: ['custom-7-class'],
+      errorClass: ['custom-8-class'],
+    }})
+    await flushPromises();
+    expect(wrapper.attributes('class')).toBe('formulate-input custom-1-class');
+    // Test the wrapper override
+    expect(wrapper.find('.formulate-input-wrapper').attributes('class'))
+      .toBe('formulate-input-wrapper custom-2-class');
+    // Test the label override
+    expect(wrapper.find('label').attributes('class'))
+      .toBe('formulate-input-label formulate-input-label--before custom-3-class');
+    // Test the element override
+    expect(wrapper.find('.formulate-input-element').attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--text custom-4-class');
+    // Test the input override
+    expect(wrapper.find('input').attributes('class'))
+      .toBe('custom-5-class');
+    // Test the input override
+    expect(wrapper.find('.formulate-input-help').attributes('class'))
+      .toBe('formulate-input-help formulate-input-help--after custom-6-class');
+    // Test the errors wrapper
+    expect(wrapper.find('.formulate-input-errors').attributes('class'))
+      .toBe('formulate-input-errors custom-7-class');
+    // Test the inner error
+    expect(wrapper.find('.formulate-input-error').attributes('class'))
+      .toBe('formulate-input-error custom-8-class');
+  })
+
+  it('responds to hasValue state class key', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      labelHasValueClass: 'field-has-value',
+      label: 'My label'
+    }})
+    wrapper.find('input').setValue('some value')
+    await flushPromises()
+    expect(wrapper.find('label').attributes('class')).toBe('formulate-input-label formulate-input-label--before field-has-value')
+  })
+
+  it('responds to isValid and hasErrors state class key', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required',
+      inputIsValidClass: 'is-valid-input',
+      inputHasErrorsClass: 'is-invalid-input',
+      errorBehavior: 'live'
+    }})
+    await flushPromises()
+    expect(wrapper.find('input').attributes('class')).toBe('is-invalid-input')
+    wrapper.find('input').setValue('some value')
+    await flushPromises()
+    expect(wrapper.find('input').attributes('class')).toBe('is-valid-input')
+  })
+
+  it('responds to globally registered hasValue on every element key', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      classes: {
+        outerHasValue: 'has-1-value',
+        wrapperHasValue: 'has-2-value',
+        labelHasValue: 'has-3-value',
+        elementHasValue: 'has-4-value',
+        inputHasValue: 'has-5-value',
+        helpHasValue: 'has-6-value',
+        errorsHasValue: 'has-7-value',
+        errorHasValue: 'has-8-value'
+      }
+    })
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      type: 'text',
+      label: 'foobar',
+      help: 'barfoo',
+      validation: 'required|in:123',
+      errorBehavior: 'live'
+    }})
+    wrapper.find('input').setValue('foobar')
+    await flushPromises()
+
+    expect(wrapper.attributes('class')).toBe('formulate-input has-1-value');
+    // Test the wrapper override
+    expect(wrapper.find('.formulate-input-wrapper').attributes('class'))
+      .toBe('formulate-input-wrapper has-2-value');
+    // Test the label override
+    expect(wrapper.find('label').attributes('class'))
+      .toBe('formulate-input-label formulate-input-label--before has-3-value');
+    // Test the element override
+    expect(wrapper.find('.formulate-input-element').attributes('class'))
+      .toBe('formulate-input-element formulate-input-element--text has-4-value');
+    // Test the input override
+    expect(wrapper.find('input').attributes('class'))
+      .toBe('has-5-value');
+    // Test the input override
+    expect(wrapper.find('.formulate-input-help').attributes('class'))
+      .toBe('formulate-input-help formulate-input-help--after has-6-value');
+    // Test the errors wrapper
+    expect(wrapper.find('.formulate-input-errors').attributes('class'))
+      .toBe('formulate-input-errors has-7-value');
+    // Test the inner error
+    expect(wrapper.find('.formulate-input-error').attributes('class'))
+      .toBe('formulate-input-error has-8-value');
+    resetInstance()
+  })
+
+  it('assigns isValid irregardless of error-behavior', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      label: 'blah',
+      labelIsValidClass: 'my-valid',
+      errorBehavior: 'submit',
+      validation: "required|in:foobar",
+      value: '123'
+    }})
+    await flushPromises()
+    expect(wrapper.find('label').attributes('class')).toBe('formulate-input-label formulate-input-label--before')
+    wrapper.find('input').setValue('foobar')
+    await flushPromises()
+    expect(wrapper.find('label').attributes('class')).toBe('formulate-input-label formulate-input-label--before my-valid')
+  })
+
+  it('assigns hasErrors only when triggered by error visibility', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      inputHasErrorsClass: 'input-has-errors',
+      errorBehavior: 'blur',
+      validation: "required|in:foobar",
+      value: '123'
+    }})
+    await flushPromises()
+    expect(wrapper.find('input').attributes('class')).toBe(undefined)
+    wrapper.vm.context.blurHandler()
+    await flushPromises()
+    expect(wrapper.find('input').attributes('class')).toBe('input-has-errors')
+  })
+
+  it('extracts pseudoProps when camelCase', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', label: 'blah', labelClass: 'my-class' }})
+    expect(wrapper.vm.pseudoProps['labelClass']).toBe('my-class')
+  })
+
+  it('extracts pseudoProps when kebab case', () => {
+    const wrapper = mount({
+      template: '<FormulateInput type="text" label="blah" label-class="my-class" />'
+    })
+    expect(wrapper.findComponent(FormulateInput).vm.pseudoProps['labelClass']).toBe('my-class')
+  })
+
+  it('removes slotProps from the attributes and passes it', async () => {
+    const localVue = createLocalVue()
+    localVue.component('MyCustomLabel', {
+      functional: true,
+      render: (h, { props }) => h('label', props.infoText)
+    })
+    localVue.component('MyCustomHelp', {
+      functional: true,
+      render: (h, { props }) => h('span', { class: 'my-help' }, props.infoHelp)
+    })
+    localVue.component('MyCustomErrors', {
+      functional: true,
+      render: (h, { props }) => {
+        if (props.context.visibleValidationErrors.length) {
+          return h('div', { class: 'my-errors' }, props.infoErrors)
+        }
+        return null
+      }
+    })
+    localVue.component('MyAddMore', {
+      functional: true,
+      render: (h, { props }) => h('button', { class: 'my-add-more' }, props.infoAddMore)
+    })
+    // localVue.component('MyRepeatable', {
+    //   functional: true,
+    //   render: (h, { props }) => h('div', { class: 'my-repeatable' }, props.infoRepeatable)
+    // })
+    localVue.component('MyRemove', {
+      functional: true,
+      render: (h, { props }) => h('div', { class: 'my-remove' }, props.infoRemove)
+    })
+
+    localVue.use(Formulate, {
+      slotProps: {
+        label: ['infoText'],
+        help: ['infoHelp'],
+        errors: ['infoErrors'],
+        addMore: ['infoAddMore'],
+        // repeatable: ['infoRepeatable'],
+        remove: ['infoRemove'],
+      },
+      slotComponents: {
+        label: 'MyCustomLabel',
+        help: 'MyCustomHelp',
+        errors: 'MyCustomErrors',
+        addMore: 'MyAddMore',
+        // repeatable: 'MyRepeatable',
+        remove: 'MyRemove'
+      }
+    })
+    const wrapper = mount(FormulateInput, {
+      localVue,
+      propsData: {
+        type: 'group',
+        validation: 'min:5,length',
+        value: [{ test: '123' }],
+        repeatable: true,
+        errorBehavior: 'live',
+        help: 'foobar',
+        label: 'blah',
+        infoText: 'Some label text',
+        infoHelp: 'Some help text',
+        infoErrors: 'Some error text',
+        infoAddMore: 'Add some goodies',
+        // infoRepeatable: 'Repeat me',
+        infoRemove: 'Get outta here'
+      },
+      slots: {
+        default: '<FormulateInput type="text" name="test" />'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('[info-text]').exists()).toBe(false)
+    expect(wrapper.find('label').text()).toBe('Some label text')
+    expect(wrapper.find('.my-help').text()).toBe('Some help text')
+    expect(wrapper.find('.my-errors').text()).toBe('Some error text')
+    expect(wrapper.find('.my-add-more').text()).toBe('Add some goodies')
+    // expect(wrapper.find('.my-repeatable').text()).toBe('Repeat me')
+    expect(wrapper.find('.my-remove').text()).toBe('Get outta here')
+  })
+
+  it('can remove all baseClasses globally', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      baseClasses: () => []
+    })
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      type: 'text',
+      validation: 'required|in:abcdef',
+      errorBehavior: 'live',
+      label: 'foobar',
+      help: 'foobar',
+      value: 'other value'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input').exists()).toBe(false)
+    expect(wrapper.find('.formulate-input-label').exists()).toBe(false)
+    expect(wrapper.find('.formulate-input-label--before').exists()).toBe(false)
+    expect(wrapper.find('.formulate-input-help').exists()).toBe(false)
+    resetInstance()
   })
 })

@@ -47,16 +47,28 @@ export function shallowEqualObjects (objA, objB) {
  * Given a string, convert snake_case to camelCase
  * @param {String} string
  */
-export function snakeToCamel (string) {
+export function camel (string) {
   if (typeof string === 'string') {
-    return string.replace(/([_][a-z0-9])/ig, ($1) => {
-      if (string.indexOf($1) !== 0 && string[string.indexOf($1) - 1] !== '_') {
-        return $1.toUpperCase().replace('_', '')
+    return string.replace(/([_-][a-z0-9])/ig, ($1) => {
+      if (string.indexOf($1) !== 0 && !/[_-]/.test(string[string.indexOf($1) - 1])) {
+        return $1.toUpperCase().replace(/[_-]/, '')
       }
       return $1
     })
   }
   return string
+}
+
+export function kebabToCamel (string) {
+
+}
+
+/**
+ * Given a string, capitalize it. happyDay => HappyDay
+ * @param {string} str
+ */
+export function cap (str) {
+  return typeof str === 'string' ? str[0].toUpperCase() + str.substr(1) : str
 }
 
 /**
@@ -133,9 +145,9 @@ function parseRule (rule, rules) {
  */
 function parseModifier (ruleName) {
   if (/^[\^]/.test(ruleName.charAt(0))) {
-    return [snakeToCamel(ruleName.substr(1)), ruleName.charAt(0)]
+    return [camel(ruleName.substr(1)), ruleName.charAt(0)]
   }
-  return [snakeToCamel(ruleName), null]
+  return [camel(ruleName), null]
 }
 
 /**

@@ -10,6 +10,7 @@
       :context="context"
       :index="index"
       :remove-item="removeItem"
+      v-bind="context.slotProps.repeatable"
     >
       <FormulateSlot
         :context="context"

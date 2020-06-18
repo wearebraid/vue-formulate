@@ -68,6 +68,7 @@ describe('Formulate', () => {
       'FormulateLabel',
       'FormulateInput',
       'FormulateErrors',
+      'FormulateSchema',
       'FormulateAddMore',
       'FormulateGrouping',
       'FormulateInputBox',
@@ -188,5 +189,9 @@ describe('Formulate', () => {
       }
     })
     expect(Vue.prototype.$formulate.getLocale(vm)).toBe('en')
+  })
+
+  it('throws an error improperly extending', async () => {
+    expect(() => Formulate.extend('pizza')).toThrow()
   })
 })

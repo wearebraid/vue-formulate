@@ -1,6 +1,6 @@
 <template>
   <div
-    class="formulate-input-group-repeatable"
+    :class="context.classes.groupRepeatable"
   >
     <FormulateSlot
       name="remove"
@@ -11,6 +11,7 @@
         :is="context.slotComponents.remove"
         :context="context"
         :remove-item="removeItem"
+        v-bind="context.slotProps.remove"
       />
     </FormulateSlot>
     <slot />

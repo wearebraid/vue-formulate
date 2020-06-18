@@ -2,11 +2,13 @@ import library from './libs/library'
 import rules from './libs/rules'
 import mimes from './libs/mimes'
 import FileUpload from './FileUpload'
+import coreClasses, { applyClasses, applyStates } from './libs/classes'
 import { arrayify, parseLocale, has } from './libs/utils'
 import isPlainObject from 'is-plain-object'
 import { en } from '@braid/vue-formulate-i18n'
 import fauxUploader from './libs/faux-uploader'
 import FormulateSlot from './FormulateSlot'
+import FormulateSchema from './FormulateSchema'
 import FormulateForm from './FormulateForm.vue'
 import FormulateInput from './FormulateInput.vue'
 import FormulateErrors from './FormulateErrors.vue'
@@ -43,6 +45,7 @@ class Formulate {
         FormulateLabel,
         FormulateInput,
         FormulateErrors,
+        FormulateSchema,
         FormulateAddMore,
         FormulateGrouping,
         FormulateInputBox,
@@ -65,6 +68,7 @@ class Formulate {
         addMore: 'FormulateAddMore',
         remove: 'FormulateRepeatableRemove'
       },
+      slotProps: {},
       library,
       rules,
       mimes,
@@ -76,7 +80,10 @@ class Formulate {
       errorHandler: (err) => err,
       plugins: [ en ],
       locales: {},
-      idPrefix: 'formulate-'
+      idPrefix: 'formulate-',
+      baseClasses: b => b,
+      coreClasses,
+      classes: {}
     }
     this.registry = new Map()
     this.idRegistry = {}
@@ -123,7 +130,7 @@ class Formulate {
       this.options = this.merge(this.options, extendWith)
       return this
     }
-    throw new Error(`VueFormulate extend() should be passed an object (was ${typeof extendWith})`)
+    throw new Error(`Formulate.extend expects an object, was ${typeof extendWith}`)
   }
 
   /**
@@ -166,6 +173,58 @@ class Formulate {
       return this.options.library[type].classification
     }
     return 'unknown'
+  }
+
+  /**
+   * Generate all classes for a particular context.
+   * @param {Object} context
+   */
+  classes (classContext) {
+    // Step 1: We get the global classes for all keys.
+    const coreClasses = this.options.coreClasses(classContext)
+    // Step 2: We extend those classes with a user defined baseClasses.
+    const baseClasses = this.options.baseClasses(coreClasses, classContext)
+    return Object.keys(baseClasses).reduce((classMap, key) => {
+      // Step 3: For each key, apply any global overrides for that key.
+      let classesForKey = applyClasses(baseClasses[key], this.options.classes[key], classContext)
+      // Step 4: Apply any prop-level overrides for that key.
+      classesForKey = applyClasses(classesForKey, classContext[`${key}Class`], classContext)
+      // Step 5: Add state based classes from props.
+      classesForKey = applyStates(key, classesForKey, this.options.classes, classContext)
+      // Now we have our final classes, assign to the given key.
+      return Object.assign(classMap, { [key]: classesForKey })
+    }, {})
+  }
+
+  /**
+   * Given a particular type, report any "additional" props to pass to the
+   * various slots.
+   * @param {string} type
+   * @return {array}
+   */
+  typeProps (type) {
+    const extract = obj => Object.keys(obj).reduce((props, slot) => {
+      return Array.isArray(obj[slot]) ? props.concat(obj[slot]) : props
+    }, [])
+    const props = extract(this.options.slotProps)
+    return this.options.library[type]
+      ? props.concat(extract(this.options.library[type].slotProps || {}))
+      : props
+  }
+
+  /**
+   * Given a type and a slot, get the relevant slot props object.
+   * @param {string} type
+   * @param {string} slot
+   * @return {object}
+   */
+  slotProps (type, slot, typeProps) {
+    let props = Array.isArray(this.options.slotProps[slot]) ? this.options.slotProps[slot] : []
+    const def = this.options.library[type]
+    if (def && def.slotProps && Array.isArray(def.slotProps[slot])) {
+      props = props.concat(def.slotProps[slot])
+    }
+    return props.reduce((props, prop) => Object.assign(props, { [prop]: typeProps[prop] }), {})
   }
 
   /**
@@ -248,13 +307,11 @@ class Formulate {
     const generators = this.options.locales[this.getLocale(vm)]
     if (generators.hasOwnProperty(rule)) {
       return generators[rule](validationContext)
-    } else if (rule[0] === '_' && generators.hasOwnProperty(rule.substr(1))) {
-      return generators[rule.substr(1)](validationContext)
     }
     if (generators.hasOwnProperty('default')) {
       return generators.default(validationContext)
     }
-    return 'This field does not have a valid value'
+    return 'Invalid field value'
   }
 
   /**
@@ -308,6 +365,15 @@ class Formulate {
   reset (formName, initialValue = {}) {
     this.resetValidation(formName)
     this.setValues(formName, initialValue)
+  }
+
+  /**
+   * Submit a named form.
+   * @param {string} formName
+   */
+  submit (formName) {
+    const form = this.registry.get(formName)
+    form.formSubmitted()
   }
 
   /**

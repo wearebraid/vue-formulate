@@ -3,6 +3,10 @@
     :class="classes"
     @submit.prevent="formSubmitted"
   >
+    <FormulateSchema
+      v-if="schema"
+      :schema="schema"
+    />
     <FormulateErrors
       v-if="!hasFormErrorObservers"
       :context="formContext"
@@ -50,6 +54,10 @@ export default {
     formErrors: {
       type: Array,
       default: () => ([])
+    },
+    schema: {
+      type: [Array, Boolean],
+      default: false
     }
   },
   data () {

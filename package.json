@@ -1,6 +1,6 @@
 {
   "name": "@braid/vue-formulate",
-  "version": "2.3.8",
+  "version": "2.4.0",
   "description": "The easiest way to build forms in Vue.",
   "main": "dist/formulate.umd.js",
   "module": "dist/formulate.esm.js",
@@ -17,7 +17,7 @@
     "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/formulate.umd.js",
     "build:iife": "rollup --config build/rollup.iife.config.js --format iife --file dist/formulate.min.js",
     "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --no-map --use cssnano > dist/snow.min.css",
-    "test": "NODE_ENV=test jest --config test/jest.conf.js",
+    "test": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
     "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
     "build:size": "gzip -c dist/formulate.esm.js | wc -c",
