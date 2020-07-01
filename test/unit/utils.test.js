@@ -281,6 +281,7 @@ describe('groupBails', () => {
 
     it('is false when string', () => expect(isEmpty('pizza')).toBe(false))
     it('is false when zero string', () => expect(isEmpty('0')).toBe(false))
+    it('is false when zero value', () => expect(isEmpty(0)).toBe(false))
     it('is false when has array values', () => expect(isEmpty(['first'])).toBe(false))
     it('is false when has object has values', () => expect(isEmpty([{ key: 'value' }])).toBe(false))
   })

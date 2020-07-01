@@ -743,4 +743,10 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-help').exists()).toBe(false)
     resetInstance()
   })
+
+  it('allows an empty string as a validation prop', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { validation: '', errorBehavior: 'live' }})
+    await flushPromises()
+    expect(wrapper.find('.formulate-errors').exists()).toBe(false)
+  })
 })

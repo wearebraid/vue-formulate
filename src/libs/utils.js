@@ -302,6 +302,9 @@ export function setId (o, id) {
  * @param {any} value
  */
 export function isEmpty (value) {
+  if (typeof value === 'number') {
+    return false
+  }
   return (
     value === undefined ||
     value === '' ||

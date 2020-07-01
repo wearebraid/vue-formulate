@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import flushPromises from 'flush-promises'
 import { mount } from '@vue/test-utils'
 import Formulate from '@/Formulate.js'
 import FormulateInput from '@/FormulateInput.vue'
@@ -61,5 +62,27 @@ describe('FormulateInputSlider', () => {
       }
     })
     expect(wrapper.find('.formulate-input-element-range-value.custom-class').exists()).toBe(true)
+  })
+
+  it('allows a numeric zero value but still hasValue', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="model"
+        >
+          <FormulateInput type="slider" name="range" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          model: {
+            range: 0
+          }
+        }
+      }
+    })
+    await flushPromises();
+    const input = wrapper.findComponent(FormulateInput)
+    expect(input.vm.context.hasValue).toBe(true)
   })
 })

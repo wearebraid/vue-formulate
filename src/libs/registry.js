@@ -1,4 +1,4 @@
-import { shallowEqualObjects, has } from './utils'
+import { shallowEqualObjects, has, isEmpty } from './utils'
 
 /**
  * Component registry with inherent depth to handle complex nesting. This is
@@ -85,7 +85,7 @@ class Registry {
     if (
       !hasVModelValue &&
       this.ctx.hasInitialValue &&
-      this.ctx.initialValues[field]
+      !isEmpty(this.ctx.initialValues[field])
     ) {
       // In the case that the form is carrying an initial value and the
       // element is not, set it directly.
@@ -191,6 +191,7 @@ export function useRegistryMethods (without = []) {
     },
     setFieldValue (field, value) {
       if (value === undefined) {
+        // undefined values should be removed from the form model
         const { [field]: value, ...proxy } = this.proxy
         this.proxy = proxy
       } else {
