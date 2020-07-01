@@ -147,6 +147,16 @@ describe('FormulateInput', () => {
     expect(wrapper.vm.context.validationErrors.length).toBe(0)
   })
 
+  it('ignores modifiers on the optional rule', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: '^optional|min:6,length|max:10',
+      errorBehavior: 'live'
+    }})
+    await flushPromises()
+    expect(wrapper.vm.context.validationErrors.length).toBe(0)
+  })
+
   it('skips validation when the optional rule is used with required', async () => {
     const wrapper = mount(FormulateInput, { propsData: {
       type: 'text',
@@ -169,6 +179,17 @@ describe('FormulateInput', () => {
     }})
     await flushPromises()
     expect(wrapper.vm.context.validationErrors.length).toBe(0)
+  })
+
+  it('remaining validation rules after passing the optional rule', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'optional|min:6,length|max:10',
+      errorBehavior: 'live'
+    }})
+    wrapper.find('input').setValue('hi')
+    await flushPromises()
+    expect(wrapper.vm.context.validationErrors.length).toBe(1)
   })
 
   it('can extend its standard library of inputs', async () => {
