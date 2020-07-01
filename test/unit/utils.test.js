@@ -56,6 +56,14 @@ describe('parseRules', () => {
       [rules.max, ['10'], 'max', '^'],
     ])
   })
+
+  it('ignores empty string rules', () => {
+    expect(parseRules('', rules)).toEqual([])
+  })
+
+  it('ignores empty string rules', () => {
+    expect(parseRules('', rules)).toEqual([])
+  })
 })
 
 

@@ -126,7 +126,7 @@ function parseRule (rule, rules) {
       return [ruleName, rule, ruleName, modifier]
     }
   }
-  if (typeof rule === 'string') {
+  if (typeof rule === 'string' && rule) {
     const segments = rule.split(':')
     const [ruleName, modifier] = parseModifier(segments.shift())
     if (rules.hasOwnProperty(ruleName)) {
