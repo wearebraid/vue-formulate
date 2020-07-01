@@ -717,4 +717,31 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(submit.mock.calls.length).toBe(1)
   })
+
+  it('fires the input event after the model has been updated', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+        >
+          <FormulateInput name="test" type="select" :options="{1: 'AAA', 2: 'BBB' }" @input="changed" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          formData: {},
+          sameAsValue: null
+        }
+      },
+      methods: {
+        changed (value) {
+          this.sameAsValue = this.formData.test === value
+        }
+      }
+    })
+    wrapper.find('select').setValue('2')
+    await flushPromises()
+    expect(wrapper.vm.formData.test).toBe('2')
+    expect(wrapper.vm.sameAsValue).toBe(true)
+  })
 })

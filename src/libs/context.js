@@ -462,11 +462,15 @@ function modelGetter () {
  * Set the value from a model.
  **/
 function modelSetter (value) {
+  let didUpdate = false
   if (!shallowEqualObjects(value, this.proxy)) {
     this.proxy = value
-    this.$emit('input', value)
+    didUpdate = true
   }
   if (this.context.name && typeof this.formulateSetter === 'function') {
     this.formulateSetter(this.context.name, value)
+  }
+  if (didUpdate) {
+    this.$emit('input', value)
   }
 }

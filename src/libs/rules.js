@@ -1,6 +1,6 @@
 import isUrl from 'is-url'
 import FileUpload from '../FileUpload'
-import { shallowEqualObjects, regexForFormat } from './utils'
+import { shallowEqualObjects, regexForFormat, isEmpty } from './utils'
 
 /**
  * Library of rules
@@ -288,5 +288,16 @@ export default {
    */
   bail: function () {
     return Promise.resolve(true)
+  },
+
+  /**
+   * Rule: not a true rule - more like a compiler flag.
+   */
+  optional: function ({ value }) {
+    // So technically we "fail" this rule anytime the field is empty. This rule
+    // is automatically hoisted to the top of the validation stack, and marked
+    // as a "bail" rule, meaning if it fails, no further validation will be run.
+    // Finally, the error message associated with this rule is filtered out.
+    return Promise.resolve(!isEmpty(value))
   }
 }

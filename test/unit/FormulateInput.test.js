@@ -127,6 +127,71 @@ describe('FormulateInput', () => {
     expect(globalRule.mock.calls.length).toBe(1)
   })
 
+  it('skips validation when the optional rule exists fields', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'optional|min:6,length',
+      errorBehavior: 'live'
+    }})
+    await flushPromises()
+    expect(wrapper.vm.context.validationErrors.length).toBe(0)
+  })
+
+  it('skips validation when the optional rule is at the stack end', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'min:6,length|optional',
+      errorBehavior: 'live'
+    }})
+    await flushPromises()
+    expect(wrapper.vm.context.validationErrors.length).toBe(0)
+  })
+
+  it('ignores modifiers on the optional rule', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: '^optional|min:6,length|max:10',
+      errorBehavior: 'live'
+    }})
+    await flushPromises()
+    expect(wrapper.vm.context.validationErrors.length).toBe(0)
+  })
+
+  it('skips validation when the optional rule is used with required', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'optional|required|min:6,length',
+      errorBehavior: 'live'
+    }})
+    await flushPromises()
+    expect(wrapper.vm.context.validationErrors.length).toBe(0)
+  })
+
+  it('skips validation when the optional rule is used in array format', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: [
+        ['optional'],
+        ['required'],
+        ['min', '6', 'length'],
+      ],
+      errorBehavior: 'live'
+    }})
+    await flushPromises()
+    expect(wrapper.vm.context.validationErrors.length).toBe(0)
+  })
+
+  it('remaining validation rules after passing the optional rule', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'optional|min:6,length|max:10',
+      errorBehavior: 'live'
+    }})
+    wrapper.find('input').setValue('hi')
+    await flushPromises()
+    expect(wrapper.vm.context.validationErrors.length).toBe(1)
+  })
+
   it('can extend its standard library of inputs', async () => {
     const wrapper = mount(FormulateInput, { propsData: {
       type: 'special',
@@ -742,5 +807,11 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-label--before').exists()).toBe(false)
     expect(wrapper.find('.formulate-input-help').exists()).toBe(false)
     resetInstance()
+  })
+
+  it('allows an empty string as a validation prop', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { validation: '', errorBehavior: 'live' }})
+    await flushPromises()
+    expect(wrapper.find('.formulate-errors').exists()).toBe(false)
   })
 })

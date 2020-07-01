@@ -16,7 +16,7 @@ export default {
       return this.context.attributes || {}
     },
     hasValue () {
-      return !!this.context.model
+      return this.context.hasValue
     }
   }
 }
