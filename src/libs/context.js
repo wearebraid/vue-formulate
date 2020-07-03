@@ -174,7 +174,7 @@ function elementAttributes () {
   }
   // pass an explicitly given name prop through to the root element
   if (this.hasGivenName) {
-    attrs.name = this.name
+    attrs.name = this.attrName || this.name
   }
 
   // If there is help text, have this element be described by it.

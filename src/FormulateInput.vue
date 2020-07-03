@@ -123,6 +123,10 @@ export default {
       type: [String, Boolean],
       default: true
     },
+    attrName: {
+      type: [String, Boolean],
+      default: null
+    },
     /* eslint-disable */
     formulateValue: {
       default: ''
