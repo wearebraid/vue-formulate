@@ -190,7 +190,7 @@ describe('date', () => {
 
   it('passes with only month', async () => expect(await rules.date({ value: 'January' })).toBe(false))
 
-  it('passes with valid date format', async () => expect(await rules.date({ value: '12/17/1987' }, 'MM/DD/YYYY')).toBe(true))
+  it('passes with valid date format', async () => expect(await rules.date({ value: '12/10/1987' }, 'MM/DD/YYYY')).toBe(true))
 
   it('fails with simple number and date format', async () => expect(await rules.date({ value: '1234' }, 'MM/DD/YYYY')).toBe(false))
 
@@ -234,15 +234,15 @@ describe('endsWith', () => {
   })
 
   it('fails when passed value is not a string', async () => {
-    expect(await rules.endsWith({ value: 'andrew@wearebraid.com'}, ['@gmail.com', '@wearebraid.com'])).toBe(false)
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, ['@gmail.com', '@wearebraid.com'])).toBe(false)
   })
 
   it('fails when passed value is not a string', async () => {
-    expect(await rules.endsWith({ value: 'andrew@wearebraid.com'}, {value: '@wearebraid.com'})).toBe(false)
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, { value: '@wearebraid.com' })).toBe(false)
   })
 
   it('passes when a string value is present and matched even if non-string values also exist as arguments', async () => {
-    expect(await rules.endsWith({ value: 'andrew@wearebraid.com'}, {value: 'bad data'}, ['no bueno'], '@wearebraid.com')).toBe(true)
+    expect(await rules.endsWith({ value: 'andrew@wearebraid.com' }, { value: 'bad data' }, ['no bueno'], '@wearebraid.com')).toBe(true)
   })
 
   it('passes when stack consists of zero values', async () => {
@@ -271,7 +271,7 @@ describe('in', () => {
   })
 
   it('fails comparing dissimilar objects', async () => {
-    expect(await rules.in({ value: {f: 'abc'} }, {a: 'cdf'}, {b: 'abc'})).toBe(false)
+    expect(await rules.in({ value: { f: 'abc' } }, { a: 'cdf' }, { b: 'abc' })).toBe(false)
   })
 
   it('passes when case sensitive match is in stack', async () => {
@@ -283,7 +283,7 @@ describe('in', () => {
   })
 
   it('passes a shallow object compare', async () => {
-    expect(await rules.in({ value: {f: 'abc'} }, {a: 'cdf'}, {f: 'abc'},)).toBe(true)
+    expect(await rules.in({ value: { f: 'abc' } }, { a: 'cdf' }, { f: 'abc' },)).toBe(true)
   })
 })
 
@@ -330,21 +330,21 @@ describe('matches', () => {
 describe('mime', () => {
   it('passes basic image/jpeg stack', async () => {
     const fileUpload = new FileUpload({
-      files: [ { type: 'image/jpeg' } ]
+      files: [{ type: 'image/jpeg' }]
     })
     expect(await rules.mime({ value: fileUpload }, 'image/png', 'image/jpeg')).toBe(true)
   })
 
   it('passes when match is at begining of stack', async () => {
     const fileUpload = new FileUpload({
-      files: [ { type: 'document/pdf' } ]
+      files: [{ type: 'document/pdf' }]
     })
     expect(await rules.mime({ value: fileUpload }, 'document/pdf')).toBe(true)
   })
 
   it('fails when not in stack', async () => {
     const fileUpload = new FileUpload({
-      files: [ { type: 'application/json' } ]
+      files: [{ type: 'application/json' }]
     })
     expect(await rules.mime({ value: fileUpload }, 'image/png', 'image/jpeg')).toBe(false)
   })
@@ -417,7 +417,7 @@ describe('not', () => {
 
   it('fails when a shallow equal array', async () => expect(await rules.not({ value: ['abc'] }, ['abc'])).toBe(false))
 
-  it('fails when a shallow equal object', async () => expect(await rules.not({ value: {a: 'abc'} }, ['123'], {a: 'abc'})).toBe(false))
+  it('fails when a shallow equal object', async () => expect(await rules.not({ value: { a: 'abc' } }, ['123'], { a: 'abc' })).toBe(false))
 
   it('fails when string is in stack', async () => expect(await rules.not({ value: 'a' }, 'b', 'c', 'd', 'a', 'f')).toBe(false))
 })
@@ -458,7 +458,7 @@ describe('required', () => {
 
   it('passes with a non empty array', async () => expect(await rules.required({ value: ['123'] })).toBe(true))
 
-  it('passes with a non empty object', async () => expect(await rules.required({ value: {a: 'b'} })).toBe(true))
+  it('passes with a non empty object', async () => expect(await rules.required({ value: { a: 'b' } })).toBe(true))
 
   it('passes with empty value if second argument is false', async () => expect(await rules.required({ value: '' }, false)).toBe(true))
 
@@ -482,15 +482,15 @@ describe('startsWith', () => {
   })
 
   it('fails when passed value is not a string', async () => {
-    expect(await rules.startsWith({ value: 'taco tuesday'}, ['taco', 'pizza'])).toBe(false)
+    expect(await rules.startsWith({ value: 'taco tuesday' }, ['taco', 'pizza'])).toBe(false)
   })
 
   it('fails when passed value is not a string', async () => {
-    expect(await rules.startsWith({ value: 'taco tuesday'}, {value: 'taco'})).toBe(false)
+    expect(await rules.startsWith({ value: 'taco tuesday' }, { value: 'taco' })).toBe(false)
   })
 
   it('passes when a string value is present and matched even if non-string values also exist as arguments', async () => {
-    expect(await rules.startsWith({ value: 'taco tuesday'}, {value: 'taco'}, ['taco'], 'taco')).toBe(true)
+    expect(await rules.startsWith({ value: 'taco tuesday' }, { value: 'taco' }, ['taco'], 'taco')).toBe(true)
   })
 
   it('passes when stack consists of zero values', async () => {
@@ -513,7 +513,7 @@ describe('startsWith', () => {
  * well tested: https://github.com/segmentio/is-url/blob/master/test/index.js
  */
 describe('url', () => {
-    it('passes with http://google.com', async () => expect(await rules.url({ value: 'http://google.com' })).toBe(true))
+  it('passes with http://google.com', async () => expect(await rules.url({ value: 'http://google.com' })).toBe(true))
 
-    it('fails with google.com', async () => expect(await rules.url({ value: 'google.com' })).toBe(false))
+  it('fails with google.com', async () => expect(await rules.url({ value: 'google.com' })).toBe(false))
 })
