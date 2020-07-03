@@ -452,7 +452,7 @@ function modelGetter () {
   if (this.type === 'checkbox' && !Array.isArray(this[model]) && this.options) {
     return []
   }
-  if (!this[model]) {
+  if (!this[model] && this[model] !== 0) {
     return ''
   }
   return this[model]
