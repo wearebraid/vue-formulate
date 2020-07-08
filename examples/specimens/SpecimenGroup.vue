@@ -22,12 +22,14 @@
     <div class="specimen">
       <h3>Repeatable group</h3>
       <FormulateInput
+        v-model="test"
         name="users"
         label="Invite some new users"
         type="group"
         placeholder="users"
         help="Fields can be grouped"
         :repeatable="true"
+        minimum="3"
       >
         <FormulateInput
           label="First and last name"
@@ -50,6 +52,10 @@
 
 <script>
 export default {
-
+  data () {
+    return {
+      test: undefined
+    }
+  }
 }
 </script>

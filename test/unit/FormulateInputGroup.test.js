@@ -287,6 +287,63 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.vm.users).toEqual([{name: 'bill'}])
   })
 
+  it('removes groups when there are none', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm>
+        <FormulateInput
+          name="users"
+          type="group"
+          :repeatable="true"
+          v-model="users"
+        >
+          <FormulateInput type="text" name="name" validation="required" />
+        </FormulateInput>
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `,
+      data () {
+        return {
+          users: undefined
+        }
+      }
+    })
+    expect(wrapper.find('input[type="text"]').exists()).toBe(true)
+    await flushPromises()
+    wrapper.find('.formulate-input-group-repeatable-remove').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('input[type="text"]').exists()).toBe(false)
+  })
+
+  it('fills to minimum and will not remove when at its minimum', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm>
+        <FormulateInput
+          name="users"
+          type="group"
+          :repeatable="true"
+          minimum="3"
+          v-model="users"
+        >
+          <FormulateInput type="text" name="name" validation="required" />
+        </FormulateInput>
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `,
+      data () {
+        return {
+          users: undefined
+        }
+      }
+    })
+    expect(wrapper.findAll('input[type="text"]').length).toBe(3)
+    await flushPromises()
+    wrapper.find('.formulate-input-group-repeatable-remove').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('input[type="text"]').length).toBe(3)
+  })
+
   it('can override the add more text', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { addLabel: '+ Add a user', type: 'group', repeatable: true },

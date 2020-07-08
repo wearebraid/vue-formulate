@@ -93,20 +93,19 @@ export default {
         groupApplicableAttributes
       ))
     },
-    canAddMore () {
-      return (this.context.repeatable && this.items.length < this.context.limit)
+    totalItems () {
+      return Array.isArray(this.context.model) ? this.context.model.length : this.context.minimum || 1
     },
-    items () {
-      return Array.isArray(this.context.model) ? this.context.model : [{}]
+    canAddMore () {
+      return (this.context.repeatable && this.totalItems < this.context.limit)
     }
   },
   methods: {
     addItem () {
       if (Array.isArray(this.context.model)) {
-        this.context.model.push(setId({}))
-        return
+        return this.context.model.push(setId({}))
       }
-      this.context.model = this.items.concat([setId({})])
+      this.context.model = (new Array(this.totalItems + 1)).fill('').map(() => setId({}))
     },
     groupItemContext (context, option, groupAttributes) {
       const optionAttributes = { isGrouped: true }

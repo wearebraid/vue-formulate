@@ -152,8 +152,14 @@ export default {
       default: false
     },
     limit: {
-      type: Number,
-      default: Infinity
+      type: [String, Number],
+      default: Infinity,
+      validator: value => Infinity || parseInt(value, 10) == value // eslint-disable-line eqeqeq
+    },
+    minimum: {
+      type: [String, Number],
+      default: 0,
+      validator: value => parseInt(value, 10) == value // eslint-disable-line eqeqeq
     },
     help: {
       type: [String, Boolean],
