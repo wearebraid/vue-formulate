@@ -1,10 +1,16 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Find a reproducible bug? Let the team know.
 title: ''
 labels: 'bug report'
 assignees: ''
 ---
+
+NOTE: If you have a question about how to use Vue Formulate, please do not file
+a bug report. Instead checkout the community page of the documentation for
+details on the best places to ask those questions.
+
+https://vueformulate.com/guide/community/
 
 **Describe the bug**
 A short description of what the bug is.
@@ -22,13 +28,13 @@ It's hugely helpful if you can isolate the bug in a CodePen or CodeSandbox. You 
 ### CodePen:
 CodePen is perfect for simple reproductions. Vue Formulate is already loaded and ready to use:
 
-[Reproduce in CodePen](https://codepen.io/boyd/pen/YzyJPor)
+https://codepen.io/boyd/pen/YzyJPor
 
 ### CodeSandbox
 
 This is better for occasions when you need to show issues with registering Vue Formulate or configuring base options.
 
-[Reproduce in CodeSandbox](https://codesandbox.io/s/vue-formulate-reproduction-template-p5c1i?file=/src/components/Reproduction.vue)
+https://codesandbox.io/s/vue-formulate-reproduction-template-p5c1i?file=/src/components/Reproduction.vue
 
 
 **Expected behavior**
