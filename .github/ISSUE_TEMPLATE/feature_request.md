@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Describe the new feature you'd like**
-A clear and concise description of what you want to happen.
 
-**What percentage of vue-formulate users would benefit?**
-80%
+A clear and concise description of what feature you would like to include. If it
+includes a change or addition to the API, please include an example of what API
+you would enjoy using.

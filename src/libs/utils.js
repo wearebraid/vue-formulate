@@ -126,7 +126,7 @@ function parseRule (rule, rules) {
       return [ruleName, rule, ruleName, modifier]
     }
   }
-  if (typeof rule === 'string') {
+  if (typeof rule === 'string' && rule) {
     const segments = rule.split(':')
     const [ruleName, modifier] = parseModifier(segments.shift())
     if (rules.hasOwnProperty(ruleName)) {
@@ -166,6 +166,11 @@ function parseModifier (ruleName) {
 export function groupBails (rules) {
   const groups = []
   const bailIndex = rules.findIndex(([,, rule]) => rule.toLowerCase() === 'bail')
+  const optionalIndex = rules.findIndex(([,, rule]) => rule.toLowerCase() === 'optional')
+  if (optionalIndex >= 0) {
+    const rule = rules.splice(optionalIndex, 1)
+    groups.push(Object.defineProperty(rule, 'bail', { value: true }))
+  }
   if (bailIndex >= 0) {
     // Get all the rules until the first bail rule (dont include the bail)
     const preBail = rules.splice(0, bailIndex + 1).slice(0, -1)
@@ -178,6 +183,7 @@ export function groupBails (rules) {
   }
 
   return groups.reduce((groups, group) => {
+    // Recursively split rules into groups based on the modifiers.
     const splitByMod = (group, bailGroup = false) => {
       if (group.length < 2) {
         return Object.defineProperty([group], 'bail', { value: bailGroup })
@@ -302,6 +308,9 @@ export function setId (o, id) {
  * @param {any} value
  */
 export function isEmpty (value) {
+  if (typeof value === 'number') {
+    return false
+  }
   return (
     value === undefined ||
     value === '' ||

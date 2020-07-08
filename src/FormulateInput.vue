@@ -87,7 +87,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, camel, has, arrayify, groupBails } from './libs/utils'
+import { shallowEqualObjects, parseRules, camel, has, arrayify, groupBails, isEmpty } from './libs/utils'
 
 export default {
   name: 'FormulateInput',
@@ -381,10 +381,19 @@ export default {
       }
 
       return new Promise(resolve => {
+        // We break our rules into resolvable groups. These groups are
+        // adjacent rules that can be resolved simultaneously. For example
+        // consider: required|min:6,length here both rules resolve in parallel.
+        // but ^required|min:6,length cannot be resolved in parallel because
+        // the execution of the min rule requires passing resolution of the
+        // required rule due to bailing. `resolveGroups` runs/resolves each of
+        // these resolution groups, while `groupBails` is responsible for
+        // producing them.
         const resolveGroups = (groups, allMessages = []) => {
           const ruleGroup = groups.shift()
           if (Array.isArray(ruleGroup) && ruleGroup.length) {
             Promise.all(ruleGroup.map(run))
+              // Filter out any simple falsy values to prevent triggering errors
               .then(messages => messages.filter(m => !!m))
               .then(messages => {
                 messages = Array.isArray(messages) ? messages : []
@@ -392,12 +401,17 @@ export default {
                 if ((!messages.length || !ruleGroup.bail) && groups.length) {
                   return resolveGroups(groups, allMessages.concat(messages))
                 }
-                return resolve(allMessages.concat(messages))
+                // Filter out any empty error messages, this is important for
+                // the `optional` rule. It uses a hard-coded empty array [] as
+                // the message to trigger bailing, but we obviously don’t want
+                // this message to make it out of this resolver.
+                return resolve(allMessages.concat(messages).filter(m => !isEmpty(m)))
               })
           } else {
             resolve([])
           }
         }
+        // Produce our resolution groups, and then run them
         resolveGroups(groupBails(rules))
       })
     },
@@ -424,6 +438,12 @@ export default {
     },
     getMessageFunc (ruleName) {
       ruleName = camel(ruleName)
+      if (ruleName === 'optional') {
+        // Optional rules need to trigger bailing by having a message, but pass
+        // the simple double bang (!!) filer, any non-string value will have
+        // this effect.
+        return () => ([])
+      }
       if (this.messages && typeof this.messages[ruleName] !== 'undefined') {
         switch (typeof this.messages[ruleName]) {
           case 'function':
