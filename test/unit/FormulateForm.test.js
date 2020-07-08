@@ -211,6 +211,39 @@ describe('FormulateForm', () => {
     expect(wrapper.find('input[type="text"]').element.value).toBe('1234')
   })
 
+  it('updates all inputs (even when not used in a field) when the v-model is modified', async () => {
+    const wrapper = mount({
+      data () {
+        return {
+          formValues: {
+            testinputA: 'A',
+            testinputB: 'B',
+            extraProp: 'C'
+          }
+        }
+      },
+      template: `
+        <div>
+          <FormulateForm v-model="formValues">
+            <FormulateInput ref="inputA" type="text" name="testinputA" />
+          </FormulateForm>
+          <FormulateForm v-model="formValues">
+            <FormulateInput ref="inputB" type="text" name="testinputB" />
+          </FormulateForm>
+        </div>
+      `
+    })
+    await flushPromises()
+    wrapper.vm.formValues.testinputA = 'updatedA'
+    wrapper.vm.formValues.testinputB = 'updatedB'
+    await flushPromises()
+    expect(wrapper.findAll('input[type="text"]').at(0).element.value).toBe('updatedA')
+    expect(wrapper.findAll('input[type="text"]').at(1).element.value).toBe('updatedB')
+    expect(wrapper.vm.formValues.testinputA).toBe('updatedA')
+    expect(wrapper.vm.formValues.testinputB).toBe('updatedB')
+    expect(wrapper.vm.formValues.extraProp).toBe('C')
+  })
+
   it('emits an instance of FormSubmission', async () => {
     const wrapper = mount(FormulateForm, {
       slots: { default: '<FormulateInput type="text" formulate-value="123" name="testinput" />' }
