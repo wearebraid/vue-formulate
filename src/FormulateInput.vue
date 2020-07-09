@@ -311,7 +311,7 @@ export default {
     'context.model': {
       handler (newModel, oldModel) {
         if (newModel !== oldModel && typeof this.modelHook === 'function') {
-          this.context.model = this.modelHook(newModel, oldModel, { context: this.context })
+          this.context.model = this.modelHook(newModel, { oldModel, context: this.context })
         }
       }
     },
