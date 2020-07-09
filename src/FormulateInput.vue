@@ -241,6 +241,10 @@ export default {
     addLabel: {
       type: [Boolean, String],
       default: false
+    },
+    modelHook: {
+      type: Function,
+      default: (newModel, oldModel) => newModel
     }
   },
   data () {
@@ -302,6 +306,13 @@ export default {
     formulateValue (newValue, oldValue) {
       if (this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
         this.context.model = newValue
+      }
+    },
+    'context.model': {
+      handler (newModel, oldModel) {
+        if ((newModel !== oldModel && this.context.attributes.mask)) {
+          this.context.model = this.modelHook(newModel, oldModel, { context: this.context })
+        }
       }
     },
     showValidationErrors: {
