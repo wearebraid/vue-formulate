@@ -777,6 +777,7 @@ describe('FormulateForm', () => {
     expect(wrapper.vm.formData.test).toBe('2')
     expect(wrapper.vm.sameAsValue).toBe(true)
   })
+})
 
   it('properly hydrates when an initial value is zero', async () => {
     const wrapper = mount({
@@ -798,4 +799,78 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(wrapper.findComponent(FormulateInput).vm.context.model).toBe(0)
   })
-})
+
+  it('allows setting custom modelHooks on fields - integer only', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm v-model="formData" :schema="schema"></FormulateForm>
+      `,
+      data () {
+        return {
+          schema: [{
+            type: "number",
+            name: "age",
+            modelHook(value){
+              const castedValue = parseInt(value, 10)
+              return Number.isInteger(castedValue) ? castedValue : null
+            }
+          }],
+          formData: {}
+        }
+      }
+    })
+    const age = wrapper.find('input[type="number"]')
+    age.setValue('30')
+    await flushPromises()
+    expect(wrapper.vm.formData).toEqual({ age: 30 })
+  })
+
+  it('allows setting custom modelHooks on fields - text mask', async () => {
+    // Found here: https://codepen.io/007design/pen/ZRxpxr
+    function doFormat(x, pattern, mask) {
+      var strippedValue = x.replace(/[^0-9]/g, "");
+      var chars = strippedValue.split('');
+      var count = 0;
+
+      var formatted = '';
+      for (var i=0; i<pattern.length; i++) {
+        const c = pattern[i];
+        if (chars[count]) {
+          if (/\*/.test(c)) {
+            formatted += chars[count];
+            count++;
+          } else {
+            formatted += c;
+          }
+        } else if (mask) {
+          if (mask.split('')[i])
+            formatted += mask.split('')[i];
+        }
+      }
+      return formatted;
+    }
+
+    const wrapper = mount({
+      template: `
+        <FormulateForm v-model="formData" :schema="schema"></FormulateForm>
+      `,
+      data () {
+        return {
+          schema: [{
+            type: "text",
+            name: "phone",
+            format: "(***) ***-****",
+            mask: "(###) ###-####",
+            modelHook(value, { context }){
+              return doFormat(value, context.attributes.format, context.attributes.mask)
+            }
+          }],
+          formData: {}
+        }
+      }
+    })
+    const phone = wrapper.find('input[type="text"]')
+    phone.setValue('123456')
+    await flushPromises()
+    expect(wrapper.vm.formData).toEqual({ phone: "(123) 456-####" })
+  })
