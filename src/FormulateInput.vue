@@ -244,7 +244,7 @@ export default {
     },
     modelHook: {
       type: Function,
-      default: (newModel, oldModel) => newModel
+      default: null
     }
   },
   data () {
@@ -310,7 +310,7 @@ export default {
     },
     'context.model': {
       handler (newModel, oldModel) {
-        if ((newModel !== oldModel && this.context.attributes.mask)) {
+        if (newModel !== oldModel && typeof this.modelHook === 'function') {
           this.context.model = this.modelHook(newModel, oldModel, { context: this.context })
         }
       }
