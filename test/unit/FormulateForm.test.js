@@ -744,4 +744,25 @@ describe('FormulateForm', () => {
     expect(wrapper.vm.formData.test).toBe('2')
     expect(wrapper.vm.sameAsValue).toBe(true)
   })
+
+  it('properly hydrates when an initial value is zero', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+        >
+          <FormulateInput type="range" name="test" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          formData: {
+            test: 0,
+          }
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.findComponent(FormulateInput).vm.context.model).toBe(0)
+  })
 })
