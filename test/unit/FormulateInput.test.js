@@ -814,4 +814,33 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-errors').exists()).toBe(false)
   })
+
+  it('uses a modelHook to force output as number', async () => {
+    // const wrapper = mount({
+    //   data () {
+    //     return {
+    //       age: 35
+    //     }
+    //   },
+    //   methods: {
+    //     forceNumber(value){
+    //       console.log('value', value)
+    //       return +value
+    //     }
+    //   },
+    //   template: `
+    //     <FormulateInput type="number" v-model="age" :modelHook="forceNumber" />
+    //   `
+    // })
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'number',
+      value: 35,
+      modelHook(value){
+        return +value
+      }
+    } })
+    wrapper.vm.context.model = "30"
+    await flushPromises()
+    expect(wrapper.vm.context.model).toBe(30)
+  })
 })
