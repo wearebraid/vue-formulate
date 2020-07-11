@@ -54,7 +54,7 @@ describe('FormulateInputSelect', () => {
   })
 
   it('sets data-has-value when it has a value', async () => {
-    const wrapper = mount(FormulateInput, { propsData: { type: 'select', options: {first: 'First', second: 'Second'} }})
+    const wrapper = mount(FormulateInput, { propsData: { type: 'select', value: '', options: {first: 'First', second: 'Second'} }})
     expect(wrapper.attributes('data-has-value')).toBe(undefined)
     wrapper.find('select').setValue('second')
     await flushPromises()
@@ -75,5 +75,32 @@ describe('FormulateInputSelect', () => {
     })
     expect(wrapper.find('select').attributes('class'))
       .toBe('test-class')
+  })
+
+  it('selects the first item if it has no value, vmodel, or formvalue', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', options: { a: 'A', b: 'B', c: 'C' }}
+    })
+    await flushPromises()
+    expect(wrapper.find('select').element.value).toBe('a')
+  })
+
+  it('does not set the default value if a value exists', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', options: { a: 'A', b: 'B', c: 'C' }, value: '' }
+    })
+    await flushPromises()
+    expect(wrapper.find('select').element.value).toBe('')
+  })
+
+  it('does not set the default value if a v-model exists', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', options: { a: 'A', b: 'B', c: 'C' }, formulateValue: '' },
+      listeners: {
+        input: () => {}
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('select').element.value).toBe('')
   })
 })
