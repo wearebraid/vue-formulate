@@ -260,12 +260,16 @@ export function useRegistryMethods (without = []) {
 /**
  * Providers related to the registry.
  */
-export function useRegistryProviders (ctx) {
-  return {
+export function useRegistryProviders (ctx, without = []) {
+  const providers = {
     formulateSetter: ctx.setFieldValue,
     formulateRegister: ctx.register,
     formulateDeregister: ctx.deregister,
     getFormValues: ctx.valueDeps,
     validateDependents: ctx.validateDeps
   }
+  const p = Object.keys(providers)
+    .filter(provider => !without.includes(provider))
+    .reduce((useProviders, provider) => Object.assign(useProviders, { [provider]: providers[provider] }), {})
+  return p
 }

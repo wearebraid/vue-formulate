@@ -604,4 +604,44 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.find('.formulate-input-group-add-more').attributes('class'))
       .toBe('formulate-input-group-add-more g-4-test')
   })
+
+  it('has the proper formValues when using a custom validation message', async () => {
+    const custom = jest.fn()
+    const wrapper = mount({
+      template: `
+        <FormulateForm>
+          <FormulateInput
+            type="group"
+            name="test"
+            v-model="model"
+          >
+            <FormulateInput
+              name="username"
+              type="text"
+            />
+            <FormulateInput
+              name="email"
+              type="text"
+              validation="email"
+              :validation-messages="{
+                email: custom
+              }"
+            />
+          </FormulateInput>
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          model: [{username: 'person', email: 'person@example'}]
+        }
+      },
+      methods: {
+        custom
+      }
+    })
+    await flushPromises();
+    expect(custom.mock.calls[0][0].formValues).toEqual({
+      test: [{username: 'person', email: 'person@example'}]
+    })
+  })
 })
