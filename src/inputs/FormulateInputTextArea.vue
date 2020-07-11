@@ -6,6 +6,7 @@
     <textarea
       v-model="context.model"
       v-bind="attributes"
+      v-on="$listeners"
       @blur="context.blurHandler"
     />
   </div>

@@ -304,4 +304,15 @@ describe('FormulateInputBox', () => {
     expect(wrapper.find('label.custom-class').exists()).toBe(true);
   })
 
+  it('emits a focus event', async () => {
+    const focus = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'checkbox' },
+      listeners: { focus }
+    })
+    wrapper.find('input[type="checkbox"]').trigger('focus')
+    await flushPromises()
+    expect(focus.mock.calls.length).toBe(1);
+  })
+
 })

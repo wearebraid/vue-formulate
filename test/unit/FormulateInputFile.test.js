@@ -103,6 +103,17 @@ describe('FormulateInputFile', () => {
       .toBe('formulate-file-remove test-6-class')
   })
 
+  it('emits a focus event', async () => {
+    const focus = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'file', label: 'Submit me' },
+      listeners: { focus }
+    })
+    wrapper.find('input[type="file"]').trigger('focus')
+    await flushPromises()
+    expect(focus.mock.calls.length).toBe(1);
+  })
+
   /**
    * ===========================================================================
    * Currently there appears to be no way to properly mock upload data in

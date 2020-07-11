@@ -127,5 +127,17 @@ describe('FormulateInputButton', () => {
     expect(wrapper.find('button').attributes('class'))
       .toBe('test-class')
   })
+
+  it('emits a focus event', async () => {
+    const focus = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'button', label: 'Submit me' },
+      listeners: { focus }
+    })
+    wrapper.find('button').trigger('focus')
+    await flushPromises()
+    expect(focus.mock.calls.length).toBe(1);
+  })
+
 })
 

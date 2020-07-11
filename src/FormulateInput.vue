@@ -40,7 +40,7 @@
           :is="context.component"
           :context="context"
           v-bind="context.slotProps.component"
-          @click="$emit('click', $event)"
+          v-on="listeners"
         >
           <slot v-bind="context" />
         </component>

@@ -103,4 +103,15 @@ describe('FormulateInputSelect', () => {
     await flushPromises()
     expect(wrapper.find('select').element.value).toBe('')
   })
+
+  it('emits a focus event', async () => {
+    const focus = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', options: {a: 'A', b: 'B'} },
+      listeners: { focus }
+    })
+    wrapper.find('select').trigger('focus')
+    await flushPromises()
+    expect(focus.mock.calls.length).toBe(1);
+  })
 })

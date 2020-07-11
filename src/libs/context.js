@@ -79,7 +79,8 @@ export default {
   hasVisibleErrors,
   hasErrors,
   filteredAttributes,
-  typeProps
+  typeProps,
+  listeners
 }
 
 /**
@@ -428,10 +429,17 @@ function slotProps () {
  * Bound into the context object.
  */
 function blurHandler () {
-  this.$emit('blur')
   if (this.errorBehavior === 'blur') {
     this.behavioralErrorVisibility = true
   }
+}
+
+/**
+ * Bound listeners.
+ */
+function listeners () {
+  const { input, ...listeners } = this.$listeners
+  return listeners
 }
 
 /**

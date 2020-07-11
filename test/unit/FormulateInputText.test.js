@@ -338,4 +338,28 @@ describe('FormulateInputText', () => {
     expect(wrapper.find('input').attributes('class'))
       .toBe('test-class')
   })
+
+  it('emits a focus event', async () => {
+    const focus = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', min: 0, max: 100 },
+      listeners: { focus }
+    })
+    wrapper.find('input[type="text"]').trigger('focus')
+    await flushPromises()
+    expect(focus.mock.calls.length).toBe(1);
+  })
+
+  it('emits a blur event', async () => {
+    const blur = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', min: 0, max: 100 },
+      listeners: { blur }
+    })
+    const input = wrapper.find('input[type="text"]')
+
+    input.trigger('blur')
+    await flushPromises()
+    expect(blur.mock.calls.length).toBe(1);
+  })
 })
