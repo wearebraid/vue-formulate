@@ -367,6 +367,7 @@ export default {
       // are still strictly undefined after applyInitialValue and registration.
       if (
         this.type === 'select' &&
+        !this.context.placeholder &&
         isEmpty(this.proxy) &&
         !this.isVmodeled &&
         this.value === false &&

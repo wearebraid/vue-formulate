@@ -85,6 +85,14 @@ describe('FormulateInputSelect', () => {
     expect(wrapper.find('select').element.value).toBe('a')
   })
 
+  it('does not select first value if there is a placeholder', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', options: { a: 'A', b: 'B', c: 'C' }, placeholder: 'Select a letter' }
+    })
+    await flushPromises()
+    expect(wrapper.find('select').element.value).toBe('')
+  })
+
   it('does not set the default value if a value exists', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { type: 'select', options: { a: 'A', b: 'B', c: 'C' }, value: '' }
