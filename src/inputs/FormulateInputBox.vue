@@ -14,6 +14,7 @@
       type="radio"
       :value="context.value"
       v-bind="attributes"
+      v-on="$listeners"
       @blur="context.blurHandler"
     >
     <input
@@ -22,6 +23,7 @@
       type="checkbox"
       :value="context.value"
       v-bind="attributes"
+      v-on="$listeners"
       @blur="context.blurHandler"
     >
     <!--

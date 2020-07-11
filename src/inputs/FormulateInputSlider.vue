@@ -7,6 +7,7 @@
       v-model="context.model"
       :type="type"
       v-bind="attributes"
+      v-on="$listeners"
       @blur="context.blurHandler"
     >
     <div

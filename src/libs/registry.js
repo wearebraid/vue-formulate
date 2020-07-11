@@ -243,12 +243,11 @@ export function useRegistryMethods (without = []) {
       // Collect all keys, existing and incoming
       const keys = Array.from(new Set(Object.keys(values).concat(Object.keys(this.proxy))))
       keys.forEach(field => {
-        if (this.registry.has(field) &&
-          !shallowEqualObjects(values[field], this.proxy[field]) &&
-          !shallowEqualObjects(values[field], this.registry.get(field).proxy)
-        ) {
+        if (!shallowEqualObjects(values[field], this.proxy[field])) {
           this.setFieldValue(field, values[field])
-          this.registry.get(field).context.model = values[field]
+          if (this.registry.has(field) && !shallowEqualObjects(values[field], this.registry.get(field).proxy)) {
+            this.registry.get(field).context.model = values[field]
+          }
         }
       })
     }
@@ -261,12 +260,16 @@ export function useRegistryMethods (without = []) {
 /**
  * Providers related to the registry.
  */
-export function useRegistryProviders (ctx) {
-  return {
+export function useRegistryProviders (ctx, without = []) {
+  const providers = {
     formulateSetter: ctx.setFieldValue,
     formulateRegister: ctx.register,
     formulateDeregister: ctx.deregister,
     getFormValues: ctx.valueDeps,
     validateDependents: ctx.validateDeps
   }
+  const p = Object.keys(providers)
+    .filter(provider => !without.includes(provider))
+    .reduce((useProviders, provider) => Object.assign(useProviders, { [provider]: providers[provider] }), {})
+  return p
 }

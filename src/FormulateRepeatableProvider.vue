@@ -27,7 +27,7 @@ import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProvid
 export default {
   provide () {
     return {
-      ...useRegistryProviders(this),
+      ...useRegistryProviders(this, ['getFormValues']),
       formulateSetter: (field, value) => this.setFieldValue(field, value)
     }
   },

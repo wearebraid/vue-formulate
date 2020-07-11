@@ -28,6 +28,7 @@
         placeholder="users"
         help="Fields can be grouped"
         :repeatable="true"
+        minimum="3"
       >
         <FormulateInput
           label="First and last name"
@@ -50,6 +51,5 @@
 
 <script>
 export default {
-
 }
 </script>

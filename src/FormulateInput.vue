@@ -40,7 +40,7 @@
           :is="context.component"
           :context="context"
           v-bind="context.slotProps.component"
-          @click="$emit('click', $event)"
+          v-on="listeners"
         >
           <slot v-bind="context" />
         </component>
@@ -152,8 +152,14 @@ export default {
       default: false
     },
     limit: {
-      type: Number,
-      default: Infinity
+      type: [String, Number],
+      default: Infinity,
+      validator: value => Infinity || parseInt(value, 10) == value // eslint-disable-line eqeqeq
+    },
+    minimum: {
+      type: [String, Number],
+      default: 0,
+      validator: value => parseInt(value, 10) == value // eslint-disable-line eqeqeq
     },
     help: {
       type: [String, Boolean],
@@ -316,6 +322,7 @@ export default {
     if (this.formulateRegister && typeof this.formulateRegister === 'function') {
       this.formulateRegister(this.nameOrFallback, this)
     }
+    this.applyDefaultValue()
     if (!this.disableErrors && typeof this.observeErrors === 'function') {
       this.observeErrors({ callback: this.setErrors, type: 'input', field: this.nameOrFallback })
     }
@@ -350,9 +357,26 @@ export default {
       if (
         !shallowEqualObjects(this.context.model, this.proxy) &&
         // we dont' want to set the model if we are a sub-box of a multi-box field
-        (Object.prototype.hasOwnProperty(this.$options.propsData, 'options') && this.classification === 'box')
+        (has(this.$options.propsData, 'options') && this.classification === 'box')
       ) {
         this.context.model = this.proxy
+      }
+    },
+    applyDefaultValue () {
+      // Some inputs have may have special logic determining what to do if they
+      // are still strictly undefined after applyInitialValue and registration.
+      if (
+        this.type === 'select' &&
+        !this.context.placeholder &&
+        isEmpty(this.proxy) &&
+        !this.isVmodeled &&
+        this.value === false &&
+        this.context.options.length
+      ) {
+        // In this condition we have a blank select input with no value, by
+        // default HTML will select the first element, so we emulate that.
+        // See https://github.com/wearebraid/vue-formulate/issues/165
+        this.context.model = this.context.options[0].value
       }
     },
     updateLocalAttributes (value) {

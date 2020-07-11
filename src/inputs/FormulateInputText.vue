@@ -8,6 +8,7 @@
       :type="type"
       v-bind="attributes"
       @blur="context.blurHandler"
+      v-on="$listeners"
     >
   </div>
 </template>

@@ -85,4 +85,15 @@ describe('FormulateInputSlider', () => {
     const input = wrapper.findComponent(FormulateInput)
     expect(input.vm.context.hasValue).toBe(true)
   })
+
+  it('emits a focus event', async () => {
+    const focus = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'range', min: 0, max: 100 },
+      listeners: { focus }
+    })
+    wrapper.find('input[type="range"]').trigger('focus')
+    await flushPromises()
+    expect(focus.mock.calls.length).toBe(1);
+  })
 })

@@ -50,7 +50,7 @@ export default {
         }
         return this.context.model.map(item => setId(item, item.__id))
       }
-      return [setId({})]
+      return (new Array(this.context.minimum || 1)).fill('').map(() => setId({}))
     },
     formShouldShowErrors () {
       return this.context.formShouldShowErrors
@@ -105,9 +105,14 @@ export default {
       this.providers.forEach(p => p && typeof p.showErrors === 'function' && p.showErrors())
     },
     removeItem (index) {
-      if (Array.isArray(this.context.model)) {
+      if (Array.isArray(this.context.model) && this.context.model.length > this.context.minimum) {
+        // In this context we actually have data
         this.context.model.splice(index, 1)
+      } else if (this.items.length > this.context.minimum) {
+        // In this context the fields have never been touched (not "dirty")
+        this.context.model = (new Array(this.items.length - 1)).fill('').map(() => setId({}))
       }
+      // Otherwise, do nothing, we're at our minimum
     },
     registerProvider (provider) {
       if (!this.providers.some(p => p === provider)) {

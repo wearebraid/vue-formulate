@@ -6,7 +6,7 @@
     <button
       :type="type"
       v-bind="attributes"
-      @click="$emit('click', $event)"
+      v-on="$listeners"
     >
       <slot>
         <span
