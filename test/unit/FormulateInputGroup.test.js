@@ -444,6 +444,16 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.findAll('input').wrappers.map(input => input.element.value)).toEqual(['first entry', 'third entry'])
   })
 
+  it('can override the remove text', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { removeLabel: 'Delete this', type: 'group', repeatable: true },
+      slots: {
+        default: '<div />'
+      }
+    })
+    expect(wrapper.find('a').text()).toEqual('Delete this')
+  })
+
   it('does not show an error message on group input when child has an error', async () => {
     const wrapper = mount({
       template: `

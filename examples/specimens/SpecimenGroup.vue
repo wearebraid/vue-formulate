@@ -29,6 +29,8 @@
         help="Fields can be grouped"
         :repeatable="true"
         minimum="3"
+        add-label="Add new user"
+        remove-label="Remove user"
       >
         <FormulateInput
           label="First and last name"
