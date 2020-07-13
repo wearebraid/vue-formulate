@@ -5,7 +5,7 @@
     role="button"
     @click.prevent="removeItem"
     @keypress.enter="removeItem"
-    v-text="`Remove`"
+    v-text="context.removeLabel"
   />
 </template>
 

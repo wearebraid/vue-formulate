@@ -10,6 +10,7 @@ export default {
   context () {
     return defineModel.call(this, {
       addLabel: this.logicalAddLabel,
+      removeLabel: this.logicalRemoveLabel,
       attributes: this.elementAttributes,
       blurHandler: blurHandler.bind(this),
       classification: this.classification,
@@ -65,6 +66,7 @@ export default {
   visibleValidationErrors,
   slotComponents,
   logicalAddLabel,
+  logicalRemoveLabel,
   classes,
   showValidationErrors,
   slotProps,
@@ -91,6 +93,15 @@ function logicalAddLabel () {
     return `+ ${this.label || this.name || 'Add'}`
   }
   return this.addLabel
+}
+/**
+ * The label to display when removing a group.
+ */
+function logicalRemoveLabel () {
+  if (typeof this.removeLabel === 'boolean') {
+    return 'Remove'
+  }
+  return this.removeLabel
 }
 
 /**

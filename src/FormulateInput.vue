@@ -247,6 +247,10 @@ export default {
     addLabel: {
       type: [Boolean, String],
       default: false
+    },
+    removeLabel: {
+      type: [Boolean, String],
+      default: false
     }
   },
   data () {
