@@ -80,8 +80,8 @@ class Registry {
       return false
     }
     this.registry.set(field, component)
-    const hasVModelValue = has(component.$options.propsData, 'formulateValue')
-    const hasValue = has(component.$options.propsData, 'value')
+    const hasVModelValue = component.$props.formulateValue 
+    const hasValue = component.$props.modelValue 
     if (
       !hasVModelValue &&
       this.ctx.hasInitialValue &&
@@ -151,20 +151,20 @@ export function useRegistryComputed () {
       )
     },
     isVmodeled () {
-      return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
+      return !!(this.$props.hasOwnProperty('formulateValue') &&
         this._events &&
         Array.isArray(this._events.input) &&
         this._events.input.length)
     },
     initialValues () {
       if (
-        has(this.$options.propsData, 'formulateValue') &&
+        has(this.$props, 'formulateValue') &&
         typeof this.formulateValue === 'object'
       ) {
         // If there is a v-model on the form/group, use those values as first priority
         return Object.assign({}, this.formulateValue) // @todo - use a deep clone to detach reference types
       } else if (
-        has(this.$options.propsData, 'values') &&
+        has(this.$props, 'values') &&
         typeof this.values === 'object'
       ) {
         // If there are values, use them as secondary priority
@@ -197,7 +197,7 @@ export function useRegistryMethods (without = []) {
       } else {
         Object.assign(this.proxy, { [field]: value })
       }
-      this.$emit('input', Object.assign({}, this.proxy))
+      this.$emit('update:modelValue', Object.assign({}, this.proxy))
     },
     valueDeps (callerCmp) {
       return Object.keys(this.proxy)

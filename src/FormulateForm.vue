@@ -32,7 +32,7 @@ export default {
   name: 'FormulateForm',
   model: {
     prop: 'formulateValue',
-    event: 'input'
+    event: 'update:modelValue'
   },
   props: {
     name: {

@@ -100,9 +100,15 @@ export default {
     }
   },
   inject: {
+    // For some reason formulateSetter always returns undefined if given a default,
+    // even when it really should have been provided 
     formulateSetter: { default: undefined },
+    formulateSetter: 'formulateSetter',
     formulateFieldValidation: { default: () => () => ({}) },
-    formulateRegister: { default: undefined },
+    // For some reason formulateRegister always returns undefined if given a default,
+    // even when it really should have been provided 
+    formulateRegister: { default: () => undefined },
+    formulateRegister: 'formulateRegister',
     formulateDeregister: { default: undefined },
     getFormValues: { default: () => () => ({}) },
     validateDependents: { default: () => () => {} },
@@ -127,7 +133,7 @@ export default {
     formulateValue: {
       default: ''
     },
-    value: {
+    modelValue: {
       default: false
     },
     /* eslint-enable */
@@ -343,10 +349,10 @@ export default {
       var classification = this.$formulate.classify(this.type)
       classification = (classification === 'box' && this.options) ? 'group' : classification
       if (classification === 'box' && this.checked) {
-        return this.value || true
-      } else if (has(this.$options.propsData, 'value') && classification !== 'box') {
-        return this.value
-      } else if (has(this.$options.propsData, 'formulateValue')) {
+        return this.modelValue || true
+      } else if (has(this.$props, 'modelValue') && classification !== 'box') {
+        return this.modelValue
+      } else if (has(this.$props, 'formulateValue')) {
         return this.formulateValue
       }
       return ''
@@ -357,7 +363,7 @@ export default {
       if (
         !shallowEqualObjects(this.context.model, this.proxy) &&
         // we dont' want to set the model if we are a sub-box of a multi-box field
-        (has(this.$options.propsData, 'options') && this.classification === 'box')
+        (has(this.$props, 'options') && this.classification === 'box')
       ) {
         this.context.model = this.proxy
       }
@@ -370,7 +376,7 @@ export default {
         !this.context.placeholder &&
         isEmpty(this.proxy) &&
         !this.isVmodeled &&
-        this.value === false &&
+        this.modelValue === false &&
         this.context.options.length
       ) {
         // In this condition we have a blank select input with no value, by

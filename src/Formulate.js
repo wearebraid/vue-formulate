@@ -90,10 +90,10 @@ class Formulate {
   }
 
   /**
-   * Install vue formulate, and register it’s components.
+   * Install vue formulate, and register its components.
    */
-  install (Vue, options) {
-    Vue.prototype.$formulate = this
+  install (app, options) {
+    app.config.globalProperties.$formulate = this
     this.options = this.defaults
     var plugins = this.defaults.plugins
     if (options && Array.isArray(options.plugins) && options.plugins.length) {
@@ -102,7 +102,7 @@ class Formulate {
     plugins.forEach(plugin => (typeof plugin === 'function') ? plugin(this) : null)
     this.extend(options || {})
     for (var componentName in this.options.components) {
-      Vue.component(componentName, this.options.components[componentName])
+      app.component(componentName, this.options.components[componentName])
     }
   }
 
