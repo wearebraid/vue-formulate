@@ -248,9 +248,9 @@ describe('FormulateForm', () => {
     const submitRaw = jest.fn();
     const wrapper = mount(FormulateForm, {
       slots: { default: '<FormulateInput type="text" formulate-value="123" name="testinput" />' },
-      listeners: { "submit-raw": submitRaw }
+      listeners: { 'submit-raw': submitRaw }
     })
-    wrapper.find("form").trigger("submit")
+    wrapper.find('form').trigger('submit')
     await flushPromises()
     expect(submitRaw).toHaveBeenCalledWith(expect.any(FormSubmission))
   })
@@ -259,7 +259,7 @@ describe('FormulateForm', () => {
     const submitRaw = jest.fn()
     const wrapper = mount(FormulateForm, {
       slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' },
-      listeners: { "submit-raw": submitRaw }
+      listeners: { 'submit-raw': submitRaw }
     })
     wrapper.find('form').trigger('submit')
     await flushPromises()
@@ -801,5 +801,45 @@ describe('FormulateForm', () => {
     })
     await flushPromises()
     expect(wrapper.findComponent(FormulateInput).vm.context.model).toBe(0)
+  })
+
+  it('waits for one submission to finish before allowing the next one and exposes an isLoading prop', async () => {
+    let resolveMe;
+    const waitForMe = new Promise((resolve, reject) => resolveMe = resolve)
+
+    const submit = jest.fn(() => waitForMe)
+    const wrapper = mount({
+      template: `
+        <FormulateForm @submit="submit">
+          <template #default="{ isLoading }">{{ isLoading ? "yes" : "no" }}</template>
+        </FormulateForm>
+      `,
+      methods: {
+        submit
+      }
+    })
+
+    expect(wrapper.text()).toEqual('no')
+
+    await wrapper.trigger('submit')
+    await wrapper.vm.$nextTick()
+    expect(submit).toHaveBeenCalledTimes(1)
+    expect(wrapper.text()).toEqual('yes')
+
+    // submit is still waiting for the previous call to finish
+    await wrapper.trigger('submit')
+    await wrapper.vm.$nextTick()
+    expect(submit).toHaveBeenCalledTimes(1)
+    expect(wrapper.text()).toEqual('yes')
+
+    resolveMe()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toEqual('no')
+
+    // now it is resolved and the next submit can be called
+    await wrapper.trigger('submit')
+    await wrapper.vm.$nextTick()
+    expect(submit).toHaveBeenCalledTimes(2)
+    expect(wrapper.text()).toEqual('yes')
   })
 })

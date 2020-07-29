@@ -11,7 +11,7 @@
       v-if="!hasFormErrorObservers"
       :context="formContext"
     />
-    <slot />
+    <slot v-bind="{ isLoading }" />
   </form>
 </template>
 
@@ -66,7 +66,8 @@ export default {
       formShouldShowErrors: false,
       errorObservers: [],
       namedErrors: [],
-      namedFieldErrors: {}
+      namedFieldErrors: {},
+      isLoading: false
     }
   },
   computed: {
@@ -161,17 +162,23 @@ export default {
       }
     },
     async formSubmitted () {
+      if (this.isLoading) {
+        return undefined
+      }
+      this.isLoading = true
+
       // perform validation here
       this.showErrors()
       const submission = new FormSubmission(this)
 
-      const submitRawHandler = this.$listeners["submit-raw"]
+      const submitRawHandler = this.$listeners['submit-raw']
       if (submitRawHandler) {
         await submitRawHandler(submission)
       }
 
       const hasErrors = await submission.hasValidationErrors()
       if (hasErrors) {
+        this.isLoading = false
         return undefined
       }
 
@@ -181,6 +188,7 @@ export default {
         await submitHandler(data)
       }
 
+      this.isLoading = false
       return data
     },
     formulateFieldValidation (errorObject) {
