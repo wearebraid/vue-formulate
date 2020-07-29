@@ -7,6 +7,8 @@
       v-for="error in visibleErrors"
       :key="error"
       :class="itemClass"
+      :role="role"
+      :aria-live="ariaLive"
       v-text="error"
     />
   </ul>
@@ -65,6 +67,12 @@ export default {
         return this.context.classes.error
       }
       return `formulate-${this.type}-error`
+    },
+    role () {
+      return this.type === 'form' ? 'alert' : 'status'
+    },
+    ariaLive () {
+      return this.type === 'form' ? 'assertive' : 'polite'
     }
   },
   created () {

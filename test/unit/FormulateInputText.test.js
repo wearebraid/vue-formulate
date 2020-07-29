@@ -311,6 +311,18 @@ describe('FormulateInputText', () => {
     expect(wrapper.findAll('.my-errors li').length).toBe(2)
   })
 
+  it('sets role="status" attribute for input errors', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', errors: ['error 1', 'error 2'] } })
+    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    expect(wrapper.findAll('[role="status"]').length).toBe(2)
+  })
+
+  it('sets aria-live="polite" attribute for input errors', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', errors: ['error 1', 'error 2', 'error 3'] } })
+    expect(wrapper.find('[aria-live="polite"]').exists()).toBe(true)
+    expect(wrapper.findAll('[aria-live="polite"]').length).toBe(3)
+  })
+
   it('sets data-has-value when it has a value', async () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'text' }})
     expect(wrapper.attributes('data-has-value')).toBe(undefined)

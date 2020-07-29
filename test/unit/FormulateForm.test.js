@@ -573,6 +573,34 @@ describe('FormulateForm', () => {
     })
   })
 
+  it('sets role="alert" attribute for form errors', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          name="login"
+        />
+      `
+    })
+    wrapper.vm.$formulate.handle({ formErrors: ['This is an error message', 'one more'] }, 'login')
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.findAll('[role="alert"]').length).toBe(2)
+  })
+
+  it('sets aria-live="assertive" attribute for form errors', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          name="register"
+        />
+      `
+    })
+    wrapper.vm.$formulate.handle({ formErrors: ['This is an error message', 'one more', 'one more again'] }, 'register')
+    await flushPromises()
+    expect(wrapper.find('[aria-live="assertive"]').exists()).toBe(true)
+    expect(wrapper.findAll('[aria-live="assertive"]').length).toBe(3)
+  })
+
   it('removes field data when that field is de-registered', async () => {
     const wrapper = mount({
       template: `
