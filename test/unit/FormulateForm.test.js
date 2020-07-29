@@ -245,21 +245,25 @@ describe('FormulateForm', () => {
   })
 
   it('emits an instance of FormSubmission', async () => {
+    const submitRaw = jest.fn();
     const wrapper = mount(FormulateForm, {
-      slots: { default: '<FormulateInput type="text" formulate-value="123" name="testinput" />' }
+      slots: { default: '<FormulateInput type="text" formulate-value="123" name="testinput" />' },
+      listeners: { "submit-raw": submitRaw }
     })
-    wrapper.find('form').trigger('submit')
+    wrapper.find("form").trigger("submit")
     await flushPromises()
-    expect(wrapper.emitted('submit-raw')[0][0]).toBeInstanceOf(FormSubmission)
+    expect(submitRaw).toHaveBeenCalledWith(expect.any(FormSubmission))
   })
 
   it('resolves hasValidationErrors to true', async () => {
+    const submitRaw = jest.fn()
     const wrapper = mount(FormulateForm, {
-      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' }
+      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' },
+      listeners: { "submit-raw": submitRaw }
     })
     wrapper.find('form').trigger('submit')
     await flushPromises()
-    const submission = wrapper.emitted('submit-raw')[0][0]
+    const submission = submitRaw.mock.calls[0][0]
     expect(await submission.hasValidationErrors()).toBe(true)
   })
 

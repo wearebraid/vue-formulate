@@ -160,20 +160,28 @@ export default {
         this.errorComponents.push(component)
       }
     },
-    formSubmitted () {
+    async formSubmitted () {
       // perform validation here
       this.showErrors()
       const submission = new FormSubmission(this)
-      this.$emit('submit-raw', submission)
-      return submission.hasValidationErrors()
-        .then(hasErrors => hasErrors ? undefined : submission.values())
-        .then(data => {
-          if (typeof data !== 'undefined') {
-            this.$emit('submit', data)
-            return data
-          }
-          return undefined
-        })
+
+      const submitRawHandler = this.$listeners["submit-raw"]
+      if (submitRawHandler) {
+        await submitRawHandler(submission)
+      }
+
+      const hasErrors = await submission.hasValidationErrors()
+      if (hasErrors) {
+        return undefined
+      }
+
+      const data = submission.values()
+      const submitHandler = this.$listeners.submit
+      if (submitHandler) {
+        await submitHandler(data)
+      }
+
+      return data
     },
     formulateFieldValidation (errorObject) {
       this.$emit('validation', errorObject)
