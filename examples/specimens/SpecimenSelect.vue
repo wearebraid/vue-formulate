@@ -20,5 +20,15 @@
         help="Average temperature on the surface of the planet."
       />
     </div>
+    <div class="specimen specimen--single">
+      <h3>Select with multiple attribute</h3>
+      <FormulateInput
+        label="When visiting a hot planet what are your favorite icecream flavors?"
+        type="select"
+        multiple
+        :options="{vanilla: 'Vanilla', chocolate: 'Chocolate', cherry: 'Cherry', lemon: 'Lemon'}"
+        help="You can choose more than one selection by holding command (mac) or option (windows)."
+      />
+    </div>
   </div>
 </template>

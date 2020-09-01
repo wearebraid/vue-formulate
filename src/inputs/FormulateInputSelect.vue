@@ -2,6 +2,7 @@
   <div
     :class="context.classes.element"
     :data-type="context.type"
+    :data-multiple="attributes && attributes.multiple !== undefined"
   >
     <select
       v-model="context.model"
