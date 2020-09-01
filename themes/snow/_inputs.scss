@@ -281,11 +281,22 @@
         right: 1em;
         position: absolute;
       }
+
+      &[data-multiple] {
+        &::before {
+          display: none;
+        }
+      }
     }
 
     select {
       @include baseinput;
       padding-right: 2em;
+
+      &[multiple] {
+        padding-right: 0.75em;
+        overflow-y: auto;
+      }
 
       &[data-placeholder-selected] {
         color: $formulate-gray-dd;
