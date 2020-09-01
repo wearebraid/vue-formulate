@@ -26,6 +26,7 @@
         label="When visiting a hot planet what are your favorite icecream flavors?"
         type="select"
         multiple
+        size="1"
         :options="{vanilla: 'Vanilla', chocolate: 'Chocolate', cherry: 'Cherry', lemon: 'Lemon'}"
         help="You can choose more than one selection by holding command (mac) or option (windows)."
       />
