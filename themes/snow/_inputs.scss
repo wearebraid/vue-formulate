@@ -294,8 +294,12 @@
       padding-right: 2em;
 
       &[multiple] {
-        padding-right: 0.75em;
+        padding: 0;
         overflow-y: auto;
+
+        option {
+          padding: 0.75em;
+        }
       }
 
       &[data-placeholder-selected] {
