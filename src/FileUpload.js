@@ -1,4 +1,5 @@
 import nanoid from 'nanoid/non-secure'
+import { setId } from './libs/utils'
 
 /**
  * The file upload class holds and represents a file’s upload state durring
@@ -156,7 +157,7 @@ class FileUpload {
         )
       }))
         .then(results => {
-          this.results = results
+          this.results = results.map((result, index) => setId(result, this.files[index].uuid))
           resolve(results)
         })
         .catch(err => { throw new Error(err) })
@@ -169,6 +170,7 @@ class FileUpload {
    */
   removeFile (uuid) {
     this.files = this.files.filter(file => file.uuid !== uuid)
+    this.results = this.results.filter(file => file.__id !== uuid)
     this.context.performValidation()
     if (window && this.fileList instanceof FileList) {
       const transfer = new DataTransfer()
