@@ -359,11 +359,12 @@ function isVmodeled () {
 function createOptionList (options) {
   if (!Array.isArray(options) && options && typeof options === 'object') {
     const optionList = []
-    const that = this
     for (const value in options) {
-      optionList.push({ value, label: options[value], id: `${that.elementAttributes.id}_${value}` })
+      optionList.push({ value, label: options[value], id: `${this.elementAttributes.id}_${value}` })
     }
     return optionList
+  } else if (Array.isArray(options)) {
+    options = options.map(option => option.id ? option : { ...option, id: `${this.elementAttributes.id}_${option.value}` })
   }
   return options
 }

@@ -60,9 +60,17 @@ describe('FormulateInputBox', () => {
     expect(wrapper.findAll('input[type="radio"]').length).toBe(2)
   })
 
-  it('generates ids if not provided when type "radio"', () => {
+  it('generates unique ids if not provided when type "radio"', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'radio', options: {a: '1', b: '2'} } })
-    expect(wrapper.find('input[type="radio"]').attributes().id).toBeTruthy()
+    const radios = wrapper.findAll('input[type="radio"]')
+    expect(radios.at(0).attributes().id).toBeTruthy()
+    expect(radios.at(0).attributes().id).not.toBe(radios.at(1).attributes().id)
+  })
+
+  it('generates ids if not provided when type "radio" and options are arrays', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'radio', options: [{value: 'a', label: 'A'}, {value: 'b', label: 'B' }] } })
+    const radios = wrapper.findAll('input[type="radio"]')
+    expect(radios.at(0).attributes().id).not.toBe(radios.at(1).attributes().id)
   })
 
   it('additional context does not bleed through to attributes with type "radio" and options', () => {
