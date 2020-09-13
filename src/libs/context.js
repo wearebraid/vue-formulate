@@ -1,4 +1,4 @@
-import { map, arrayify, shallowEqualObjects, isEmpty, camel } from './utils'
+import { map, arrayify, shallowEqualObjects, isEmpty, camel, has } from './utils'
 import { classProps } from './classes'
 
 /**
@@ -331,7 +331,10 @@ function hasGivenName () {
  */
 function hasValue () {
   const value = this.proxy
-  if (this.classification === 'box' && this.isGrouped) {
+  if (
+    (this.classification === 'box' && this.isGrouped) ||
+    (this.classification === 'select' && has(this.filteredAttributes, 'multiple'))
+  ) {
     return Array.isArray(value) ? value.some(v => v === this.value) : this.value === value
   }
   return !isEmpty(value)
