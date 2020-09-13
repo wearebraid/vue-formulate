@@ -706,10 +706,9 @@
 
       .formulate-file {
         @include baseinput;
-        display: block;
         width: 100%;
         display: flex;
-        justify-content: flex-start;
+        justify-content: space-between;
         align-items: center;
         position: relative;
 
