@@ -194,4 +194,20 @@ describe('Formulate', () => {
   it('throws an error improperly extending', async () => {
     expect(() => Formulate.extend('pizza')).toThrow()
   })
+
+  it('can select a locale after memoization with setLocale', () => {
+    Formulate.selectedLocale = false // reset the memoization
+    function Vue () {}
+    Vue.component = function (name, instance) {}
+    const vm = { $i18n: {locale: 'em' } }
+    Formulate.install(Vue, {
+      locales: {
+        cn: {},
+        em: {}
+      }
+    })
+    expect(Vue.prototype.$formulate.getLocale(vm)).toBe('em')
+    Vue.prototype.$formulate.setLocale('cn')
+    expect(Vue.prototype.$formulate.getLocale(vm)).toBe('cn')
+  })
 })

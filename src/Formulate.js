@@ -301,6 +301,17 @@ class Formulate {
   }
 
   /**
+   * Change the locale to a pre-registered one.
+   * @param {string} localeTag
+   */
+  setLocale (locale) {
+    if (has(this.options.locales, locale)) {
+      this.options.locale = locale
+      this.selectedLocale = locale
+    }
+  }
+
+  /**
    * Get the validation message for a particular error.
    */
   validationMessage (rule, validationContext, vm) {
