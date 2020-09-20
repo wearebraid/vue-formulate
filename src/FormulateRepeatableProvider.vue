@@ -47,6 +47,10 @@ export default {
     setFieldValue: {
       type: Function,
       required: true
+    },
+    uuid: {
+      type: String,
+      required: true
     }
   },
   data () {

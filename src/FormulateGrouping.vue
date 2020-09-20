@@ -11,7 +11,9 @@
       :index="index"
       :set-field-value="(field, value) => setFieldValue(index, field, value)"
       :context="context"
+      :uuid="item.__id"
       @remove="removeItem"
+      @input="setItem"
     >
       <slot />
     </FormulateRepeatableProvider>
@@ -19,7 +21,7 @@
 </template>
 
 <script>
-import { setId } from './libs/utils'
+import { setId, shallowEqualObjects } from './libs/utils'
 
 export default {
   name: 'FormulateGrouping',
@@ -103,6 +105,15 @@ export default {
     },
     showErrors () {
       this.providers.forEach(p => p && typeof p.showErrors === 'function' && p.showErrors())
+    },
+    setItem (value) {
+      // Note: value must have an __id to use this function
+      const values = Array.isArray(this.context.model) ? this.context.model : []
+      const index = values.findIndex(row => row.__id === value.__id)
+      if (index > -1 && !shallowEqualObjects(values[index], value)) {
+        values.splice(index, 1, value)
+        this.context.model = values
+      }
     },
     removeItem (index) {
       if (Array.isArray(this.context.model) && this.context.model.length > this.context.minimum) {

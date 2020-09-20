@@ -251,6 +251,10 @@ export default {
     removeLabel: {
       type: [Boolean, String],
       default: false
+    },
+    keepModelData: {
+      type: [Boolean],
+      default: false
     }
   },
   data () {

@@ -654,4 +654,40 @@ describe('FormulateInputGroup', () => {
       test: [{username: 'person', email: 'person@example'}]
     })
   })
+
+  // This is basically the same test as found in FormulateForm sicne they share registry logic.
+  it('can swap input types with the same name without loosing registration, but resetting values', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+        >
+          <FormulateInput type="group" name="languages">
+            <div key="it" v-if="lang === 'it'" data-is-italian>
+              <FormulateInput type="text" name="test" label="Il tuo nome" />
+            </div>
+            <div key="en" v-else data-is-english>
+              <FormulateInput type="text" name="test" label="Your name please" />
+            </div>
+          </FormulateInput>
+          <FormulateInput type="text" name="country" value="it" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          lang: 'it',
+          formData: {}
+        }
+      }
+    })
+    await flushPromises()
+    wrapper.find('input').setValue('Justin')
+    await flushPromises()
+    expect(wrapper.vm.formData).toEqual({ country: 'it', languages: [{ test: 'Justin' }] })
+    wrapper.setData({ lang: 'en' })
+    await flushPromises()
+    expect(wrapper.findComponent(FormulateRepeatableProvider).vm.registry.has('test')).toBe(true)
+    expect(wrapper.findComponent(FormulateRepeatableProvider).vm.proxy).toEqual({})
+    expect(wrapper.findComponent(FormulateForm).vm.proxy).toEqual({ country: 'it', languages: [{}] })
+  })
 })
