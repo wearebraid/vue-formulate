@@ -814,4 +814,20 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-errors').exists()).toBe(false)
   })
+
+  it('allows access to attributes attrs in classes context object', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      classes: {
+        input: (context, classes) => context.attrs.disabled ? classes.concat(['is-disabled']) : classes
+      }
+    })
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      type: 'button',
+      disabled: 'true'
+    } })
+    await flushPromises()
+    expect(wrapper.find('button.is-disabled').exists()).toBe(true)
+    resetInstance()
+  })
 })

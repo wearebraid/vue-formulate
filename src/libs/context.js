@@ -213,6 +213,7 @@ function classes () {
     ...this.$props,
     ...this.pseudoProps,
     ...{
+      attrs: this.filteredAttributes,
       classification: this.classification,
       hasErrors: this.hasVisibleErrors,
       hasValue: this.hasValue,
