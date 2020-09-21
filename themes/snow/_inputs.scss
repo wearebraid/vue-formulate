@@ -293,6 +293,14 @@
       @include baseinput;
       padding-right: 2em;
 
+      option {
+        color: $formulate-dark;
+
+        &:disabled {
+          color: $formulate-gray-dd;
+        }
+      }
+
       &[multiple] {
         padding: 0;
         overflow-y: auto;

@@ -13,7 +13,8 @@
     >
       <option
         v-if="context.placeholder"
-        value=""
+        value
+        hidden="hidden"
         disabled
         :selected="!hasValue"
       >
