@@ -31,7 +31,7 @@ class Registry {
   remove (name) {
     this.ctx.deps.delete(this.registry.get(name))
     this.ctx.deps.forEach(dependents => dependents.delete(name))
-    const cleanUp = this.registry.has(name) ? !this.registry.get(name).keepModelData : true
+    const cleanUp = this.ctx.keepModelData ? false : (this.registry.has(name) ? !this.registry.get(name).keepModelData : true)
     this.registry.delete(name)
     // Clean up if the component being removed does not have `keepModelData`
     if (cleanUp) {

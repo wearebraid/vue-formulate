@@ -241,6 +241,8 @@
       margin-top: -.1em;
       right: 1em;
       position: absolute; }
+    .formulate-input[data-classification='select'] .formulate-input-element[data-multiple]::before {
+      display: none; }
   .formulate-input[data-classification='select'] select {
     appearance: none;
     border-radius: .3em;
@@ -262,6 +264,15 @@
     .formulate-input[data-classification='select'] select:focus {
       outline: 0;
       border: 1px solid #41b883; }
+    .formulate-input[data-classification='select'] select option {
+      color: #000000; }
+      .formulate-input[data-classification='select'] select option:disabled {
+        color: #a8a8a8; }
+    .formulate-input[data-classification='select'] select[multiple] {
+      padding: 0;
+      overflow-y: auto; }
+      .formulate-input[data-classification='select'] select[multiple] option {
+        padding: 0.75em; }
     .formulate-input[data-classification='select'] select[data-placeholder-selected] {
       color: #a8a8a8; }
   .formulate-input[data-classification='box'] .formulate-input-wrapper {
@@ -393,7 +404,6 @@
       border-radius: .4em;
       position: absolute;
       pointer-events: none;
-      position: absolute;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -539,10 +549,9 @@
       font-weight: 400;
       line-height: 1.2em;
       margin: 0;
-      display: block;
       width: 100%;
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
       align-items: center;
       position: relative; }
       .formulate-input[data-classification="file"] .formulate-files .formulate-file::placeholder {

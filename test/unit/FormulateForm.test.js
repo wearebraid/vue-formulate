@@ -891,4 +891,37 @@ describe('FormulateForm', () => {
     expect(wrapper.findComponent(FormulateForm).vm.registry.has('test')).toBe(true)
     expect(wrapper.findComponent(FormulateForm).vm.proxy).toEqual({ country: 'it', test: 'JigglyPuff' })
   })
+
+  it('can keep values when keepModelData is set to true on a form', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+          :keep-model-data="true"
+        >
+          <div key="it" v-if="lang === 'it'" data-is-italian>
+            <FormulateInput type="text" name="test" label="Il tuo nome" />
+          </div>
+          <div key="en" v-else data-is-english>
+            <FormulateInput type="text" name="test" label="Your name please" />
+          </div>
+          <FormulateInput type="text" name="country" value="it" />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          lang: 'it',
+          formData: {}
+        }
+      }
+    })
+    await flushPromises()
+    wrapper.find('input').setValue('JigglyPuff')
+    await flushPromises()
+    expect(wrapper.vm.formData.test).toBe('JigglyPuff')
+    wrapper.setData({ lang: 'en' })
+    await flushPromises()
+    expect(wrapper.findComponent(FormulateForm).vm.registry.has('test')).toBe(true)
+    expect(wrapper.findComponent(FormulateForm).vm.proxy).toEqual({ country: 'it', test: 'JigglyPuff' })
+  })
 })
