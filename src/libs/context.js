@@ -465,7 +465,8 @@ function listeners () {
 function defineModel (context) {
   return Object.defineProperty(context, 'model', {
     get: modelGetter.bind(this),
-    set: modelSetter.bind(this)
+    set: modelSetter.bind(this),
+    enumerable: true
   })
 }
 

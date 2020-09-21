@@ -262,7 +262,6 @@ describe('FormulateInputText', () => {
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
   })
 
-
   it('allows label-before override with scoped slot', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { type: 'text', label: 'flavor' },
@@ -309,6 +308,19 @@ describe('FormulateInputText', () => {
     })
     await flushPromises();
     expect(wrapper.findAll('.my-errors li').length).toBe(2)
+  })
+
+
+  it('Output the model value inside a scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', name: 'soda', help: 'Do you want some'},
+      scopedSlots: {
+        help: '<small>{{ props.help }} {{ props.model }} {{ props.name }} {{ props.labelPosition }}?</small>'
+      }
+    })
+    wrapper.find('input').setValue('cherry')
+    await flushPromises()
+    expect(wrapper.find('small').text()).toBe('Do you want some cherry soda before?')
   })
 
   it('sets role="status" attribute for input errors', () => {
