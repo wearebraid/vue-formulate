@@ -494,7 +494,8 @@
       max-width: 100%;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis; }
+      text-overflow: ellipsis;
+      margin-right: auto; }
       .formulate-input[data-classification="file"] .formulate-files .formulate-file-name::before {
         position: absolute;
         left: .7em;
