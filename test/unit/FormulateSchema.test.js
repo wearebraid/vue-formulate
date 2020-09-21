@@ -47,4 +47,14 @@ describe('FormulateSchema', () => {
     ]}})
     expect(wrapper.find('h2').text()).toBe('Hello world')
   })
+
+  it('renders classes as classes and not attributes', async () => {
+    const wrapper = mount(FormulateSchema, { propsData: { schema: [
+      { component: 'h2', children: 'Hello world', class: {
+        'has-this-one': true,
+        'does-not-have': false
+      } }
+    ]}})
+    expect(wrapper.find('h2').attributes('class')).toBe('has-this-one')
+  })
 })
