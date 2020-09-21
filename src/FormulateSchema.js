@@ -33,7 +33,7 @@ function tree (h, schema) {
       const item = leaf(el)
       return h(
         item.component,
-        { attrs: item.attrs, class: item.class },
+        { attrs: item.attrs, class: item.class, key: item.key },
         item.children ? tree(h, item.children) : null
       )
     })

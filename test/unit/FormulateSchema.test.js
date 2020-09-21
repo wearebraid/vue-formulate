@@ -57,4 +57,52 @@ describe('FormulateSchema', () => {
     ]}})
     expect(wrapper.find('h2').attributes('class')).toBe('has-this-one')
   })
+
+  // This test is intended to recreate the conditions of issue #200
+  // https://github.com/wearebraid/vue-formulate/issues/200
+  it('can insert directly in between form elements without key confusions', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          :schema="schema"
+          v-model="formData"
+        />
+      `,
+      data () {
+        return {
+          formData: {}
+        }
+      },
+      computed: {
+        schema () {
+          const baseSchema = [
+            {
+              type: "text",
+              name: "firstName",
+              help: 'type here to see next field'
+            },
+            {
+              type: "text",
+              name: "lastName",
+              value: 'FOO'
+            }
+          ]
+          return (this.formData.firstName) ? [
+            baseSchema[0],
+            {
+              type: "text",
+              name: "occupation",
+              value: 'BAR'
+            },
+            baseSchema[1],
+          ]
+            : baseSchema
+        }
+      }
+    })
+    wrapper.findAll('input').at(1).setValue('FOOEY')
+    wrapper.find('input').setValue('Justin')
+    await flushPromises()
+    expect(wrapper.findAll('input').wrappers.map(input => input.element.value)).toEqual(['Justin', 'BAR', 'FOOEY'])
+  })
 })
