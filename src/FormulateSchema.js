@@ -6,13 +6,18 @@
 export function leaf (item, index) {
   if (item && typeof item === 'object' && !Array.isArray(item)) {
     const { children = null, component = 'FormulateInput', depth = 1, ...attrs } = item
+    // these next two lines are required since `class` is a keyword and should
+    // not be used in rest/spread operators.
+    const cls = attrs.class || {}
+    delete attrs.class
+
     const type = component === 'FormulateInput' ? (attrs.type || 'text') : ''
     const name = attrs.name || type || 'el'
     const key = attrs.id || `${name}-${depth}-${index}`
     const els = Array.isArray(children)
       ? children.map(child => Object.assign(child, { depth: depth + 1 }))
       : children
-    return Object.assign({ key, depth, attrs, component }, els ? { children: els } : {})
+    return Object.assign({ key, depth, attrs, component, class: cls }, els ? { children: els } : {})
   }
   return null
 }
@@ -28,7 +33,7 @@ function tree (h, schema) {
       const item = leaf(el)
       return h(
         item.component,
-        { attrs: item.attrs },
+        { attrs: item.attrs, class: item.class, key: item.key },
         item.children ? tree(h, item.children) : null
       )
     })

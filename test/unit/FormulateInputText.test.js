@@ -262,7 +262,6 @@ describe('FormulateInputText', () => {
     expect(wrapper.find('[data-has-errors]').exists()).toBe(true)
   })
 
-
   it('allows label-before override with scoped slot', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { type: 'text', label: 'flavor' },
@@ -309,6 +308,31 @@ describe('FormulateInputText', () => {
     })
     await flushPromises();
     expect(wrapper.findAll('.my-errors li').length).toBe(2)
+  })
+
+
+  it('Output the model value inside a scoped slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', name: 'soda', help: 'Do you want some'},
+      scopedSlots: {
+        help: '<small>{{ props.help }} {{ props.model }} {{ props.name }} {{ props.labelPosition }}?</small>'
+      }
+    })
+    wrapper.find('input').setValue('cherry')
+    await flushPromises()
+    expect(wrapper.find('small').text()).toBe('Do you want some cherry soda before?')
+  })
+
+  it('sets role="status" attribute for input errors', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', errors: ['error 1', 'error 2'] } })
+    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    expect(wrapper.findAll('[role="status"]').length).toBe(2)
+  })
+
+  it('sets aria-live="polite" attribute for input errors', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'text', errorBehavior: 'live', errors: ['error 1', 'error 2', 'error 3'] } })
+    expect(wrapper.find('[aria-live="polite"]').exists()).toBe(true)
+    expect(wrapper.findAll('[aria-live="polite"]').length).toBe(3)
   })
 
   it('sets data-has-value when it has a value', async () => {

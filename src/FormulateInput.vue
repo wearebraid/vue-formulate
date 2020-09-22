@@ -247,6 +247,14 @@ export default {
     addLabel: {
       type: [Boolean, String],
       default: false
+    },
+    removeLabel: {
+      type: [Boolean, String],
+      default: false
+    },
+    keepModelData: {
+      type: [Boolean],
+      default: false
     }
   },
   data () {
@@ -373,10 +381,16 @@ export default {
         this.value === false &&
         this.context.options.length
       ) {
-        // In this condition we have a blank select input with no value, by
-        // default HTML will select the first element, so we emulate that.
-        // See https://github.com/wearebraid/vue-formulate/issues/165
-        this.context.model = this.context.options[0].value
+        if (!has(this.$attrs, 'multiple')) {
+          // In this condition we have a blank select input with no value, by
+          // default HTML will select the first element, so we emulate that.
+          // See https://github.com/wearebraid/vue-formulate/issues/165
+          this.context.model = this.context.options[0].value
+        } else {
+          // In this condition we have a multi select input, which should use
+          // an array as it's v-model base state.
+          this.context.model = []
+        }
       }
     },
     updateLocalAttributes (value) {

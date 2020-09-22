@@ -281,11 +281,34 @@
         right: 1em;
         position: absolute;
       }
+
+      &[data-multiple] {
+        &::before {
+          display: none;
+        }
+      }
     }
 
     select {
       @include baseinput;
       padding-right: 2em;
+
+      option {
+        color: $formulate-dark;
+
+        &:disabled {
+          color: $formulate-gray-dd;
+        }
+      }
+
+      &[multiple] {
+        padding: 0;
+        overflow-y: auto;
+
+        option {
+          padding: 0.75em;
+        }
+      }
 
       &[data-placeholder-selected] {
         color: $formulate-gray-dd;
@@ -626,6 +649,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        margin-right: auto;
 
         &::before {
           position: absolute;
@@ -691,10 +715,9 @@
 
       .formulate-file {
         @include baseinput;
-        display: block;
         width: 100%;
         display: flex;
-        justify-content: flex-start;
+        justify-content: space-between;
         align-items: center;
         position: relative;
 

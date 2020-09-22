@@ -122,4 +122,12 @@ describe('FormulateInputSelect', () => {
     await flushPromises()
     expect(focus.mock.calls.length).toBe(1);
   })
+
+  it('initializes multi-input select lists with an array instead of a string', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', options: { a: 'A', b: 'B', c: 'C' }, multiple: true },
+    })
+    await flushPromises()
+    expect(wrapper.vm.context.model).toEqual([])
+  })
 })

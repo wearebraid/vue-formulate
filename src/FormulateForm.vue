@@ -58,6 +58,10 @@ export default {
     schema: {
       type: [Array, Boolean],
       default: false
+    },
+    keepModelData: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

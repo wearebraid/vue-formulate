@@ -1,4 +1,4 @@
-import { map, arrayify, shallowEqualObjects, isEmpty, camel } from './utils'
+import { map, arrayify, shallowEqualObjects, isEmpty, camel, has } from './utils'
 import { classProps } from './classes'
 
 /**
@@ -10,6 +10,7 @@ export default {
   context () {
     return defineModel.call(this, {
       addLabel: this.logicalAddLabel,
+      removeLabel: this.logicalRemoveLabel,
       attributes: this.elementAttributes,
       blurHandler: blurHandler.bind(this),
       classification: this.classification,
@@ -65,6 +66,7 @@ export default {
   visibleValidationErrors,
   slotComponents,
   logicalAddLabel,
+  logicalRemoveLabel,
   classes,
   showValidationErrors,
   slotProps,
@@ -91,6 +93,15 @@ function logicalAddLabel () {
     return `+ ${this.label || this.name || 'Add'}`
   }
   return this.addLabel
+}
+/**
+ * The label to display when removing a group.
+ */
+function logicalRemoveLabel () {
+  if (typeof this.removeLabel === 'boolean') {
+    return 'Remove'
+  }
+  return this.removeLabel
 }
 
 /**
@@ -202,6 +213,7 @@ function classes () {
     ...this.$props,
     ...this.pseudoProps,
     ...{
+      attrs: this.filteredAttributes,
       classification: this.classification,
       hasErrors: this.hasVisibleErrors,
       hasValue: this.hasValue,
@@ -320,7 +332,10 @@ function hasGivenName () {
  */
 function hasValue () {
   const value = this.proxy
-  if (this.classification === 'box' && this.isGrouped) {
+  if (
+    (this.classification === 'box' && this.isGrouped) ||
+    (this.classification === 'select' && has(this.filteredAttributes, 'multiple'))
+  ) {
     return Array.isArray(value) ? value.some(v => v === this.value) : this.value === value
   }
   return !isEmpty(value)
@@ -345,11 +360,12 @@ function isVmodeled () {
 function createOptionList (options) {
   if (!Array.isArray(options) && options && typeof options === 'object') {
     const optionList = []
-    const that = this
     for (const value in options) {
-      optionList.push({ value, label: options[value], id: `${that.elementAttributes.id}_${value}` })
+      optionList.push({ value, label: options[value], id: `${this.elementAttributes.id}_${value}` })
     }
     return optionList
+  } else if (Array.isArray(options)) {
+    options = options.map(option => option.id ? option : { ...option, id: `${this.elementAttributes.id}_${option.value}` })
   }
   return options
 }
@@ -449,7 +465,8 @@ function listeners () {
 function defineModel (context) {
   return Object.defineProperty(context, 'model', {
     get: modelGetter.bind(this),
-    set: modelSetter.bind(this)
+    set: modelSetter.bind(this),
+    enumerable: true
   })
 }
 

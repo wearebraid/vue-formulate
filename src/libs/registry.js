@@ -1,4 +1,4 @@
-import { shallowEqualObjects, has, isEmpty } from './utils'
+import { shallowEqualObjects, has, isEmpty, setId } from './utils'
 
 /**
  * Component registry with inherent depth to handle complex nesting. This is
@@ -31,9 +31,19 @@ class Registry {
   remove (name) {
     this.ctx.deps.delete(this.registry.get(name))
     this.ctx.deps.forEach(dependents => dependents.delete(name))
+    const cleanUp = this.ctx.keepModelData ? false : (this.registry.has(name) ? !this.registry.get(name).keepModelData : true)
     this.registry.delete(name)
-    const { [name]: value, ...newProxy } = this.ctx.proxy
-    this.ctx.proxy = newProxy
+    // Clean up if the component being removed does not have `keepModelData`
+    if (cleanUp) {
+      const { [name]: value, ...newProxy } = this.ctx.proxy
+      if (this.ctx.uuid) {
+        // If the registry context has a uuid (row.__id) be sure to include it in
+        // this input event so it can replace values in the proper row.
+        setId(newProxy, this.ctx.uuid)
+      }
+      this.ctx.proxy = newProxy
+      this.ctx.$emit('input', this.ctx.proxy)
+    }
     return this
   }
 
@@ -77,9 +87,21 @@ class Registry {
    */
   register (field, component) {
     if (this.registry.has(field)) {
+      // Here we check to see if the field we are about to register is going to
+      // immediately be removed. That indicates this field is switching like in
+      // a v-if:
+      //
+      // <FormulateInput name="foo" v-if="condition" />
+      // <FormulateInput name="foo" v-else />
+      //
+      // Because created() fires _before_ destroyed() the new field would not
+      // register because the old one would not have yet unregistered. By
+      // checking if field we're trying to register is gone on the nextTick we
+      // can assume it was supposed to register, and do so "again".
+      this.ctx.$nextTick(() => !this.registry.has(field) ? this.register(field, component) : false)
       return false
     }
-    this.registry.set(field, component)
+    this.add(field, component)
     const hasVModelValue = has(component.$options.propsData, 'formulateValue')
     const hasValue = has(component.$options.propsData, 'value')
     if (
