@@ -574,9 +574,10 @@
       z-index: 2;
       left: -1px;
       box-shadow: 0 0 0 1px #efefef;
-      transition: transform .25s, box-shadow .25s, background-color .25s; }
+      transition: transform .25s, box-shadow .25s, background-color .25s, z-index .25s; }
       @media (pointer: fine) {
         .formulate-input[data-classification="file"] .formulate-files .formulate-file-image-preview:hover {
+          z-index: 3;
           transition-delay: .2s;
           transform: scale(3);
           background-color: #ffffff;
