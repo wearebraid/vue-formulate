@@ -43,8 +43,8 @@ class FileUpload {
       } : {}))
       return fileList
     }, [])
-    this.results = items
     this.addFileList(fauxFileList)
+    this.results = this.mapUUID(items)
   }
 
   /**
@@ -157,7 +157,7 @@ class FileUpload {
         )
       }))
         .then(results => {
-          this.results = results.map((result, index) => setId(result, this.files[index].uuid))
+          this.results = this.mapUUID(results)
           resolve(results)
         })
         .catch(err => { throw new Error(err) })
@@ -177,6 +177,8 @@ class FileUpload {
       this.files.map(file => transfer.items.add(file.file))
       this.fileList = transfer.files
       this.input.files = this.fileList
+    } else {
+      this.fileList = this.fileList.filter(file => file.__id !== uuid)
     }
   }
 
@@ -205,6 +207,14 @@ class FileUpload {
    */
   getFiles () {
     return this.files
+  }
+
+  /**
+   * Run setId on each item of a pre-existing array of items.
+   * @param {array} items expects an array of objects [{ url: '/uploads/file.pdf' }]
+   */
+  mapUUID (items) {
+    return items.map((result, index) => setId(result, this.files[index].uuid))
   }
 
   toString () {
