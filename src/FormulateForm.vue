@@ -70,7 +70,8 @@ export default {
       formShouldShowErrors: false,
       errorObservers: [],
       namedErrors: [],
-      namedFieldErrors: {}
+      namedFieldErrors: {},
+      submissionPromise: null
     }
   },
   computed: {
@@ -165,11 +166,14 @@ export default {
       }
     },
     formSubmitted () {
+      if (this.submissionPromise) {
+        return this.submissionPromise
+      }
       // perform validation here
       this.showErrors()
       const submission = new FormSubmission(this)
       this.$emit('submit-raw', submission)
-      return submission.hasValidationErrors()
+      this.submissionPromise = submission.hasValidationErrors()
         .then(hasErrors => hasErrors ? undefined : submission.values())
         .then(data => {
           if (typeof data !== 'undefined') {
@@ -178,6 +182,10 @@ export default {
           }
           return undefined
         })
+        .finally(() => {
+          this.submissionPromise = null
+        })
+      return this.submissionPromise
     },
     formulateFieldValidation (errorObject) {
       this.$emit('validation', errorObject)
