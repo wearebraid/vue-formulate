@@ -18,6 +18,7 @@ class FileUpload {
     this.options = { ...{ mimes: {} }, ...options }
     this.results = false
     this.context = context
+    this.uploadPromise = null
     if (Array.isArray(this.fileList)) {
       this.rehydrateFileList(this.fileList)
     } else {
@@ -128,14 +129,16 @@ class FileUpload {
    * Perform the file upload.
    */
   upload () {
-    if (this.results) {
-      return Promise.resolve(this.results)
+    if (this.uploadPromise) {
+      return this.uploadPromise
     }
-    return new Promise((resolve, reject) => {
+    this.uploadPromise = new Promise((resolve, reject) => {
       if (!this.hasUploader) {
         return reject(new Error('No uploader has been defined'))
       }
       Promise.all(this.files.map(file => {
+        file.error = false
+        file.complete = !!file.path
         return file.path ? Promise.resolve(file.path) : this.getUploader(
           file.file,
           (progress) => {
@@ -152,6 +155,8 @@ class FileUpload {
             file.progress = 0
             file.error = error
             file.complete = true
+            this.uploadPromise = null
+            reject(error)
           },
           this.options
         )
@@ -162,6 +167,7 @@ class FileUpload {
         })
         .catch(err => { throw new Error(err) })
     })
+    return this.uploadPromise
   }
 
   /**
