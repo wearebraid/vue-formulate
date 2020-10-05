@@ -437,7 +437,8 @@ function slotProps () {
     errors: fn(this.type, 'errors', this.typeProps),
     repeatable: fn(this.type, 'repeatable', this.typeProps),
     addMore: fn(this.type, 'addMore', this.typeProps),
-    remove: fn(this.type, 'remove', this.typeProps)
+    remove: fn(this.type, 'remove', this.typeProps),
+    component: fn(this.type, 'component', this.typeProps)
   }
 }
 
