@@ -1,6 +1,7 @@
 <template>
   <form
     :class="classes"
+    @change="formChanged"
     @submit.prevent="formSubmitted"
   >
     <FormulateSchema
@@ -164,6 +165,10 @@ export default {
       if (!this.errorComponents.includes(component)) {
         this.errorComponents.push(component)
       }
+    },
+    formChanged () {
+      const submission = new FormSubmission(this)
+      this.$emit('change', submission)
     },
     formSubmitted () {
       if (this.submissionPromise) {
