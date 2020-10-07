@@ -29,8 +29,8 @@ export function leaf (item, index) {
  */
 function tree (h, schema) {
   if (Array.isArray(schema)) {
-    return schema.map(el => {
-      const item = leaf(el)
+    return schema.map((el, index) => {
+      const item = leaf(el, index)
       return h(
         item.component,
         { attrs: item.attrs, class: item.class, key: item.key },
