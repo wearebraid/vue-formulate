@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { mount, shallowMount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
 import Formulate from '../../src/Formulate.js'
 import FormSubmission from '../../src/FormSubmission.js'
