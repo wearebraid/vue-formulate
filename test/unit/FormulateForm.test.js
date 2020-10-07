@@ -253,6 +253,17 @@ describe('FormulateForm', () => {
     expect(wrapper.emitted('submit-raw')[0][0]).toBeInstanceOf(FormSubmission)
   })
 
+  it('emits an instance of FormSubmission on change', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: `<FormulateInput type="text" validation="required|in:bar" name="testinput" />` }
+    })
+    const input = wrapper.find('input[type="text"]')
+    input.setValue('foo')
+    input.trigger('change')
+    await flushPromises()
+    expect(wrapper.emitted('change')[0][0]).toBeInstanceOf(FormSubmission)
+  })
+
   it('resolves hasValidationErrors to true', async () => {
     const wrapper = mount(FormulateForm, {
       slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' }
