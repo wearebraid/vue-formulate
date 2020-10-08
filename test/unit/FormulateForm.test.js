@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { mount, shallowMount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
 import Formulate from '../../src/Formulate.js'
 import FormSubmission from '../../src/FormSubmission.js'
@@ -251,6 +251,28 @@ describe('FormulateForm', () => {
     wrapper.find('form').trigger('submit')
     await flushPromises()
     expect(wrapper.emitted('submit-raw')[0][0]).toBeInstanceOf(FormSubmission)
+  })
+
+  it('emits an instance of FormSubmission on change', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: `<FormulateInput type="text" validation="required|in:bar" name="testinput" />` }
+    })
+    const input = wrapper.find('input[type="text"]')
+    input.setValue('foo')
+    input.trigger('change')
+    await flushPromises()
+    expect(wrapper.emitted('change')[0][0]).toBeInstanceOf(FormSubmission)
+  })
+
+  it('emits a single event on Form input', async () => {
+    const wrapper = mount(FormulateForm, {
+      slots: { default: `<FormulateInput type="text" validation="required|in:bar" name="testinput" />` }
+    })
+    const input = wrapper.find('input[type="text"]')
+    input.setValue('foo')
+    input.trigger('input')
+    await flushPromises()
+    expect(wrapper.emitted('input').length).toBe(1)
   })
 
   it('resolves hasValidationErrors to true', async () => {
