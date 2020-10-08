@@ -114,6 +114,13 @@ describe('FormulateInputFile', () => {
     expect(focus.mock.calls.length).toBe(1);
   })
 
+  it('removes a file from initial value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', value: [ { url: 'https://via.placeholder.com/350x150.png' } ] } })
+    expect(wrapper.vm.context.model.files).toHaveLength(1)
+    wrapper.vm.context.model.files[0].removeFile()
+    expect(wrapper.vm.context.model.files).toHaveLength(0)
+  })
+
   /**
    * ===========================================================================
    * Currently there appears to be no way to properly mock upload data in
