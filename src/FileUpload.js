@@ -89,7 +89,7 @@ class FileUpload {
    */
   uploaderIsAxios () {
     if (
-      this.hasUploader &&
+      this.hasUploader() &&
       typeof this.context.uploader.request === 'function' &&
       typeof this.context.uploader.get === 'function' &&
       typeof this.context.uploader.delete === 'function' &&
@@ -133,7 +133,7 @@ class FileUpload {
       return this.uploadPromise
     }
     this.uploadPromise = new Promise((resolve, reject) => {
-      if (!this.hasUploader) {
+      if (!this.hasUploader()) {
         return reject(new Error('No uploader has been defined'))
       }
       Promise.all(this.files.map(file => {
