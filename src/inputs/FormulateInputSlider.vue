@@ -13,8 +13,9 @@
     <div
       v-if="context.showValue"
       :class="context.classes.rangeValue"
-      v-text="context.model"
-    />
+    >
+      {{ prefix }}{{ context.model }}{{ sufix }}
+    </div>
   </div>
 </template>
 
@@ -23,6 +24,16 @@ import FormulateInputMixin from '../FormulateInputMixin'
 
 export default {
   name: 'FormulateInputSlider',
-  mixins: [FormulateInputMixin]
+  mixins: [FormulateInputMixin],
+  props: {
+    prefix: {
+      type: [String],
+      default: ''
+    },
+    sufix: {
+      type: [String],
+      default: ''
+    }
+  }
 }
 </script>

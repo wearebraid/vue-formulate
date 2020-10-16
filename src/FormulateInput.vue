@@ -40,6 +40,8 @@
           :is="context.component"
           :context="context"
           v-bind="context.slotProps.component"
+          :sufix="sufix"
+          :prefix="prefix"
           v-on="listeners"
         >
           <slot v-bind="context" />
@@ -227,6 +229,14 @@ export default {
     showValue: {
       type: [String, Boolean],
       default: false
+    },
+    prefix: {
+      type: [String],
+      default: ''
+    },
+    sufix: {
+      type: [String],
+      default: ''
     },
     validationMessages: {
       type: Object,
