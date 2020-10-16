@@ -12,5 +12,20 @@
         help="Whenever we’re allowed to have a party again..."
       />
     </div>
+    <div class="specimen">
+      <h3>Range with Prefix and Sufix</h3>
+      <FormulateInput
+        label="How much time do you spend coding per day?"
+        type="range"
+        min="0"
+        max="100"
+        step="10"
+        value="20"
+        prefix="~"
+        sufix="%"
+        :show-value="true"
+        help="Around..."
+      />
+    </div>
   </div>
 </template>
