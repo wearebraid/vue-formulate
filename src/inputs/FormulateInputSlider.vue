@@ -14,7 +14,7 @@
       v-if="context.showValue"
       :class="context.classes.rangeValue"
     >
-      {{ prefix }}{{ context.model }}{{ sufix }}
+      {{ prefix }}{{ context.model }}{{ suffix }}
     </div>
   </div>
 </template>
@@ -30,7 +30,7 @@ export default {
       type: [String],
       default: ''
     },
-    sufix: {
+    suffix: {
       type: [String],
       default: ''
     }

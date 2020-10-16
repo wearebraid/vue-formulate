@@ -13,7 +13,7 @@
       />
     </div>
     <div class="specimen">
-      <h3>Range with Prefix and Sufix</h3>
+      <h3>Range with Prefix and Suffix</h3>
       <FormulateInput
         label="How much time do you spend coding per day?"
         type="range"
@@ -22,7 +22,7 @@
         step="10"
         value="20"
         prefix="~"
-        sufix="%"
+        suffix="%"
         :show-value="true"
         help="Around..."
       />

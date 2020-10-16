@@ -40,7 +40,7 @@
           :is="context.component"
           :context="context"
           v-bind="context.slotProps.component"
-          :sufix="sufix"
+          :suffix="suffix"
           :prefix="prefix"
           v-on="listeners"
         >
@@ -234,7 +234,7 @@ export default {
       type: [String],
       default: ''
     },
-    sufix: {
+    suffix: {
       type: [String],
       default: ''
     },
