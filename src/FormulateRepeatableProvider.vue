@@ -65,7 +65,7 @@ export default {
   created () {
     this.registerProvider(this)
   },
-  beforeDestroy () {
+  beforeUnmount () {
     this.deregisterProvider(this)
   },
   methods: {

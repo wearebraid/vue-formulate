@@ -32,7 +32,7 @@ export default {
   name: 'FormulateForm',
   model: {
     prop: 'formulateValue',
-    event: 'input'
+    event: 'update:modelValue'
   },
   props: {
     name: {
@@ -137,7 +137,7 @@ export default {
     this.$formulate.register(this)
     this.applyInitialValues()
   },
-  destroyed () {
+  unmounted () {
     this.$formulate.deregister(this)
   },
   methods: {

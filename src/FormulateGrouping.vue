@@ -74,7 +74,7 @@ export default {
     // We register with an error message of 'true' which causes the validation to fail but no message output.
     this.formulateRegisterRule(this.validateGroup.bind(this), [], 'formulateGrouping', true)
   },
-  destroyed () {
+  unmounted () {
     this.formulateRemoveRule('formulateGrouping')
   },
   methods: {

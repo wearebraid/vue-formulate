@@ -82,7 +82,7 @@ export default {
       this.observeErrors({ callback: this.boundSetErrors, type: this.type })
     }
   },
-  destroyed () {
+  unmounted () {
     if (this.type === 'form' && typeof this.removeErrorObserver === 'function' && !Array.isArray(this.context.errors)) {
       this.removeErrorObserver(this.boundSetErrors)
     }

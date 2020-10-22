@@ -112,7 +112,7 @@ export default {
   },
   model: {
     prop: 'formulateValue',
-    event: 'input'
+    event: 'update:modelValue'
   },
   props: {
     type: {
@@ -127,7 +127,7 @@ export default {
     formulateValue: {
       default: ''
     },
-    value: {
+    modelValue: {
       default: false
     },
     /* eslint-enable */
@@ -332,12 +332,12 @@ export default {
     }
     this.applyDefaultValue()
     if (!this.disableErrors && typeof this.observeErrors === 'function') {
-      this.observeErrors({ callback: this.setErrors, type: 'input', field: this.nameOrFallback })
+    //   this.observeErrors({ callback: this.setErrors, type: 'input', field: this.nameOrFallback })
     }
     this.updateLocalAttributes(this.$attrs)
     this.performValidation()
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
       this.removeErrorObserver(this.setErrors)
     }
@@ -351,10 +351,10 @@ export default {
       var classification = this.$formulate.classify(this.type)
       classification = (classification === 'box' && this.options) ? 'group' : classification
       if (classification === 'box' && this.checked) {
-        return this.value || true
-      } else if (has(this.$options.propsData, 'value') && classification !== 'box') {
-        return this.value
-      } else if (has(this.$options.propsData, 'formulateValue')) {
+        return this.modelValue || true
+      } else if (has(this.$.vnode.props, 'modelValue') && classification !== 'box') {
+        return this.modelValue
+      } else if (has(this.$.vnode.props, 'formulate-value')) {
         return this.formulateValue
       }
       return ''
@@ -365,7 +365,7 @@ export default {
       if (
         !shallowEqualObjects(this.context.model, this.proxy) &&
         // we dont' want to set the model if we are a sub-box of a multi-box field
-        (has(this.$options.propsData, 'options') && this.classification === 'box')
+        (has(this.$.vnode.props, 'options') && this.classification === 'box')
       ) {
         this.context.model = this.proxy
       }
@@ -378,7 +378,7 @@ export default {
         !this.context.placeholder &&
         isEmpty(this.proxy) &&
         !this.isVmodeled &&
-        this.value === false &&
+        this.modelValue === false &&
         this.context.options.length
       ) {
         if (!has(this.$attrs, 'multiple')) {
