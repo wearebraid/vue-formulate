@@ -42,7 +42,7 @@ class Registry {
         setId(newProxy, this.ctx.uuid)
       }
       this.ctx.proxy = newProxy
-      this.ctx.$emit('input', this.ctx.proxy)
+      this.ctx.$emit('update:modelValue', this.ctx.proxy)
     }
     return this
   }
@@ -102,8 +102,8 @@ class Registry {
       return false
     }
     this.add(field, component)
-    const hasVModelValue = has(component.$options.propsData, 'formulateValue')
-    const hasValue = has(component.$options.propsData, 'value')
+    const hasVModelValue = has(component.$.vnode.props, 'formulate-value')
+    const hasValue = has(component.$.vnode.props, 'modelValue')
     if (
       !hasVModelValue &&
       this.ctx.hasInitialValue &&
@@ -173,20 +173,20 @@ export function useRegistryComputed () {
       )
     },
     isVmodeled () {
-      return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
+      return !!(this.$.vnode.props.hasOwnProperty('formulateValue') &&
         this._events &&
         Array.isArray(this._events.input) &&
         this._events.input.length)
     },
     initialValues () {
       if (
-        has(this.$options.propsData, 'formulateValue') &&
+        has(this.$.vnode.props, 'formulateValue') &&
         typeof this.formulateValue === 'object'
       ) {
         // If there is a v-model on the form/group, use those values as first priority
         return Object.assign({}, this.formulateValue) // @todo - use a deep clone to detach reference types
       } else if (
-        has(this.$options.propsData, 'values') &&
+        has(this.$.vnode.props, 'values') &&
         typeof this.values === 'object'
       ) {
         // If there are values, use them as secondary priority
@@ -219,7 +219,7 @@ export function useRegistryMethods (without = []) {
       } else {
         Object.assign(this.proxy, { [field]: value })
       }
-      this.$emit('input', Object.assign({}, this.proxy))
+      this.$emit('update:modelValue', Object.assign({}, this.proxy))
     },
     valueDeps (callerCmp) {
       return Object.keys(this.proxy)

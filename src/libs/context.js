@@ -47,7 +47,7 @@ export default {
       uploadUrl: this.mergedUploadUrl,
       uploader: this.uploader || this.$formulate.getUploader(),
       validationErrors: this.validationErrors,
-      value: this.value,
+      modelValue: this.modelValue,
       visibleValidationErrors: this.visibleValidationErrors,
       isSubField: this.isSubField,
       classes: this.classes,
@@ -336,7 +336,7 @@ function hasValue () {
     (this.classification === 'box' && this.isGrouped) ||
     (this.classification === 'select' && has(this.filteredAttributes, 'multiple'))
   ) {
-    return Array.isArray(value) ? value.some(v => v === this.value) : this.value === value
+    return Array.isArray(value) ? value.some(v => v === this.modelValue) : this.modelValue === value
   }
   return !isEmpty(value)
 }
@@ -345,10 +345,10 @@ function hasValue () {
  * Determines if this formulate element is v-modeled or not.
  */
 function isVmodeled () {
-  return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
+  return !!(this.$.vnode.props.hasOwnProperty('formulateValue') &&
     this._events &&
-    Array.isArray(this._events.input) &&
-    this._events.input.length)
+    Array.isArray(this._events['update:modelValue']) &&
+    this._events['update:modelValue'].length)
 }
 
 /**
@@ -455,7 +455,7 @@ function blurHandler () {
  * Bound listeners.
  */
 function listeners () {
-  const { input, ...listeners } = this.$listeners
+  const { 'update:modelValue': input, ...listeners } = this.$attrs
   return listeners
 }
 
@@ -498,6 +498,6 @@ function modelSetter (value) {
     this.formulateSetter(this.context.name, value)
   }
   if (didUpdate) {
-    this.$emit('input', value)
+    this.$emit('update:modelValue', value)
   }
 }

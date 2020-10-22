@@ -13,7 +13,6 @@
         :data-is-drag-hover="isOver"
         type="file"
         v-bind="attributes"
-        v-on="$listeners"
         @blur="context.blurHandler"
         @change="handleFile"
         @dragover="handleDragOver"
@@ -71,7 +70,7 @@ export default {
       window.addEventListener('drop', this.preventDefault)
     }
   },
-  destroyed () {
+  unmounted () {
     if (window && this.context.preventWindowDrops) {
       window.removeEventListener('dragover', this.preventDefault)
       window.removeEventListener('drop', this.preventDefault)
