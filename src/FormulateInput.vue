@@ -177,6 +177,10 @@ export default {
       type: [String, Array, Boolean],
       default: false
     },
+    removePosition: {
+      type: [String, Boolean],
+      default: false
+    },
     repeatable: {
       type: Boolean,
       default: false

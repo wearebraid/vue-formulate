@@ -690,4 +690,24 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.findComponent(FormulateRepeatableProvider).vm.proxy).toEqual({})
     expect(wrapper.findComponent(FormulateForm).vm.proxy).toEqual({ country: 'it', languages: [{}] })
   })
+
+  it('places remove slot before inputs by default', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'group', repeatable: true },
+      slots: {
+        default: '<FormulateInput type="text" />'
+      }
+    })
+    expect(wrapper.findAll('.formulate-input-group-repeatable-remove + .formulate-input').length).toBe(1)
+  })
+
+  it('allows remove slot position to be overwritten by removePosition prop', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'group', repeatable: true, removePosition: 'after' },
+      slots: {
+        default: '<FormulateInput type="text" />'
+      }
+    })
+    expect(wrapper.findAll('.formulate-input + .formulate-input-group-repeatable-remove').length).toBe(1)
+  })
 })

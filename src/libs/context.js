@@ -36,6 +36,7 @@ export default {
       performValidation: this.performValidation.bind(this),
       pseudoProps: this.pseudoProps,
       preventWindowDrops: this.preventWindowDrops,
+      removePosition: this.mergedRemovePosition,
       repeatable: this.repeatable,
       rootEmit: this.$emit.bind(this),
       setErrors: this.setErrors.bind(this),
@@ -61,6 +62,7 @@ export default {
   elementAttributes,
   logicalLabelPosition,
   logicalHelpPosition,
+  mergedRemovePosition,
   mergedUploadUrl,
   hasValue,
   visibleValidationErrors,
@@ -255,6 +257,13 @@ function logicalHelpPosition () {
     default:
       return 'after'
   }
+}
+
+/**
+ * Set remove button position for repeatable inputs
+ */
+function mergedRemovePosition () {
+  return (this.type === 'group') ? this.removePosition || 'before' : false
 }
 
 /**
