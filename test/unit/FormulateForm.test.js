@@ -267,12 +267,23 @@ describe('FormulateForm', () => {
     expect(await submission.hasValidationErrors()).toBe(true)
   })
 
-  it('resolves submitted form values to an object', async () => {
+  it('does not resolve a submitted form that doesnt have a handler', async () => {
     const wrapper = mount(FormulateForm, {
       slots: { default: '<FormulateInput type="text" validation="required" name="testinput" value="Justin" />' }
     })
     const submission = await wrapper.vm.formSubmitted()
-    expect(submission).toEqual({testinput: 'Justin'})
+    expect(submission).toEqual(false)
+  })
+
+  it('resolves a submitted form with a handler', async () => {
+    const wrapper = mount(FormulateForm, {
+      listeners: {
+        submit: () => {}
+      },
+      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" value="Justin" />' }
+    })
+    const submission = await wrapper.vm.formSubmitted()
+    expect(submission).toEqual({ testinput: 'Justin' })
   })
 
   it('accepts a values prop and uses it to set the initial values', async () => {
@@ -948,24 +959,55 @@ describe('FormulateForm', () => {
     expect(wrapper.text()).toEqual('no')
 
     await wrapper.trigger('submit')
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     expect(submit).toHaveBeenCalledTimes(1)
     expect(wrapper.text()).toEqual('yes')
 
     // submit is still waiting for the previous call to finish
     await wrapper.trigger('submit')
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     expect(submit).toHaveBeenCalledTimes(1)
     expect(wrapper.text()).toEqual('yes')
 
     resolveMe()
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     expect(wrapper.text()).toEqual('no')
 
     // now it is resolved and the next submit can be called
     await wrapper.trigger('submit')
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     expect(submit).toHaveBeenCalledTimes(2)
+    // This will resolve immediately since it has already been resolved
+    expect(wrapper.text()).toEqual('no')
+  })
+
+  it('waits for a submit-raw to resolve before calling submit', async () => {
+    let resolveMe;
+    const waitForMe = new Promise((resolve, reject) => resolveMe = resolve)
+
+    const submit = jest.fn(() => {})
+    const submitRaw = jest.fn(() => waitForMe)
+    const wrapper = mount({
+      template: `
+        <FormulateForm @submit="submit" @submitRaw="submitRaw">
+          <template #default="{ isLoading }">{{ isLoading ? "yes" : "no" }}</template>
+        </FormulateForm>
+      `,
+      methods: {
+        submit,
+        submitRaw
+      }
+    })
+
+    expect(wrapper.text()).toEqual('no')
+
+    await wrapper.trigger('submit')
+    await flushPromises()
+    expect(submitRaw).toHaveBeenCalledTimes(1)
+    expect(submit).toHaveBeenCalledTimes(0)
     expect(wrapper.text()).toEqual('yes')
+    resolveMe()
+    await flushPromises()
+    expect(submit).toHaveBeenCalledTimes(1)
   })
 })

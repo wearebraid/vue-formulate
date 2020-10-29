@@ -165,7 +165,7 @@ export default {
         this.errorComponents.push(component)
       }
     },
-    async formSubmitted () {
+    formSubmitted () {
       if (this.isLoading) {
         return undefined
       }
@@ -175,25 +175,37 @@ export default {
       this.showErrors()
       const submission = new FormSubmission(this)
 
-      const submitRawHandler = this.$listeners['submit-raw']
-      if (submitRawHandler) {
-        await submitRawHandler(submission)
-      }
-
-      const hasErrors = await submission.hasValidationErrors()
-      if (hasErrors) {
-        this.isLoading = false
-        return undefined
-      }
-
-      const data = submission.values()
-      const submitHandler = this.$listeners.submit
-      if (submitHandler) {
-        await submitHandler(data)
-      }
-
-      this.isLoading = false
-      return data
+      // Wait for the submission handler
+      const submitRawHandler = this.$listeners['submit-raw'] || this.$listeners.submitRaw
+      const rawHandlerReturn = typeof submitRawHandler === 'function'
+        ? submitRawHandler(submission)
+        : Promise.resolve(submission)
+      const willResolveRaw = rawHandlerReturn instanceof Promise
+        ? rawHandlerReturn
+        : Promise.resolve(rawHandlerReturn)
+      return willResolveRaw
+        .then(res => {
+          const sub = (res instanceof FormSubmission ? res : submission)
+          return sub.hasValidationErrors().then(hasErrors => [sub, hasErrors])
+        })
+        .then(([sub, hasErrors]) => {
+          if (!hasErrors && typeof this.$listeners.submit === 'function') {
+            return sub.values()
+              .then(values => {
+                // If the listener returns a promise, we want to wait for that
+                // that promise to resolve, but when we do resolve, we only
+                // want to resolve the submission values
+                const handlerReturn = this.$listeners.submit(values)
+                return (handlerReturn instanceof Promise ? handlerReturn : Promise.resolve())
+                  .then(() => values)
+              })
+          }
+          return false
+        })
+        .then(values => {
+          this.isLoading = false
+          return values
+        })
     },
     formulateFieldValidation (errorObject) {
       this.$emit('validation', errorObject)
