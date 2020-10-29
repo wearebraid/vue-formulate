@@ -1011,7 +1011,7 @@ describe('FormulateForm', () => {
     expect(submit).toHaveBeenCalledTimes(1)
   })
 
-  it('allows a field to not register with the parent registry with ignored prop', async () => {
+  it('ignored fields do not push their values to form', async () => {
     const wrapper = mount({
       template: `
       <FormulateForm>
@@ -1021,8 +1021,12 @@ describe('FormulateForm', () => {
       `
     })
     await flushPromises()
-    const registeredFields = wrapper.findComponent(FormulateForm).vm.registry.keys()
+    let registeredFields = wrapper.findComponent(FormulateForm).vm.registry.keys()
     expect(registeredFields.includes('search_users')).toBe(false)
     expect(registeredFields.includes('email')).toBe(true)
+    wrapper.find('input').setValue('jon')
+    await flushPromises()
+    registeredFields = Object.keys(wrapper.findComponent(FormulateForm).vm.proxy)
+    expect(registeredFields.includes('search_users')).toBe(false)
   })
 })

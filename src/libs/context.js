@@ -26,6 +26,7 @@ export default {
       help: this.help,
       helpPosition: this.logicalHelpPosition,
       id: this.id || this.defaultId,
+      ignored: has(this.$options.propsData, 'ignored'),
       isValid: this.isValid,
       imageBehavior: this.imageBehavior,
       label: this.label,
@@ -503,7 +504,7 @@ function modelSetter (value) {
     this.proxy = value
     didUpdate = true
   }
-  if (this.context.name && typeof this.formulateSetter === 'function') {
+  if (!this.context.ignored && this.context.name && typeof this.formulateSetter === 'function') {
     this.formulateSetter(this.context.name, value)
   }
   if (didUpdate) {
