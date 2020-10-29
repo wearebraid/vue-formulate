@@ -10,6 +10,7 @@
       <component
         :is="context.slotComponents.remove"
         :context="context"
+        :index="index"
         :remove-item="removeItem"
         v-bind="context.slotProps.remove"
       />
