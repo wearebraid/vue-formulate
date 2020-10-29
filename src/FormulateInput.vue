@@ -257,7 +257,11 @@ export default {
       default: false
     },
     keepModelData: {
-      type: [Boolean],
+      type: Boolean,
+      default: false
+    },
+    ignored: {
+      type: [Boolean, String],
       default: false
     }
   },

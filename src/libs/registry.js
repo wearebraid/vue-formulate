@@ -86,6 +86,10 @@ class Registry {
    * @param {vm} component the actual component instance.
    */
   register (field, component) {
+    if (has(component.$options.propsData, 'ignored')) {
+      // Any presence of the `ignored` prop will ensure this input is skipped.
+      return false
+    }
     if (this.registry.has(field)) {
       // Here we check to see if the field we are about to register is going to
       // immediately be removed. That indicates this field is switching like in
