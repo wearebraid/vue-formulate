@@ -176,7 +176,7 @@ class FileUpload {
    */
   removeFile (uuid) {
     this.files = this.files.filter(file => file.uuid !== uuid)
-    this.results = this.results.filter(file => file.__id !== uuid)
+    this.results = this.results && this.results.filter(file => file.__id !== uuid)
     this.context.performValidation()
     if (window && this.fileList instanceof FileList) {
       const transfer = new DataTransfer()
