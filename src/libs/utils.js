@@ -325,3 +325,11 @@ export function isEmpty (value) {
     )
   )
 }
+
+/**
+ * Determines if a given value is an object and not an array or null
+ * @param {any} value
+ */
+export function isObject(value) {
+  return value != null && typeof value === 'object' && Array.isArray(value) === false;
+}
