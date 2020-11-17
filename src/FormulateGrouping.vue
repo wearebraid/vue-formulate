@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { setId, shallowEqualObjects } from './libs/utils'
+import { isObject, setId, shallowEqualObjects } from './libs/utils'
 
 export default {
   name: 'FormulateGrouping',
@@ -118,6 +118,13 @@ export default {
     removeItem (index) {
       if (Array.isArray(this.context.model) && this.context.model.length > this.context.minimum) {
         // In this context we actually have data
+        if (isObject(this.context.model[index])) {
+          Object.keys(this.context.model[index]).forEach(key => {
+            if (Array.isArray(this.context.model[index][key])) {
+              this.context.model[index][key].splice(0, this.context.model[index][key].length)
+            }
+          })
+        }
         this.context.model.splice(index, 1)
       } else if (this.items.length > this.context.minimum) {
         // In this context the fields have never been touched (not "dirty")
