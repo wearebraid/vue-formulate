@@ -1,6 +1,6 @@
 <template>
   <form
-    :class="classes"
+    :class="classes.form"
     @submit.prevent="formSubmitted"
   >
     <FormulateSchema
@@ -82,11 +82,14 @@ export default {
       }
     },
     classes () {
-      const classes = { 'formulate-form': true }
-      if (this.name) {
-        classes[`formulate-form--${this.name}`] = true
-      }
-      return classes
+      return this.$formulate.classes({
+        ...this.$props,
+        ...this.formContext,
+        type: 'form',
+        classification: 'form',
+        value: this.proxy,
+        attrs: this.$attrs
+      })
     },
     mergedFormErrors () {
       return this.formErrors.concat(this.namedErrors)

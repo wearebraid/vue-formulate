@@ -6,7 +6,11 @@ import FormSubmission from '../../src/FormSubmission.js'
 import FormulateForm from '@/FormulateForm.vue'
 import FormulateInput from '@/FormulateInput.vue'
 
-Vue.use(Formulate)
+Vue.use(Formulate, {
+  classes: {
+    form: ['bg-white py-10']
+  }
+})
 
 describe('FormulateForm', () => {
   it('render a form DOM element', () => {
@@ -1028,5 +1032,18 @@ describe('FormulateForm', () => {
     await flushPromises()
     registeredFields = Object.keys(wrapper.findComponent(FormulateForm).vm.proxy)
     expect(registeredFields.includes('search_users')).toBe(false)
+  })
+
+  it('allows styling a form with a global form class', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm name="search">
+        <FormulateInput name="search_users" ignored />
+        <FormulateInput name="email" />
+      </FormulateForm>
+      `
+    })
+    await flushPromises()
+    expect(wrapper.find('form').attributes('class')).toBe('formulate-form formulate-form--search bg-white py-10')
   })
 })
