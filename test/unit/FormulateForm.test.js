@@ -1037,13 +1037,14 @@ describe('FormulateForm', () => {
   it('allows styling a form with a global form class', async () => {
     const wrapper = mount({
       template: `
-      <FormulateForm name="search">
+      <FormulateForm name="search" class="abc" :form-class="['def']" data-has-this-attribute>
         <FormulateInput name="search_users" ignored />
         <FormulateInput name="email" />
       </FormulateForm>
       `
     })
     await flushPromises()
-    expect(wrapper.find('form').attributes('class')).toBe('formulate-form formulate-form--search bg-white py-10')
+    expect(Object.keys(wrapper.find('form').attributes())).toEqual(['data-has-this-attribute', 'class'])
+    expect(wrapper.find('form').attributes('class')).toBe('abc formulate-form formulate-form--search bg-white py-10 def')
   })
 })

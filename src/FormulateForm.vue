@@ -1,6 +1,7 @@
 <template>
   <form
     :class="classes.form"
+    v-bind="attributes"
     @submit.prevent="formSubmitted"
   >
     <FormulateSchema
@@ -16,11 +17,14 @@
 </template>
 
 <script>
-import { arrayify, has } from './libs/utils'
+import { arrayify, has, camel, extractAttributes } from './libs/utils'
+import { classProps } from './libs/classes'
 import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
 import FormSubmission from './FormSubmission'
 
 export default {
+  name: 'FormulateForm',
+  inheritAttrs: false,
   provide () {
     return {
       ...useRegistryProviders(this),
@@ -29,7 +33,6 @@ export default {
       formulateFieldValidation: this.formulateFieldValidation
     }
   },
-  name: 'FormulateForm',
   model: {
     prop: 'formulateValue',
     event: 'input'
@@ -76,14 +79,24 @@ export default {
   },
   computed: {
     ...useRegistryComputed(),
+    pseudoProps () {
+      return extractAttributes(this.$attrs, classProps.filter(p => /^form/.test(p)))
+    },
+    attributes () {
+      return Object.keys(this.$attrs)
+        .filter(attr => !has(this.pseudoProps, camel(attr)))
+        .reduce((fields, field) => ({ ...fields, [field]: this.$attrs[field] }), {}) // Create an object of attributes to re-bind
+    },
     formContext () {
       return {
-        errors: this.mergedFormErrors
+        errors: this.mergedFormErrors,
+        pseudoProps: this.pseudoProps
       }
     },
     classes () {
       return this.$formulate.classes({
         ...this.$props,
+        ...this.pseudoProps,
         ...this.formContext,
         type: 'form',
         classification: 'form',

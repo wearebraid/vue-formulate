@@ -325,3 +325,18 @@ export function isEmpty (value) {
     )
   )
 }
+
+/**
+ * Extract a set of attributes.
+ * @param {object} obj object to extract from
+ * @param {array} array of keys to extract
+ */
+export function extractAttributes (obj, keys) {
+  return Object.keys(obj).reduce((props, key) => {
+    const propKey = camel(key)
+    if (keys.includes(propKey)) {
+      props[propKey] = obj[key]
+    }
+    return props
+  }, {})
+}

@@ -1,4 +1,4 @@
-import { map, arrayify, shallowEqualObjects, isEmpty, camel, has } from './utils'
+import { map, arrayify, shallowEqualObjects, isEmpty, camel, has, extractAttributes } from './utils'
 import { classProps } from './classes'
 
 /**
@@ -130,21 +130,6 @@ function typeContext () {
       }
       return {}
   }
-}
-
-/**
- * Extract a set of attributes.
- * @param {string} keysToExtract
- */
-function extractAttributes (obj, keys) {
-  return Object.keys(obj).reduce((props, key) => {
-    // All class keys are "pseudo props"
-    const propKey = camel(key)
-    if (keys.includes(propKey)) {
-      props[propKey] = obj[key]
-    }
-    return props
-  }, {})
 }
 
 /**
