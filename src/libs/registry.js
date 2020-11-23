@@ -11,6 +11,7 @@ class Registry {
    */
   constructor (ctx) {
     this.registry = new Map()
+    this.errors = {}
     this.ctx = ctx
   }
 
@@ -21,6 +22,7 @@ class Registry {
    */
   add (name, component) {
     this.registry.set(name, component)
+    this.errors = { ...this.errors, [name]: component.getErrorObject().hasErrors }
     return this
   }
 
@@ -33,6 +35,9 @@ class Registry {
     this.ctx.deps.forEach(dependents => dependents.delete(name))
     const cleanUp = this.ctx.keepModelData ? false : (this.registry.has(name) ? !this.registry.get(name).keepModelData : true)
     this.registry.delete(name)
+    const { [name]: trash, ...errorValues } = this.errors
+    this.errors = errorValues
+
     // Clean up if the component being removed does not have `keepModelData`
     if (cleanUp) {
       const { [name]: value, ...newProxy } = this.ctx.proxy
@@ -276,6 +281,12 @@ export function useRegistryMethods (without = []) {
           }
         }
       })
+    },
+    updateValidation (errorObject) {
+      if (has(this.registry.errors, errorObject.name)) {
+        this.registry.errors[errorObject.name] = errorObject.hasErrors
+      }
+      this.$emit('validation', errorObject)
     }
   }
   return Object.keys(methods).reduce((withMethods, key) => {
@@ -291,6 +302,7 @@ export function useRegistryProviders (ctx, without = []) {
     formulateSetter: ctx.setFieldValue,
     formulateRegister: ctx.register,
     formulateDeregister: ctx.deregister,
+    formulateFieldValidation: ctx.updateValidation,
     getFormValues: ctx.valueDeps,
     validateDependents: ctx.validateDeps
   }

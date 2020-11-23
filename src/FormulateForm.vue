@@ -12,7 +12,7 @@
       v-if="!hasFormErrorObservers"
       :context="formContext"
     />
-    <slot v-bind="{ isLoading }" />
+    <slot v-bind="formContext" />
   </form>
 </template>
 
@@ -29,8 +29,7 @@ export default {
     return {
       ...useRegistryProviders(this),
       observeErrors: this.addErrorObserver,
-      removeErrorObserver: this.removeErrorObserver,
-      formulateFieldValidation: this.formulateFieldValidation
+      removeErrorObserver: this.removeErrorObserver
     }
   },
   model: {
@@ -87,10 +86,16 @@ export default {
         .filter(attr => !has(this.pseudoProps, camel(attr)))
         .reduce((fields, field) => ({ ...fields, [field]: this.$attrs[field] }), {}) // Create an object of attributes to re-bind
     },
+    hasErrors () {
+      return Object.values(this.registry.errors).some(hasErrors => hasErrors)
+    },
     formContext () {
       return {
         errors: this.mergedFormErrors,
-        pseudoProps: this.pseudoProps
+        pseudoProps: this.pseudoProps,
+        hasErrors: this.hasErrors,
+        isValid: !this.hasErrors,
+        isLoading: this.isLoading
       }
     },
     classes () {
@@ -222,9 +227,6 @@ export default {
           this.isLoading = false
           return values
         })
-    },
-    formulateFieldValidation (errorObject) {
-      this.$emit('validation', errorObject)
     }
   }
 }

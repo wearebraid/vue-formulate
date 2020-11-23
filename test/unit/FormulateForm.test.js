@@ -1038,7 +1038,7 @@ describe('FormulateForm', () => {
     const wrapper = mount({
       template: `
       <FormulateForm name="search" class="abc" :form-class="['def']" data-has-this-attribute>
-        <FormulateInput name="search_users" ignored />
+        <FormulateInput name="search_users" />
         <FormulateInput name="email" />
       </FormulateForm>
       `
@@ -1046,5 +1046,31 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(Object.keys(wrapper.find('form').attributes())).toEqual(['data-has-this-attribute', 'class'])
     expect(wrapper.find('form').attributes('class')).toBe('abc formulate-form formulate-form--search bg-white py-10 def')
+  })
+
+  it('tracks it’s validation state with formContext', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm #default="{ hasErrors }">
+        <FormulateInput name="search_users" validation="required" />
+        <FormulateInput name="email" validation="required|email" />
+        <FormulateInput type="submit" :disabled="hasErrors" />
+      </FormulateForm>
+      `
+    })
+    await flushPromises()
+    expect(wrapper.find('button[disabled]').exists()).toBe(true)
+    const inputs = wrapper.findAll('input')
+    const search = inputs.at(0)
+    const email = inputs.at(1)
+    search.setValue('justin')
+    email.setValue('schroeder')
+    await flushPromises()
+    // Should still fail
+    expect(wrapper.find('button[disabled]').exists()).toBe(true)
+    email.setValue('hello@wearebraid.com')
+    await flushPromises()
+    // Should now pass
+    expect(wrapper.find('button[disabled]').exists()).toBe(false)
   })
 })
