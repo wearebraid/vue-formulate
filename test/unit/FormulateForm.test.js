@@ -1113,4 +1113,26 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-form-errors li').text()).toBe('Not all the fields are valid.')
   })
+
+  it('Shows an error message with invalid-message when using a function', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        :invalid-message="(fields) => Object.keys(fields).join(', ')"
+      >
+        <FormulateInput name="search_users" validation="required" />
+        <FormulateInput name="boxy" type="checkbox" :options="{a: 'A', b: 'B'}" validation="required" :value="['a']" />
+        <FormulateInput name="email" type="email" validation="required|email" />
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('.formulate-form-errors li').text()).toBe('search_users, email')
+    wrapper.find('input').setValue('justin')
+    wrapper.find('input[type="email"]').setValue('justin@wearebraid.com')
+    await flushPromises()
+    expect(wrapper.find('.formulate-form-errors').exists()).toBe(false)
+  })
 })

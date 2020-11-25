@@ -115,7 +115,7 @@ export default {
       })
     },
     invalidErrors () {
-      if (this.hasFailedSubmit) {
+      if (this.hasFailedSubmit && this.hasErrors) {
         switch (typeof this.invalidMessage) {
           case 'string':
             return [this.invalidMessage]
