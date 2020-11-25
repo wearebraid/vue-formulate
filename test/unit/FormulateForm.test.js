@@ -1073,4 +1073,44 @@ describe('FormulateForm', () => {
     // Should now pass
     expect(wrapper.find('button[disabled]').exists()).toBe(false)
   })
+
+  it('emits a failed-validation error with references to all failing fields', async () => {
+    const failed = jest.fn()
+    const wrapper = mount({
+      template: `
+      <FormulateForm @failed-validation="failed">
+        <FormulateInput name="search_users" validation="required" />
+        <FormulateInput name="boxy" type="checkbox" :options="{a: 'A', b: 'B'}" validation="required" :value="['a']" />
+        <FormulateInput name="email" validation="required|email" />
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `,
+      methods: {
+        failed
+      }
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    const fields = wrapper.findAllComponents(FormulateInput)
+    expect(Object.keys(failed.mock.calls[0][0])).toEqual(['search_users', 'email'])
+    expect(failed.mock.calls[0][0].search_users).toBe(fields.at(0).vm)
+  })
+
+  it('Shows an error message when some of the fields are not validated on submit', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        invalid-message="Not all the fields are valid."
+      >
+        <FormulateInput name="search_users" validation="required" />
+        <FormulateInput name="boxy" type="checkbox" :options="{a: 'A', b: 'B'}" validation="required" :value="['a']" />
+        <FormulateInput name="email" validation="required|email" />
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('.formulate-form-errors li').text()).toBe('Not all the fields are valid.')
+  })
 })

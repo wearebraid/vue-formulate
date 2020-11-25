@@ -235,6 +235,11 @@
     &[disabled] {
       background-color: $formulate-gray-d;
       border-color: $formulate-gray-d;
+
+      &:active {
+        background-color: $formulate-gray-d;
+        border-color: $formulate-gray-d;
+      }
     }
 
     &[data-ghost] {

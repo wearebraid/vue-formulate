@@ -64,6 +64,10 @@ export default {
     keepModelData: {
       type: Boolean,
       default: false
+    },
+    invalidMessage: {
+      type: [Boolean, Function, String],
+      default: false
     }
   },
   data () {
@@ -73,7 +77,8 @@ export default {
       errorObservers: [],
       namedErrors: [],
       namedFieldErrors: {},
-      isLoading: false
+      isLoading: false,
+      hasFailedSubmit: false
     }
   },
   computed: {
@@ -109,8 +114,22 @@ export default {
         attrs: this.$attrs
       })
     },
+    invalidErrors () {
+      if (this.hasFailedSubmit) {
+        switch (typeof this.invalidMessage) {
+          case 'string':
+            return [this.invalidMessage]
+          case 'object':
+            return Array.isArray(this.invalidMessage) ? this.invalidMessage : []
+          case 'function':
+            const ret = this.invalidMessage(this.failingFields)
+            return Array.isArray(ret) ? ret : [ret]
+        }
+      }
+      return []
+    },
     mergedFormErrors () {
-      return this.formErrors.concat(this.namedErrors)
+      return this.formErrors.concat(this.namedErrors).concat(this.invalidErrors)
     },
     mergedFieldErrors () {
       const errors = {}
@@ -126,6 +145,13 @@ export default {
     },
     hasFormErrorObservers () {
       return !!this.errorObservers.filter(o => o.type === 'form').length
+    },
+    failingFields () {
+      return Object.keys(this.registry.errors)
+        .reduce((fields, field) => ({
+          ...fields,
+          ...(this.registry.errors[field] ? { [field]: this.registry.get(field) } : {})
+        }), {})
     }
   },
   watch: {
@@ -216,17 +242,23 @@ export default {
                 // If the listener returns a promise, we want to wait for that
                 // that promise to resolve, but when we do resolve, we only
                 // want to resolve the submission values
+                this.hasFailedSubmit = false
                 const handlerReturn = this.$listeners.submit(values)
                 return (handlerReturn instanceof Promise ? handlerReturn : Promise.resolve())
                   .then(() => values)
               })
           }
-          return false
+          return this.onFailedValidation()
         })
         .then(values => {
           this.isLoading = false
           return values
         })
+    },
+    onFailedValidation () {
+      this.hasFailedSubmit = true
+      this.$emit('failed-validation', { ...this.failingFields })
+      return this.$formulate.failedValidation(this)
     }
   }
 }

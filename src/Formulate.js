@@ -80,6 +80,7 @@ class Formulate {
       errorHandler: (err) => err,
       plugins: [ en ],
       locales: {},
+      failedValidation: () => false,
       idPrefix: 'formulate-',
       baseClasses: b => b,
       coreClasses,
@@ -437,6 +438,13 @@ class Formulate {
    */
   createUpload (fileList, context) {
     return new FileUpload(fileList, context, this.options)
+  }
+
+  /**
+   * A FormulateForm failed to submit due to existing validation errors.
+   */
+  failedValidation (form) {
+    return this.options.failedValidation(this)
   }
 }
 

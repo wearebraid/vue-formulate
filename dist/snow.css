@@ -212,6 +212,9 @@
     .formulate-input[data-classification='button'] button[disabled] {
       background-color: #cecece;
       border-color: #cecece; }
+      .formulate-input[data-classification='button'] button[disabled]:active {
+        background-color: #cecece;
+        border-color: #cecece; }
     .formulate-input[data-classification='button'] button[data-ghost] {
       color: #41b883;
       background-color: transparent;
