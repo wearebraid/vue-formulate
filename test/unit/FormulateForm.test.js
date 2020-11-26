@@ -1152,7 +1152,7 @@ describe('FormulateForm', () => {
     expect(wrapper.find('li').attributes('class')).toBe('error-message')
   })
 
-  it('can change form error wrapper and internal classes via class key props with overriden FormErrors', async () => {
+  it('can change form error wrapper and internal classes via class key props with overridden FormErrors', async () => {
     const wrapper = mount({
       template: `
       <FormulateForm
@@ -1167,5 +1167,21 @@ describe('FormulateForm', () => {
     })
     expect(wrapper.find('span + ul').attributes('class')).toBe('formulate-form-errors foobar')
     expect(wrapper.find('span + ul > li').attributes('class')).toBe('error-message')
+  })
+
+  it('It allows state keys to be used on forms', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        form-has-value-class="form-has-a-value"
+      >
+        <FormulateInput name="name" />
+      </FormulateForm>
+      `
+    })
+    expect(wrapper.find('form').attributes('class')).toBe('formulate-form bg-white py-10')
+    wrapper.find('input').setValue('lauren')
+    await flushPromises()
+    expect(wrapper.find('form').attributes('class')).toBe('formulate-form bg-white py-10 form-has-a-value')
   })
 })

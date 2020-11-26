@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { arrayify, has, camel, extractAttributes } from './libs/utils'
+import { arrayify, has, camel, extractAttributes, isEmpty } from './libs/utils'
 import { classProps } from './libs/classes'
 import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
 import FormSubmission from './FormSubmission'
@@ -105,6 +105,8 @@ export default {
         errors: this.mergedFormErrors,
         pseudoProps: this.pseudoProps,
         hasErrors: this.hasErrors,
+        value: this.proxy,
+        hasValue: !isEmpty(this.proxy), // These have to be explicit for really silly nextTick reasons
         isValid: this.isValid,
         isLoading: this.isLoading,
         classes: this.classes
@@ -114,13 +116,14 @@ export default {
       return this.$formulate.classes({
         ...this.$props,
         ...this.pseudoProps,
+        value: this.proxy,
         errors: this.mergedFormErrors,
         hasErrors: this.hasErrors,
+        hasValue: !isEmpty(this.proxy),
         isValid: this.isValid,
         isLoading: this.isLoading,
         type: 'form',
         classification: 'form',
-        value: this.proxy,
         attrs: this.$attrs
       })
     },
