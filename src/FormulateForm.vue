@@ -29,7 +29,9 @@ export default {
     return {
       ...useRegistryProviders(this),
       observeErrors: this.addErrorObserver,
-      removeErrorObserver: this.removeErrorObserver
+      removeErrorObserver: this.removeErrorObserver,
+      observeContext: this.addContextObserver,
+      removeContextObserver: this.removeContextObserver
     }
   },
   model: {
@@ -75,6 +77,7 @@ export default {
       ...useRegistry(this),
       formShouldShowErrors: false,
       errorObservers: [],
+      contextObservers: [],
       namedErrors: [],
       namedFieldErrors: {},
       isLoading: false,
@@ -94,20 +97,27 @@ export default {
     hasErrors () {
       return Object.values(this.registry.errors).some(hasErrors => hasErrors)
     },
+    isValid () {
+      return !this.hasErrors
+    },
     formContext () {
       return {
         errors: this.mergedFormErrors,
         pseudoProps: this.pseudoProps,
         hasErrors: this.hasErrors,
-        isValid: !this.hasErrors,
-        isLoading: this.isLoading
+        isValid: this.isValid,
+        isLoading: this.isLoading,
+        classes: this.classes
       }
     },
     classes () {
       return this.$formulate.classes({
         ...this.$props,
         ...this.pseudoProps,
-        ...this.formContext,
+        errors: this.mergedFormErrors,
+        hasErrors: this.hasErrors,
+        isValid: this.isValid,
+        isLoading: this.isLoading,
         type: 'form',
         classification: 'form',
         value: this.proxy,
@@ -206,6 +216,15 @@ export default {
     },
     removeErrorObserver (observer) {
       this.errorObservers = this.errorObservers.filter(obs => obs.callback !== observer)
+    },
+    addContextObserver (callback) {
+      if (!this.contextObservers.find(observer => observer === callback)) {
+        this.contextObservers.push(callback)
+        callback(this.formContext)
+      }
+    },
+    removeContextObserver (callback) {
+      this.contextObservers.filter(observer => observer !== callback)
     },
     registerErrorComponent (component) {
       if (!this.errorComponents.includes(component)) {

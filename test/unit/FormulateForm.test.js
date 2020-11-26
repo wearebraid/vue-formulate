@@ -1135,4 +1135,37 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-form-errors').exists()).toBe(false)
   })
+
+  it('can change form error wrapper and internal classes via class key props', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        :form-errors="['some invalid thing happened']"
+        :form-errors-class="['foobar']"
+        form-error-class="error-message"
+      >
+        <span>Empty form</span>
+      </FormulateForm>
+      `
+    })
+    expect(wrapper.find('ul').attributes('class')).toBe('formulate-form-errors foobar')
+    expect(wrapper.find('li').attributes('class')).toBe('error-message')
+  })
+
+  it('can change form error wrapper and internal classes via class key props with overriden FormErrors', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        :form-errors="['some invalid thing happened']"
+        :form-errors-class="['foobar']"
+        form-error-class="error-message"
+      >
+        <span>Empty form</span>
+        <FormulateErrors />
+      </FormulateForm>
+      `
+    })
+    expect(wrapper.find('span + ul').attributes('class')).toBe('formulate-form-errors foobar')
+    expect(wrapper.find('span + ul > li').attributes('class')).toBe('error-message')
+  })
 })

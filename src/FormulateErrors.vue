@@ -24,6 +24,12 @@ export default {
     },
     removeErrorObserver: {
       default: false
+    },
+    observeContext: {
+      default: false
+    },
+    removeContextObserver: {
+      default: false
     }
   },
   props: {
@@ -39,7 +45,14 @@ export default {
   data () {
     return {
       boundSetErrors: this.setErrors.bind(this),
-      localErrors: []
+      boundSetFormContext: this.setFormContext.bind(this),
+      localErrors: [],
+      formContext: {
+        classes: {
+          formErrors: 'formulate-form-errors',
+          formError: 'formulate-form-error'
+        }
+      }
     }
   },
   computed: {
@@ -60,13 +73,13 @@ export default {
       if (this.type === 'input' && this.context.classes) {
         return this.context.classes.errors
       }
-      return `formulate-${this.type}-errors`
+      return this.formContext.classes.formErrors
     },
     itemClass () {
       if (this.type === 'input' && this.context.classes) {
         return this.context.classes.error
       }
-      return `formulate-${this.type}-error`
+      return this.formContext.classes.formError
     },
     role () {
       return this.type === 'form' ? 'alert' : 'status'
@@ -78,18 +91,27 @@ export default {
   created () {
     // This registration is for <FormulateErrors /> that are used for displaying
     // Form errors in an override position.
-    if (this.type === 'form' && typeof this.observeErrors === 'function' && !Array.isArray(this.context.errors)) {
-      this.observeErrors({ callback: this.boundSetErrors, type: this.type })
+    if (this.type === 'form' && typeof this.observeErrors === 'function') {
+      if (!Array.isArray(this.context.errors)) {
+        this.observeErrors({ callback: this.boundSetErrors, type: this.type })
+      }
+      this.observeContext(this.boundSetFormContext)
     }
   },
   destroyed () {
-    if (this.type === 'form' && typeof this.removeErrorObserver === 'function' && !Array.isArray(this.context.errors)) {
-      this.removeErrorObserver(this.boundSetErrors)
+    if (this.type === 'form' && typeof this.removeErrorObserver === 'function') {
+      if (!Array.isArray(this.context.errors)) {
+        this.removeErrorObserver(this.boundSetErrors)
+      }
+      this.removeContextObserver(this.boundSetFormContext)
     }
   },
   methods: {
     setErrors (errors) {
       this.localErrors = arrayify(errors)
+    },
+    setFormContext (context) {
+      this.formContext = context
     }
   }
 }

@@ -35,7 +35,9 @@ export const classKeys = [
   'groupRepeatableRemove',
   'groupAddMore',
   // Forms
-  'form'
+  'form',
+  'formErrors',
+  'formError'
 ]
 
 /**
