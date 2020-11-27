@@ -63,6 +63,20 @@ describe('FormulateInputFile', () => {
       .toBe('test-class')
   })
 
+  it('can add classes to the input image preview image', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'image',
+        fileImagePreviewImageClass: ['test-abc'],
+        value: [
+          { url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' }
+        ]
+      }
+    })
+    expect(wrapper.find('.formulate-file-image-preview img').attributes('class'))
+      .toBe('formulate-file-image-preview-image test-abc')
+  })
+
   it('has default upload area class and can override it', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: {

@@ -28,6 +28,7 @@ export const classKeys = [
   'fileProgress',
   'fileUploadError',
   'fileImagePreview',
+  'fileImagePreviewImage',
   'fileProgressInner',
   // Groups
   'grouping',

@@ -16,6 +16,7 @@
         >
           <img
             :src="file.previewData"
+            :class="context.classes.fileImagePreviewImage"
           >
         </div>
         <div
