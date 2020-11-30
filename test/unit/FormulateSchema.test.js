@@ -105,4 +105,61 @@ describe('FormulateSchema', () => {
     await flushPromises()
     expect(wrapper.findAll('input').wrappers.map(input => input.element.value)).toEqual(['Justin', 'BAR', 'FOOEY'])
   })
+
+  it('can render two divs back to back with unique keys', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          :schema="schema"
+        />
+      `,
+      data () {
+        return {
+          switch: true
+        }
+      },
+      computed: {
+        schema () {
+          return [
+            { component: 'div', 'data-is-first': true, children: this.switch ? 'abc' : 'def' },
+            { component: 'div', 'data-is-second': true, children: this.switch ? 'def' : 'abc' }
+          ]
+        }
+      }
+    })
+    expect(wrapper.find('[data-is-first]').text()).toBe('abc')
+    wrapper.setData({ switch: false })
+    await flushPromises()
+    expect(wrapper.find('[data-is-first]').text()).toBe('def')
+  })
+
+  it('can uniquely key grouped inputs', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          :schema="schema"
+        />
+      `,
+      data () {
+        return {
+          switch: true
+        }
+      },
+      computed: {
+        schema () {
+          return [
+            {
+              type: 'group',
+              value: [{}, {}],
+              children: [
+                { type: 'text', value: 'abc' },
+                { type: 'text', value: 'def' }
+              ]
+            }
+          ]
+        }
+      }
+    })
+
+  })
 })
