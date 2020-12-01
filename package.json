@@ -20,6 +20,7 @@
     "test": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
     "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
+    "cypress": "cypress open",
     "build:size": "gzip -c dist/formulate.esm.js | wc -c",
     "dev": "vue-cli-service serve --port=7872 examples/main.js"
   },
@@ -58,6 +59,8 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^25.5.1",
     "cssnano": "^4.1.10",
+    "cypress": "^6.0.1",
+    "cypress-file-upload": "^4.1.1",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.22.0",
