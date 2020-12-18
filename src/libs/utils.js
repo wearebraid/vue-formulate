@@ -26,6 +26,11 @@ export function shallowEqualObjects (objA, objB) {
   if (!objA || !objB) {
     return false
   }
+
+  if (typeof objA === 'number' && typeof objB === 'number') {
+    return objA === objB
+  }
+
   var aKeys = Object.keys(objA)
   var bKeys = Object.keys(objB)
   var len = aKeys.length
