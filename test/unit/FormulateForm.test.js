@@ -9,6 +9,17 @@ import FormulateInput from '@/FormulateInput.vue'
 Vue.use(Formulate, {
   classes: {
     form: ['bg-white py-10']
+  },
+  library: {
+    onlyOut: {
+      classification: 'text',
+      component: {
+        props: ['context'],
+        render: function (h) {
+          return h('div', {attrs: {'data-output': true }}, this.context.model)
+        }
+      }
+    }
   }
 })
 
@@ -1183,5 +1194,32 @@ describe('FormulateForm', () => {
     wrapper.find('input').setValue('lauren')
     await flushPromises()
     expect(wrapper.find('form').attributes('class')).toBe('formulate-form bg-white py-10 form-has-a-value')
+  })
+
+  it('Allows mutating a number as value of v-modeled FormulateForm', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formValues"
+        >
+          <FormulateInput
+            type="onlyOut"
+            name="number"
+          />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          formValues: {
+            number: 1234
+          }
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('[data-output]').text()).toBe('1234')
+    wrapper.vm.formValues.number = 4567
+    await flushPromises()
+    expect(wrapper.find('[data-output]').text()).toBe('4567')
   })
 })

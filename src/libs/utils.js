@@ -26,6 +26,10 @@ export function shallowEqualObjects (objA, objB) {
   if (!objA || !objB) {
     return false
   }
+  if (typeof objA !== 'object' && typeof objB !== 'object') {
+    // Compare scalar values
+    return objA === objB
+  }
   var aKeys = Object.keys(objA)
   var bKeys = Object.keys(objB)
   var len = aKeys.length
