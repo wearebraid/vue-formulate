@@ -274,10 +274,6 @@ export function useRegistryMethods (without = []) {
       // Collect all keys, existing and incoming
       const keys = Array.from(new Set(Object.keys(values).concat(Object.keys(this.proxy))))
       keys.forEach(field => {
-        // console.log('-----------------------')
-        // console.log(`values: ${values[field]}`)
-        // console.log(`proxy: ${this.proxy[field]}`)
-        // console.log(`shallowEqualObjects: `, shallowEqualObjects(values[field], this.proxy[field]))
         if (!shallowEqualObjects(values[field], this.proxy[field])) {
           this.setFieldValue(field, values[field])
           if (this.registry.has(field) && !shallowEqualObjects(values[field], this.registry.get(field).proxy)) {
