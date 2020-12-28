@@ -128,6 +128,22 @@ describe('FormulateInputFile', () => {
     expect(focus.mock.calls.length).toBe(1);
   })
 
+  it('removes a file from initial value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', value: [ { url: 'https://via.placeholder.com/350x150.png' } ] } })
+    expect(wrapper.vm.context.model.files).toHaveLength(1)
+    wrapper.vm.context.model.files[0].removeFile()
+    expect(wrapper.vm.context.model.files).toHaveLength(0)
+  })
+
+  it('caches uploadPromise', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', value: [ { url: 'https://via.placeholder.com/350x150.png' } ] } })
+    expect(wrapper.vm.context.model).toBeInstanceOf(FileUpload)
+    expect(wrapper.vm.context.model.upload()).toBeInstanceOf(Promise)
+    expect(wrapper.vm.context.model.upload()).toEqual(wrapper.vm.context.model.uploadPromise)
+    await flushPromises()
+    expect(wrapper.vm.context.model.uploadPromise).toBeNull();
+  })
+
   /**
    * ===========================================================================
    * Currently there appears to be no way to properly mock upload data in

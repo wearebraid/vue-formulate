@@ -89,7 +89,7 @@ class FileUpload {
    */
   uploaderIsAxios () {
     if (
-      this.hasUploader &&
+      this.hasUploader() &&
       typeof this.context.uploader.request === 'function' &&
       typeof this.context.uploader.get === 'function' &&
       typeof this.context.uploader.delete === 'function' &&
@@ -133,7 +133,7 @@ class FileUpload {
       return this.uploadPromise
     }
     this.uploadPromise = new Promise((resolve, reject) => {
-      if (!this.hasUploader) {
+      if (!this.hasUploader()) {
         return reject(new Error('No uploader has been defined'))
       }
       Promise.all(this.files.map(file => {
@@ -166,6 +166,9 @@ class FileUpload {
           resolve(results)
         })
         .catch(err => { throw new Error(err) })
+        .finally(() => {
+          this.uploadPromise = null;
+        })
     })
     return this.uploadPromise
   }
@@ -175,8 +178,10 @@ class FileUpload {
    * @param {string} uuid
    */
   removeFile (uuid) {
-    this.files = this.files.filter(file => file.uuid !== uuid)
-    this.results = this.results.filter(file => file.__id !== uuid)
+    this.files = this.files.filter(file => file && file.uuid !== uuid)
+    if (Array.isArray(this.results)) {
+      this.results = this.results.filter(file => file && file.__id !== uuid)
+    }
     this.context.performValidation()
     if (window && this.fileList instanceof FileList) {
       const transfer = new DataTransfer()
@@ -184,7 +189,7 @@ class FileUpload {
       this.fileList = transfer.files
       this.input.files = this.fileList
     } else {
-      this.fileList = this.fileList.filter(file => file.__id !== uuid)
+      this.fileList = this.fileList.filter(file => file && file.__id !== uuid)
     }
   }
 
@@ -220,7 +225,10 @@ class FileUpload {
    * @param {array} items expects an array of objects [{ url: '/uploads/file.pdf' }]
    */
   mapUUID (items) {
-    return items.map((result, index) => setId(result, this.files[index].uuid))
+    return items.map((result, index) => {
+      this.files[index].path = result !== undefined ? result : false
+      return result && setId(result, this.files[index].uuid)
+    })
   }
 
   toString () {
