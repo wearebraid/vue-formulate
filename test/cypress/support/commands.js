@@ -9,10 +9,42 @@
 // ***********************************************
 //
 import 'cypress-file-upload'
+import FileUpload from '../../../src/FileUpload'
 
 //
 // -- This is a parent command --
-// Cypress.Commands.add("login", (email, password) => { ... })
+Cypress.Commands.add('formulate', (type, props = {}) => {
+  cy.visit('http://localhost:7872')
+
+  cy.window().then(window => {
+    window.showTest({
+      component: 'FormulateInput',
+      props: {
+        type: type,
+        outerClass: ['input-under-test'],
+        name: props.name || 'inputUnderTest',
+        ...props
+      }
+    })
+  })
+
+  cy.get('.input-under-test')
+    .as('wrapper')
+})
+
+
+Cypress.Commands.add('modeledValue', () => {
+  cy.window().then(window => {
+    return window.getInputValue()
+  })
+})
+
+Cypress.Commands.add('submittedValue', (name = 'inputUnderTest') => {
+  cy.window().then(window => {
+    return window.getSubmittedValue().then(value => cy.wrap(value[name]))
+  })
+})
+
 //
 //
 // -- This is a child command --

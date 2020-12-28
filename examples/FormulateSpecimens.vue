@@ -1,5 +1,28 @@
 <template>
   <div
+    v-if="page === 'provingGround'"
+    id="app"
+  >
+    <FormulateForm
+      ref="testForm"
+      @submit="submission"
+    >
+      <div
+        class="proving-ground"
+      >
+        <div class="proving-ground-stage">
+          <component
+            :is="testing.component"
+            v-model="provingGroundValue"
+            v-bind="testing.props"
+          />
+        </div>
+        <pre class="proving-ground-values">{{ provingGroundValue }}</pre>
+      </div>
+    </FormulateForm>
+  </div>
+  <div
+    v-else
     id="app"
     class="specimen-list"
   >
@@ -38,6 +61,37 @@ export default {
   },
   data () {
     return {
+      page: 'default',
+      provingGroundValue: null,
+      provingGroundSubmissionResolver: () => {},
+      testing: {}
+    }
+  },
+  mounted () {
+    window.showTest = this.showTest.bind(this)
+    window.getInputValue = this.inputValue.bind(this)
+    window.getSubmittedValue = this.submittedValue.bind(this)
+  },
+  methods: {
+    showTest (data) {
+      if (data.component) {
+        this.page = 'provingGround'
+        this.testing = data
+      } else {
+        this.page = 'default'
+      }
+    },
+    inputValue () {
+      return this.provingGroundValue
+    },
+    submission (data) {
+      this.provingGroundSubmissionResolver(data)
+    },
+    submittedValue () {
+      return new Promise(resolve => {
+        this.provingGroundSubmissionResolver = resolve
+        this.$refs.testForm.formSubmitted()
+      })
     }
   }
 }
@@ -102,6 +156,33 @@ h2 {
     &:nth-of-type(3n) {
       border-right: 0;
     }
+  }
+}
+.proving-ground {
+  box-sizing: border-box;
+  display: flex;
+
+  &-stage,
+  &-values {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-stage {
+    flex: 0 0 50%;
+    width: 50%;
+    & > * {
+      width: 300px;
+
+    }
+  }
+  &-values {
+    flex: 0 0 50%;
+    width: 50%;
+    background-color: $formulate-gray;
+    margin: 0;
   }
 }
 </style>
