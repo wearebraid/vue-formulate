@@ -1,9 +1,10 @@
 <template>
   <div
-    v-if="page === 'provingGround'"
+    v-if="testKey"
     id="app"
   >
     <FormulateForm
+      :key="testKey"
       ref="testForm"
       @submit="submission"
     >
@@ -12,9 +13,9 @@
       >
         <div class="proving-ground-stage">
           <component
-            :is="testing.component"
+            :is="test.component"
             v-model="provingGroundValue"
-            v-bind="testing.props"
+            v-bind="test.props"
           />
         </div>
         <pre class="proving-ground-values">{{ provingGroundValue }}</pre>
@@ -38,6 +39,7 @@
 </template>
 
 <script>
+import nanoid from 'nanoid/non-secure'
 import SpecimenText from './specimens/SpecimenText'
 import SpecimenTextarea from './specimens/SpecimenTextarea'
 import SpecimenGroup from './specimens/SpecimenGroup'
@@ -61,10 +63,10 @@ export default {
   },
   data () {
     return {
-      page: 'default',
+      testKey: false,
       provingGroundValue: null,
       provingGroundSubmissionResolver: () => {},
-      testing: {}
+      test: {}
     }
   },
   mounted () {
@@ -75,10 +77,10 @@ export default {
   methods: {
     showTest (data) {
       if (data.component) {
-        this.page = 'provingGround'
-        this.testing = data
+        this.testKey = nanoid(5)
+        this.test = data
       } else {
-        this.page = 'default'
+        this.testKey = false
       }
     },
     inputValue () {

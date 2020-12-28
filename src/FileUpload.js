@@ -167,7 +167,7 @@ class FileUpload {
         })
         .catch(err => { throw new Error(err) })
         .finally(() => {
-          this.uploadPromise = null;
+          this.uploadPromise = null
         })
     })
     return this.uploadPromise

@@ -2,7 +2,7 @@ import FileUpload from '../../../src/FileUpload'
 
 describe('FormulateFileInput', () => {
 
-  it('Can have one file displayed and removed', () => {
+  it('Can have one file displayed, removed, and re-added', () => {
     cy.formulate('file').find('input')
       .attachFile('1x1.png', { force: true })
 
@@ -25,6 +25,12 @@ describe('FormulateFileInput', () => {
 
     cy.submittedValue()
       .should('have.lengthOf', 0)
+
+    cy.get('@wrapper').find('input')
+      .attachFile('1x1.png', { force: true })
+
+    cy.submittedValue()
+      .should('have.lengthOf', 1)
   })
 
   it('Can have multiple files displayed and removed', () => {
@@ -33,9 +39,33 @@ describe('FormulateFileInput', () => {
       .attachFile('1x1.png', { force: true })
       .attachFile('2x2.png', { force: true })
 
-    cy.get('@wrapper')
-      .find('ul.formulate-files li')
+    cy.submittedValue()
       .should('have.length', 2)
+
+    cy.get('@wrapper')
+      .find('.formulate-file-remove')
+      .first()
+      .click()
+
+    cy.submittedValue()
+      .should('have.lengthOf', 1)
+      .should('have.nested.property', '[0].name', '2x2.png')
+  })
+
+  it('It can remove invalid mime types', () => {
+    cy.formulate('file', {
+      validation: 'mime:application/pdf'
+    })
+      .find('input')
+      .attachFile('1x1.png', { force: true })
+
+    cy.get('@wrapper')
+      .find('.formulate-file-remove')
+      .first()
+      .click()
+
+    cy.submittedValue()
+      .should('have.lengthOf', 0)
   })
 
 })
