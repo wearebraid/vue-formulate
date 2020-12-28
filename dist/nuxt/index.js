@@ -1,1 +1,0 @@
-import fs from"fs";import path from"path";export default function nuxtVueFormulate(t){let o=Object.assign({},this.options.formulate,t),i=!1;o.configPath?i=o.configPath:fs.existsSync(`${this.options.srcDir}/formulate.config.js`)&&(i="~/formulate.config.js"),o=Object.assign({},o,{configPath:i}),this.addPlugin({src:path.resolve(__dirname,"plugin.js"),options:o})};
