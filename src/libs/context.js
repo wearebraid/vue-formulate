@@ -264,11 +264,11 @@ function mergedValidationName () {
   if (this.validationName) {
     return this.validationName
   }
-  if (typeof this.name === 'string') {
-    return this.name
-  }
   if (this.label) {
     return this.label
+  }
+  if (typeof this.name === 'string') {
+    return this.name
   }
   return this.type
 }
