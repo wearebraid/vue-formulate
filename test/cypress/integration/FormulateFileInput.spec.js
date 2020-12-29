@@ -68,4 +68,39 @@ describe('FormulateFileInput', () => {
       .should('have.lengthOf', 0)
   })
 
+  it.only('It can hydrate a file input, and submit its value', () => {
+    cy.formulate('file', {
+      multiple: true,
+      value: [
+        {
+          url: '/uploads/example.pdf'
+        },
+        {
+          url: '/uploads/example2.pdf',
+          name: 'super-example.pdf'
+        }
+      ]
+    })
+
+    cy.get('@wrapper')
+      .find('.formulate-file-name')
+      .first()
+      .should('have.text', 'example.pdf')
+
+    cy.window().then(window => window.submitForm())
+
+    cy.get('.formulate-file-progress')
+      .should('not.exist')
+
+      cy.submittedValue()
+      .should('eql', [
+        {
+          url: '/uploads/example.pdf'
+        },
+        {
+          url: '/uploads/example2.pdf',
+          name: 'super-example.pdf'
+        }
+      ])
+  })
 })

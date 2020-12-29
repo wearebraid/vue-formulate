@@ -18,13 +18,16 @@ Cypress.Commands.add('formulate', (type, props = {}) => {
 
   cy.window().then(window => {
     window.showTest({
-      component: 'FormulateInput',
-      props: {
-        type: type,
-        outerClass: ['input-under-test'],
-        name: props.name || 'inputUnderTest',
-        ...props
-      }
+      ...{
+        component: 'FormulateInput',
+        props: {
+          type: type,
+          outerClass: ['input-under-test'],
+          name: props.name || 'inputUnderTest',
+          ...props
+        },
+      },
+      ...(Object.prototype.hasOwnProperty.call(props, 'value') ? { value: props.value } : {})
     })
   })
 

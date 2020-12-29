@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import { has } from '../src/libs/utils'
 import nanoid from 'nanoid/non-secure'
 import SpecimenText from './specimens/SpecimenText'
 import SpecimenTextarea from './specimens/SpecimenTextarea'
@@ -73,12 +74,16 @@ export default {
     window.showTest = this.showTest.bind(this)
     window.getInputValue = this.inputValue.bind(this)
     window.getSubmittedValue = this.submittedValue.bind(this)
+    window.submitForm = this.submitForm.bind(this)
   },
   methods: {
     showTest (data) {
       if (data.component) {
         this.testKey = nanoid(5)
         this.test = data
+        if (has(data, 'value')) {
+          this.provingGroundValue = data.value
+        }
       } else {
         this.testKey = false
       }
@@ -92,8 +97,11 @@ export default {
     submittedValue () {
       return new Promise(resolve => {
         this.provingGroundSubmissionResolver = resolve
-        this.$refs.testForm.formSubmitted()
+        this.submitForm()
       })
+    },
+    submitForm () {
+      this.$refs.testForm.formSubmitted()
     }
   }
 }
