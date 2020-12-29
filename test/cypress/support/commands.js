@@ -41,7 +41,12 @@ Cypress.Commands.add('modeledValue', () => {
 
 Cypress.Commands.add('submittedValue', (name = 'inputUnderTest') => {
   cy.window().then(window => {
-    return window.getSubmittedValue().then(value => cy.wrap(value[name]))
+    // wait before executing, this allows us to prevent race conditions where
+    // formSubmitted.finally() has not yet been called but we're already
+    // re-running a submission test
+    cy.wait(100)
+    return window.getSubmittedValue()
+      .then(value => cy.wrap(value[name]))
   })
 })
 

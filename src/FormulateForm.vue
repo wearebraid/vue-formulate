@@ -272,9 +272,8 @@ export default {
           }
           return this.onFailedValidation()
         })
-        .then(values => {
+        .finally(() => {
           this.isLoading = false
-          return values
         })
     },
     onFailedValidation () {

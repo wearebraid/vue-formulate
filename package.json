@@ -21,6 +21,7 @@
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
     "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
     "cypress": "cypress open",
+    "cypress:ci": "./build/cypress.sh",
     "build:size": "gzip -c dist/formulate.esm.js | wc -c",
     "dev": "vue-cli-service serve --port=7872 examples/main.js"
   },
@@ -87,6 +88,7 @@
     "vue-runtime-helpers": "^1.1.2",
     "vue-template-compiler": "^2.6.12",
     "vue-template-es2015-compiler": "^1.9.1",
+    "wait-on": "^5.2.1",
     "watch": "^1.0.2"
   },
   "dependencies": {

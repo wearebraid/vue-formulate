@@ -9,4 +9,4 @@ install:
   - npm ci
 script:
   - npm run test
-  - npm run dev & npm run cypress --record
+  - npm run cypress:ci

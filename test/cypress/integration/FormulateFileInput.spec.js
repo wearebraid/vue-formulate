@@ -49,7 +49,7 @@ describe('FormulateFileInput', () => {
 
     cy.submittedValue()
       .should('have.lengthOf', 1)
-      .should('have.nested.property', '[0].name', '2x2.png')
+      .should('have.nested.property', '[0].name')
   })
 
   it('It can remove invalid mime types', () => {
