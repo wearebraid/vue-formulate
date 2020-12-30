@@ -13,6 +13,7 @@ import FormulateForm from './FormulateForm.vue'
 import FormulateInput from './FormulateInput.vue'
 import FormulateErrors from './FormulateErrors.vue'
 import FormulateHelp from './slots/FormulateHelp.vue'
+import FormulateFile from './slots/FormulateFile.vue'
 import FormulateGrouping from './FormulateGrouping.vue'
 import FormulateLabel from './slots/FormulateLabel.vue'
 import FormulateAddMore from './slots/FormulateAddMore.vue'
@@ -41,6 +42,7 @@ class Formulate {
       components: {
         FormulateSlot,
         FormulateForm,
+        FormulateFile,
         FormulateHelp,
         FormulateLabel,
         FormulateInput,
@@ -61,12 +63,13 @@ class Formulate {
         FormulateRepeatableProvider
       },
       slotComponents: {
-        label: 'FormulateLabel',
-        help: 'FormulateHelp',
-        errors: 'FormulateErrors',
-        repeatable: 'FormulateRepeatable',
         addMore: 'FormulateAddMore',
-        remove: 'FormulateRepeatableRemove'
+        errors: 'FormulateErrors',
+        file: 'FormulateFile',
+        help: 'FormulateHelp',
+        label: 'FormulateLabel',
+        remove: 'FormulateRepeatableRemove',
+        repeatable: 'FormulateRepeatable'
       },
       slotProps: {},
       library,

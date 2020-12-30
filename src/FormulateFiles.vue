@@ -9,38 +9,19 @@
       :data-has-error="!!file.error"
       :data-has-preview="!!(imagePreview && file.previewData)"
     >
-      <div :class="context.classes.file">
-        <div
-          v-if="!!(imagePreview && file.previewData)"
-          :class="context.classes.fileImagePreview"
-        >
-          <img
-            :src="file.previewData"
-            :class="context.classes.fileImagePreviewImage"
-          >
-        </div>
-        <div
-          :class="context.classes.fileName"
-          :title="file.name"
-          v-text="file.name"
+      <FormulateSlot
+        name="file"
+        :context="context"
+        :file="file"
+        :image-preview="imagePreview"
+      >
+        <component
+          :is="context.slotComponents.file"
+          :context="context"
+          :file="file"
+          :image-preview="imagePreview"
         />
-        <div
-          v-if="file.progress !== false"
-          :data-just-finished="file.justFinished"
-          :data-is-finished="!file.justFinished && file.complete"
-          :class="context.classes.fileProgress"
-        >
-          <div
-            :class="context.classes.fileProgressInner"
-            :style="{width: file.progress + '%'}"
-          />
-        </div>
-        <div
-          v-if="(file.complete && !file.justFinished) || file.progress === false"
-          :class="context.classes.fileRemove"
-          @click="file.removeFile"
-        />
-      </div>
+      </FormulateSlot>
       <div
         v-if="file.error"
         :class="context.classes.fileUploadError"

@@ -64,6 +64,7 @@ describe('Formulate', () => {
     const components = [
       'FormulateSlot',
       'FormulateForm',
+      'FormulateFile',
       'FormulateHelp',
       'FormulateLabel',
       'FormulateInput',

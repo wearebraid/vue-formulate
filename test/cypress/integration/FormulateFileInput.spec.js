@@ -68,7 +68,7 @@ describe('FormulateFileInput', () => {
       .should('have.lengthOf', 0)
   })
 
-  it.only('It can hydrate a file input, and submit its value', () => {
+  it('It can hydrate a file input, and submit its value', () => {
     cy.formulate('file', {
       multiple: true,
       value: [
@@ -102,5 +102,51 @@ describe('FormulateFileInput', () => {
           name: 'super-example.pdf'
         }
       ])
+  })
+
+  it('Emits file-upload-progress and file-upload-complete events', () => {
+    const listeners = {
+      uploadProgress: () => {},
+      uploadComplete: () => {},
+    }
+    cy.spy(listeners, 'uploadProgress')
+    cy.spy(listeners, 'uploadComplete')
+    cy.formulate('file', {
+      multiple: true,
+      validation: 'mime:image/png,application/pdf',
+      uploadBehavior: 'delayed',
+      listeners: {
+        'file-upload-progress':  listeners.uploadProgress,
+        'file-upload-complete': listeners.uploadComplete,
+        'file-upload-error': listeners.uploadError
+      }
+    })
+      .find('input')
+      .attachFile('1x1.png', { force: true })
+      .attachFile('sample.pdf', { force: true })
+
+      cy.submittedValue()
+        .then(() => {
+          expect(listeners.uploadProgress).to.be.called
+          expect(listeners.uploadComplete).to.have.callCount(2)
+        })
+  })
+
+  it('Emits file-upload-error event', () => {
+    const listeners = {
+      uploadError: () => {},
+    }
+    cy.spy(listeners, 'uploadError')
+    cy.formulate('file', {
+      multiple: true,
+      validation: 'mime:application/pdf',
+      uploader: (file, progress, error) => { error('Unable to upload file') },
+      listeners: {
+        'file-upload-error':  listeners.uploadError,
+      }
+    })
+      .find('input')
+      .attachFile('sample.pdf', { force: true })
+      .then(() => expect(listeners.uploadError).to.be.called)
   })
 })

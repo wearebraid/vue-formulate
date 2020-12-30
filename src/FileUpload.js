@@ -143,12 +143,14 @@ class FileUpload {
           file.file,
           (progress) => {
             file.progress = progress
+            this.context.rootEmit('file-upload-progress', progress)
             if (progress >= 100) {
               if (!file.complete) {
                 file.justFinished = true
                 setTimeout(() => { file.justFinished = false }, this.options.uploadJustCompleteDuration)
               }
               file.complete = true
+              this.context.rootEmit('file-upload-complete', file)
             }
           },
           (error) => {
@@ -156,6 +158,7 @@ class FileUpload {
             file.error = error
             file.complete = true
             this.uploadPromise = null
+            this.context.rootEmit('file-upload-error', error)
             reject(error)
           },
           this.options
@@ -183,6 +186,7 @@ class FileUpload {
       this.results = this.results.filter(file => file && file.__id !== uuid)
     }
     this.context.performValidation()
+    const originalLength = this.fileList && this.fileList.length
     if (window && this.fileList instanceof FileList) {
       const transfer = new DataTransfer()
       this.files.map(file => transfer.items.add(file.file))
@@ -190,6 +194,9 @@ class FileUpload {
       this.input.files = this.fileList
     } else {
       this.fileList = this.fileList.filter(file => file && file.__id !== uuid)
+    }
+    if (originalLength > this.fileList.length) {
+      this.context.rootEmit('file-removed', this.fileList)
     }
   }
 

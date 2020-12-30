@@ -417,7 +417,8 @@ function slotComponents () {
     errors: fn(this.type, 'errors'),
     repeatable: fn(this.type, 'repeatable'),
     addMore: fn(this.type, 'addMore'),
-    remove: fn(this.type, 'remove')
+    remove: fn(this.type, 'remove'),
+    file: fn(this.type, 'file')
   }
 }
 

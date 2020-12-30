@@ -135,6 +135,20 @@ describe('FormulateInputFile', () => {
     expect(wrapper.vm.context.model.files).toHaveLength(0)
   })
 
+  it('allows overriding the file slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'file',
+        value: [ { url: 'https://via.placeholder.com/350x150.png' } ]
+      },
+      scopedSlots: {
+        file: '<span class="file-slot-override">FILE {{ props.file.name }} HERE</span>'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.file-slot-override').text()).toBe('FILE 350x150.png HERE')
+  })
+
   it('caches uploadPromise', async () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'image', value: [ { url: 'https://via.placeholder.com/350x150.png' } ] } })
     expect(wrapper.vm.context.model).toBeInstanceOf(FileUpload)
@@ -142,6 +156,22 @@ describe('FormulateInputFile', () => {
     expect(wrapper.vm.context.model.upload()).toEqual(wrapper.vm.context.model.uploadPromise)
     await flushPromises()
     expect(wrapper.vm.context.model.uploadPromise).toBeNull();
+  })
+
+  it('emits a @file-removed event', async () => {
+    const callback = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'file',
+        value: [ { url: 'https://via.placeholder.com/350x150.png'} ]
+      },
+      listeners: {
+        'file-removed': callback
+      }
+    })
+    wrapper.find('.formulate-file-remove').trigger('click')
+    await flushPromises()
+    expect(callback).toHaveBeenCalled()
   })
 
   /**

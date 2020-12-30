@@ -16,6 +16,7 @@
             :is="test.component"
             v-model="provingGroundValue"
             v-bind="test.props"
+            v-on="test.props.listeners || {}"
           />
         </div>
         <pre class="proving-ground-values">{{ provingGroundValue }}</pre>
