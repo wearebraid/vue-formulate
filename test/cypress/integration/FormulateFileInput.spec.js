@@ -147,6 +147,7 @@ describe('FormulateFileInput', () => {
     })
       .find('input')
       .attachFile('sample.pdf', { force: true })
+      .wait(100) // simulate $nextTick()
       .then(() => expect(listeners.uploadError).to.be.called)
   })
 })
