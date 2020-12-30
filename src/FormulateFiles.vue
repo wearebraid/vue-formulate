@@ -28,10 +28,24 @@
         v-text="file.error"
       />
     </li>
+    <li
+      v-if="isMultiple"
+      :class="context.classes.fileAdd"
+    >
+      + Add File
+      <input
+        ref="addFiles"
+        type="file"
+        multiple
+        :class="context.classes.fileAddInput"
+        @change="appendFiles"
+      >
+    </li>
   </ul>
 </template>
 
 <script>
+import { has } from './libs/utils'
 import FileUpload from './FileUpload'
 
 export default {
@@ -53,6 +67,9 @@ export default {
   computed: {
     fileUploads () {
       return this.files.files || []
+    },
+    isMultiple () {
+      return has(this.context.attributes, 'multiple')
     }
   },
   watch: {
@@ -65,6 +82,14 @@ export default {
   mounted () {
     if (this.imagePreview) {
       this.files.loadPreviews()
+    }
+  },
+  methods: {
+    appendFiles () {
+      const input = this.$refs.addFiles
+      if (input.files.length) {
+        this.files.mergeFileList(input)
+      }
     }
   }
 }

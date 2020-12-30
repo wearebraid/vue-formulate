@@ -579,6 +579,24 @@
       margin: 0;
       padding: 0;
 
+      .formulate-file-add {
+        display: block;
+        width: 75px;
+        border: 1px solid $formulate-green;
+        color: $formulate-green;
+        padding: 5px;
+        border-radius: 5px;
+        text-align: center;
+        position: relative;
+        font-size: 13px;
+        cursor: pointer;
+
+        input {
+          position: absolute;
+          display: block;
+        }
+      }
+
       .formulate-file-progress {
         background-color: $formulate-gray-d;
         height: .3em;

@@ -24,6 +24,8 @@ export const classKeys = [
   'files',
   'file',
   'fileName',
+  'fileAdd',
+  'fileAddInput',
   'fileRemove',
   'fileProgress',
   'fileUploadError',

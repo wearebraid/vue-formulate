@@ -201,6 +201,25 @@ class FileUpload {
   }
 
   /**
+   * Given another input element, add the files from that FileList to the
+   * input being represented by this FileUpload.
+   *
+   * @param {HTMLElement} input
+   */
+  mergeFileList (input) {
+    this.addFileList(input.files)
+    // Create a new mutable FileList
+    const transfer = new DataTransfer()
+    this.files.forEach(file => transfer.items.add(file.file))
+    this.fileList = transfer.files
+    this.input.files = this.fileList
+    // Reset the merged FileList to empty
+    input.files = (new DataTransfer()).files
+    this.context.performValidation()
+    this.loadPreviews()
+  }
+
+  /**
    * load image previews for all uploads.
    */
   loadPreviews () {
