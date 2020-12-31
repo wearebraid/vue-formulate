@@ -129,10 +129,22 @@ class FileUpload {
    * Perform the file upload.
    */
   upload () {
-    if (this.uploadPromise) {
-      return this.uploadPromise
-    }
-    this.uploadPromise = new Promise((resolve, reject) => {
+    // If someone calls upload() when an upload is already in process or there
+    // already was an upload completed, chain the upload request to the
+    // existing one. Already uploaded files wont re-upload and it ensures any
+    // files that were added after the initial list are completed too.
+    this.uploadPromise = this.uploadPromise
+      ? this.uploadPromise.then(() => this.__performUpload())
+      : this.__performUpload()
+    return this.uploadPromise
+  }
+
+  /**
+   * Perform the actual upload event. Intended to be a private method that is
+   * only called through the upload() function as chaining utility.
+   */
+  __performUpload () {
+    return new Promise((resolve, reject) => {
       if (!this.hasUploader()) {
         return reject(new Error('No uploader has been defined'))
       }
@@ -157,7 +169,6 @@ class FileUpload {
             file.progress = 0
             file.error = error
             file.complete = true
-            this.uploadPromise = null
             this.context.rootEmit('file-upload-error', error)
             reject(error)
           },
@@ -168,12 +179,10 @@ class FileUpload {
           this.results = this.mapUUID(results)
           resolve(results)
         })
-        .catch(err => { throw new Error(err) })
-        .finally(() => {
-          this.uploadPromise = null
+        .catch(err => {
+          throw new Error(err)
         })
     })
-    return this.uploadPromise
   }
 
   /**
@@ -217,6 +226,9 @@ class FileUpload {
     input.files = (new DataTransfer()).files
     this.context.performValidation()
     this.loadPreviews()
+    if (this.context.uploadBehavior !== 'delayed') {
+      this.upload()
+    }
   }
 
   /**

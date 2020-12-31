@@ -1,4 +1,4 @@
-import { map, arrayify, shallowEqualObjects, isEmpty, camel, has, extractAttributes } from './utils'
+import { map, arrayify, shallowEqualObjects, isEmpty, camel, has, extractAttributes, cap } from './utils'
 import { classProps } from './classes'
 
 /**
@@ -92,6 +92,9 @@ export default {
  * The label to display when adding a new group.
  */
 function logicalAddLabel () {
+  if (this.classification === 'file') {
+    return this.addLabel === true ? `+ Add ${cap(this.type)}` : this.addLabel
+  }
   if (typeof this.addLabel === 'boolean') {
     return `+ ${this.label || this.name || 'Add'}`
   }

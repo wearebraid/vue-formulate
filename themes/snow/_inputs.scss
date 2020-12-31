@@ -580,8 +580,9 @@
       padding: 0;
 
       .formulate-file-add {
+        appearance: none;
         display: block;
-        width: 75px;
+        min-width: 75px;
         border: 1px solid $formulate-green;
         color: $formulate-green;
         padding: 5px;
@@ -589,11 +590,18 @@
         text-align: center;
         position: relative;
         font-size: 13px;
+        background-color: transparent;
         cursor: pointer;
+        margin: .5em 0;
 
         input {
           position: absolute;
           display: block;
+          cursor: pointer;
+
+          &::-webkit-file-upload-button {
+            display: none;
+          }
         }
       }
 

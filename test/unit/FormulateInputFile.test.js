@@ -155,7 +155,7 @@ describe('FormulateInputFile', () => {
     expect(wrapper.vm.context.model.upload()).toBeInstanceOf(Promise)
     expect(wrapper.vm.context.model.upload()).toEqual(wrapper.vm.context.model.uploadPromise)
     await flushPromises()
-    expect(wrapper.vm.context.model.uploadPromise).toBeNull();
+    expect(wrapper.vm.context.model.uploadPromise).toBeInstanceOf(Promise);
   })
 
   it('emits a @file-removed event', async () => {

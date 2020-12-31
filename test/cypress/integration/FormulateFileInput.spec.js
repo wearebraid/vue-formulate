@@ -150,4 +150,42 @@ describe('FormulateFileInput', () => {
       .wait(100) // simulate $nextTick()
       .then(() => expect(listeners.uploadError).to.be.called)
   })
+
+  it('Can add additional files to the input', () => {
+    cy.formulate('file', {
+      multiple: true,
+      addLabel: '+ Add another file',
+    })
+
+    cy.get('.formulate-file-add')
+    .should('not.exist')
+
+    cy.get('@wrapper')
+      .find('input')
+      .attachFile('sample.pdf', { force: true })
+
+    cy.get('@wrapper')
+      .find('.formulate-file-add')
+      .shouldHaveTrimmedText('+ Add another file')
+
+    cy.get('@wrapper')
+      .find('.formulate-file-add-input')
+      .attachFile('1x1.png', { force: true })
+
+    cy.get('@wrapper')
+      .find('.formulate-files li')
+      .should('have.lengthOf', 2)
+
+    cy.submittedValue()
+    .should('eql', [
+      {
+        url: 'http://via.placeholder.com/350x150.png',
+        name: 'sample.pdf'
+      },
+      {
+        url: 'http://via.placeholder.com/350x150.png',
+        name: '1x1.png'
+      }
+    ])
+  })
 })

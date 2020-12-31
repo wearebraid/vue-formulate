@@ -28,11 +28,11 @@
         v-text="file.error"
       />
     </li>
-    <li
-      v-if="isMultiple"
+    <button
+      v-if="isMultiple && context.addLabel"
       :class="context.classes.fileAdd"
     >
-      + Add File
+      {{ context.addLabel }}
       <input
         ref="addFiles"
         type="file"
@@ -40,7 +40,7 @@
         :class="context.classes.fileAddInput"
         @change="appendFiles"
       >
-    </li>
+    </button>
   </ul>
 </template>
 

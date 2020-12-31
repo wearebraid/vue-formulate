@@ -250,7 +250,7 @@ export default {
     },
     addLabel: {
       type: [Boolean, String],
-      default: false
+      default: true
     },
     removeLabel: {
       type: [Boolean, String],

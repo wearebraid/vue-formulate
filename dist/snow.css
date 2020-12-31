@@ -438,6 +438,26 @@
     list-style-type: none;
     margin: 0;
     padding: 0; }
+    .formulate-input[data-classification="file"] .formulate-files .formulate-file-add {
+      appearance: none;
+      display: block;
+      min-width: 75px;
+      border: 1px solid #41b883;
+      color: #41b883;
+      padding: 5px;
+      border-radius: 5px;
+      text-align: center;
+      position: relative;
+      font-size: 13px;
+      background-color: transparent;
+      cursor: pointer;
+      margin: .5em 0; }
+      .formulate-input[data-classification="file"] .formulate-files .formulate-file-add input {
+        position: absolute;
+        display: block;
+        cursor: pointer; }
+        .formulate-input[data-classification="file"] .formulate-files .formulate-file-add input::-webkit-file-upload-button {
+          display: none; }
     .formulate-input[data-classification="file"] .formulate-files .formulate-file-progress {
       background-color: #cecece;
       height: .3em;
