@@ -38,7 +38,7 @@ class FileUpload {
       const ext = (url && url.lastIndexOf('.') !== -1) ? url.substr(url.lastIndexOf('.') + 1) : false
       const mime = this.options.mimes[ext] || false
       fileList.push(Object.assign({}, item, url ? {
-        name: url.substr((url.lastIndexOf('/') + 1) || 0),
+        name: item.name || url.substr((url.lastIndexOf('/') + 1) || 0),
         type: item.type ? item.type : mime,
         previewData: url
       } : {}))

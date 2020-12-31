@@ -188,4 +188,19 @@ describe('FormulateFileInput', () => {
       }
     ])
   })
+
+  it.only('Can use the name property for hydrated name value', () => {
+    cy.formulate('file', {
+      value: [
+        {
+          url: '/uploads/private-filename.pdf',
+          name: 'public-filename.pdf'
+        }
+      ]
+    })
+    cy.get('@wrapper')
+      .find('.formulate-file-name')
+      .first()
+      .shouldHaveTrimmedText('public-filename.pdf')
+  })
 })
