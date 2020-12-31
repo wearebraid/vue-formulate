@@ -415,13 +415,14 @@ function hasVisibleErrors () {
 function slotComponents () {
   const fn = this.$formulate.slotComponent.bind(this.$formulate)
   return {
-    label: fn(this.type, 'label'),
-    help: fn(this.type, 'help'),
-    errors: fn(this.type, 'errors'),
-    repeatable: fn(this.type, 'repeatable'),
     addMore: fn(this.type, 'addMore'),
+    errors: fn(this.type, 'errors'),
+    file: fn(this.type, 'file'),
+    help: fn(this.type, 'help'),
+    label: fn(this.type, 'label'),
     remove: fn(this.type, 'remove'),
-    file: fn(this.type, 'file')
+    repeatable: fn(this.type, 'repeatable'),
+    uploadAreaMask: fn(this.type, 'uploadAreaMask')
   }
 }
 

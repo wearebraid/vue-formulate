@@ -19,10 +19,18 @@
         @dragover="handleDragOver"
         @dragleave="handleDragLeave"
       >
-      <div
-        v-show="!hasFiles"
-        :class="context.classes.uploadAreaMask"
-      />
+      <FormulateSlot
+        name="uploadAreaMask"
+        :context="context"
+        :has-files="hasFiles"
+      >
+        <component
+          :is="context.slotComponents.uploadAreaMask"
+          v-show="hasFiles"
+          :has-files="hasFiles"
+          :class="context.classes.uploadAreaMask"
+        />
+      </FormulateSlot>
       <FormulateFiles
         v-if="hasFiles"
         :files="context.model"

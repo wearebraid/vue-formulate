@@ -69,7 +69,8 @@ class Formulate {
         help: 'FormulateHelp',
         label: 'FormulateLabel',
         remove: 'FormulateRepeatableRemove',
-        repeatable: 'FormulateRepeatable'
+        repeatable: 'FormulateRepeatable',
+        uploadAreaMask: 'div'
       },
       slotProps: {},
       library,

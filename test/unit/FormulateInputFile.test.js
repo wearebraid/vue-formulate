@@ -149,6 +149,19 @@ describe('FormulateInputFile', () => {
     expect(wrapper.find('.file-slot-override').text()).toBe('FILE 350x150.png HERE')
   })
 
+  it('allows overriding the uploadAreaMask slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'file'
+      },
+      scopedSlots: {
+        uploadAreaMask: '<span class="dropzone-here">CHECKOUT THIS DROPZONE! hasFiles: {{ props.hasFiles }}</span>'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.dropzone-here').text()).toBe('CHECKOUT THIS DROPZONE! hasFiles: false')
+  })
+
   it('caches uploadPromise', async () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'image', value: [ { url: 'https://via.placeholder.com/350x150.png' } ] } })
     expect(wrapper.vm.context.model).toBeInstanceOf(FileUpload)
