@@ -26,8 +26,9 @@
       >
         <component
           :is="context.slotComponents.uploadAreaMask"
-          v-show="hasFiles"
-          :has-files="hasFiles"
+          v-show="!hasFiles"
+          :has-files="context.slotComponents.uploadAreaMask === 'div' ? false : hasFiles"
+          :data-has-files="context.slotComponents.uploadAreaMask === 'div' ? hasFiles : false"
           :class="context.classes.uploadAreaMask"
         />
       </FormulateSlot>
