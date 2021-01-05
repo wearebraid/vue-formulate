@@ -189,7 +189,7 @@ describe('FormulateFileInput', () => {
     ])
   })
 
-  it.only('Can use the name property for hydrated name value', () => {
+  it('Can use the name property for hydrated name value', () => {
     cy.formulate('file', {
       value: [
         {

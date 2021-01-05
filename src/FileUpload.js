@@ -11,13 +11,20 @@ class FileUpload {
    * @param {FileList} fileList
    * @param {object} context
    */
-  constructor (input, context, options = {}) {
+  constructor (input, context, globalOptions = {}) {
     this.input = input
     this.fileList = input.files
     this.files = []
-    this.options = { ...{ mimes: {} }, ...options }
+    this.options = {
+      ...{ mimes: {} },
+      ...globalOptions
+    }
     this.results = false
     this.context = context
+    this.dataTransferCheck()
+    if (context && context.uploadUrl) {
+      this.options.uploadUrl = context.uploadUrl
+    }
     this.uploadPromise = null
     if (Array.isArray(this.fileList)) {
       this.rehydrateFileList(this.fileList)
@@ -190,22 +197,22 @@ class FileUpload {
    * @param {string} uuid
    */
   removeFile (uuid) {
+    const originalLength = this.files.length
     this.files = this.files.filter(file => file && file.uuid !== uuid)
     if (Array.isArray(this.results)) {
       this.results = this.results.filter(file => file && file.__id !== uuid)
     }
     this.context.performValidation()
-    const originalLength = this.fileList && this.fileList.length
-    if (window && this.fileList instanceof FileList) {
+    if (window && this.fileList instanceof FileList && this.supportsDataTransfers) {
       const transfer = new DataTransfer()
-      this.files.map(file => transfer.items.add(file.file))
+      this.files.forEach(file => transfer.items.add(file.file))
       this.fileList = transfer.files
       this.input.files = this.fileList
     } else {
       this.fileList = this.fileList.filter(file => file && file.__id !== uuid)
     }
-    if (originalLength > this.fileList.length) {
-      this.context.rootEmit('file-removed', this.fileList)
+    if (originalLength > this.files.length) {
+      this.context.rootEmit('file-removed', this.files)
     }
   }
 
@@ -218,12 +225,14 @@ class FileUpload {
   mergeFileList (input) {
     this.addFileList(input.files)
     // Create a new mutable FileList
-    const transfer = new DataTransfer()
-    this.files.forEach(file => transfer.items.add(file.file))
-    this.fileList = transfer.files
-    this.input.files = this.fileList
-    // Reset the merged FileList to empty
-    input.files = (new DataTransfer()).files
+    if (this.supportsDataTransfers) {
+      const transfer = new DataTransfer()
+      this.files.forEach(file => transfer.items.add(file.file))
+      this.fileList = transfer.files
+      this.input.files = this.fileList
+      // Reset the merged FileList to empty
+      input.files = (new DataTransfer()).files
+    }
     this.context.performValidation()
     this.loadPreviews()
     if (this.context.uploadBehavior !== 'delayed') {
@@ -245,10 +254,15 @@ class FileUpload {
   }
 
   /**
-   * Get the files.
+   * Check if the current browser supports the DataTransfer constructor.
    */
-  getFileList () {
-    return this.fileList
+  dataTransferCheck () {
+    try {
+      new DataTransfer() // eslint-disable-line
+      this.supportsDataTransfers = true
+    } catch (err) {
+      this.supportsDataTransfers = false
+    }
   }
 
   /**
