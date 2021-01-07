@@ -31,15 +31,25 @@ class Registry {
    * @param {string} name
    */
   remove (name) {
+    // Clean up dependent validations
     this.ctx.deps.delete(this.registry.get(name))
     this.ctx.deps.forEach(dependents => dependents.delete(name))
-    const cleanUp = this.ctx.keepModelData ? false : (this.registry.has(name) ? !this.registry.get(name).keepModelData : true)
+
+    // Determine if we're keep the model data or destroying it
+    let keepData = this.ctx.keepModelData
+    if (!keepData && this.registry.has(name) && this.registry.get(name).keepModelData !== 'inherit') {
+      keepData = this.registry.get(name).keepModelData
+    }
+    if (this.ctx.preventCleanup) {
+      keepData = true
+    }
+
     this.registry.delete(name)
     const { [name]: trash, ...errorValues } = this.errors
     this.errors = errorValues
 
-    // Clean up if the component being removed does not have `keepModelData`
-    if (cleanUp) {
+    // Clean up the model if we don't explicitly state otherwise
+    if (!keepData) {
       const { [name]: value, ...newProxy } = this.ctx.proxy
       if (this.ctx.uuid) {
         // If the registry context has a uuid (row.__id) be sure to include it in
@@ -155,7 +165,8 @@ class Registry {
       register: this.register.bind(this),
       deregister: field => this.remove(field),
       childrenShouldShowErrors: false,
-      deps: new Map()
+      deps: new Map(),
+      preventCleanup: false
     }
   }
 }
@@ -193,13 +204,13 @@ export function useRegistryComputed () {
         typeof this.formulateValue === 'object'
       ) {
         // If there is a v-model on the form/group, use those values as first priority
-        return Object.assign({}, this.formulateValue) // @todo - use a deep clone to detach reference types
+        return { ...this.formulateValue } // @todo - use a deep clone to detach reference types?
       } else if (
         has(this.$options.propsData, 'values') &&
         typeof this.values === 'object'
       ) {
         // If there are values, use them as secondary priority
-        return Object.assign({}, this.values)
+        return { ...this.values }
       } else if (
         this.isGrouping && typeof this.context.model[this.index] === 'object'
       ) {
@@ -303,7 +314,10 @@ export function useRegistryProviders (ctx, without = []) {
     formulateRegister: ctx.register,
     formulateDeregister: ctx.deregister,
     formulateFieldValidation: ctx.updateValidation,
+    // Provided on forms only to let getFormValues to fall back to form
     getFormValues: ctx.valueDeps,
+    // Provided on groups only to expose group-level items
+    getGroupValues: ctx.valueDeps,
     validateDependents: ctx.validateDeps
   }
   const p = Object.keys(providers)

@@ -9,11 +9,10 @@
       v-for="(item, index) in items"
       :key="item.__id"
       :index="index"
-      :set-field-value="(field, value) => setFieldValue(index, field, value)"
       :context="context"
       :uuid="item.__id"
       @remove="removeItem"
-      @input="setItem"
+      @input="(values) => setItem(index, values)"
     >
       <slot />
     </FormulateRepeatableProvider>
@@ -21,7 +20,7 @@
 </template>
 
 <script>
-import { setId, shallowEqualObjects } from './libs/utils'
+import { setId } from './libs/utils'
 
 export default {
   name: 'FormulateGrouping',
@@ -78,23 +77,6 @@ export default {
     this.formulateRemoveRule('formulateGrouping')
   },
   methods: {
-    getAtIndex (index) {
-      if (typeof this.context.model[index] !== 'undefined' && this.context.model[index].__id) {
-        return this.context.model[index]
-      } else if (typeof this.context.model[index] !== 'undefined') {
-        return setId(this.context.model[index])
-      } else if (typeof this.context.model[index] === 'undefined' && typeof this.items[index] !== 'undefined') {
-        return setId({}, this.items[index].__id)
-      }
-      return setId({})
-    },
-    setFieldValue (index, field, value) {
-      const values = Array.isArray(this.context.model) ? this.context.model : []
-      const previous = this.getAtIndex(index)
-      const updated = setId(Object.assign({}, previous, { [field]: value }), previous.__id)
-      values.splice(index, 1, updated)
-      this.context.model = values
-    },
     validateGroup () {
       return Promise.all(this.providers.reduce((resolvers, provider) => {
         if (provider && typeof provider.hasValidationErrors === 'function') {
@@ -106,20 +88,16 @@ export default {
     showErrors () {
       this.providers.forEach(p => p && typeof p.showErrors === 'function' && p.showErrors())
     },
-    setItem (value) {
+    setItem (index, groupProxy) {
       // Note: value must have an __id to use this function
-      const values = Array.isArray(this.context.model) ? this.context.model : []
-      const index = values.findIndex(row => row.__id === value.__id)
-      if (index > -1 && !shallowEqualObjects(values[index], value)) {
-        values.splice(index, 1, value)
-        this.context.model = values
-      }
+      const values = Array.isArray(this.context.model) ? this.context.model : this.items
+      this.context.model = values.map((item, i) => i === index ? setId(groupProxy, values[index].__id) : item)
     },
     removeItem (index) {
       if (Array.isArray(this.context.model) && this.context.model.length > this.context.minimum) {
         // In this context we actually have data
-        this.context.model.splice(index, 1)
-      } else if (this.items.length > this.context.minimum) {
+        this.context.model = this.context.model.filter((item, i) => i === index ? false : item)
+      } else if (!Array.isArray(this.context.model) && this.items.length > this.context.minimum) {
         // In this context the fields have never been touched (not "dirty")
         this.context.model = (new Array(this.items.length - 1)).fill('').map(() => setId({}))
       }

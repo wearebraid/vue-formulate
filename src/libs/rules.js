@@ -81,14 +81,14 @@ export default {
    * Confirm that the value of one field is the same as another, mostly used
    * for password confirmations.
    */
-  confirm: function ({ value, getFormValues, name }, field) {
+  confirm: function ({ value, getGroupValues, name }, field) {
     return Promise.resolve((() => {
-      const formValues = getFormValues()
+      const values = getGroupValues()
       var confirmationFieldName = field
       if (!confirmationFieldName) {
         confirmationFieldName = /_confirm$/.test(name) ? name.substr(0, name.length - 8) : `${name}_confirm`
       }
-      return formValues[confirmationFieldName] === value
+      return values[confirmationFieldName] === value
     })())
   },
 

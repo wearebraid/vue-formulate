@@ -105,6 +105,7 @@ export default {
     formulateRegister: { default: undefined },
     formulateDeregister: { default: undefined },
     getFormValues: { default: () => () => ({}) },
+    getGroupValues: { default: undefined },
     validateDependents: { default: () => () => {} },
     observeErrors: { default: undefined },
     removeErrorObserver: { default: undefined },
@@ -257,8 +258,8 @@ export default {
       default: false
     },
     keepModelData: {
-      type: Boolean,
-      default: false
+      type: [Boolean, String],
+      default: 'inherit'
     },
     ignored: {
       type: [Boolean, String],
@@ -420,6 +421,7 @@ export default {
         var res = rule({
           value: this.context.model,
           getFormValues: (...args) => this.getFormValues(this, ...args),
+          getGroupValues: (...args) => this[`get${this.getGroupValues ? 'Group' : 'Form'}Values`](this, ...args),
           name: this.context.name
         }, ...args)
         res = (res instanceof Promise) ? res : Promise.resolve(res)
@@ -479,7 +481,8 @@ export default {
         value: this.context.model,
         vm: this,
         formValues: this.getFormValues(this),
-        getFormValues: (...args) => this.getFormValues(this, ...args)
+        getFormValues: (...args) => this.getFormValues(this, ...args),
+        getGroupValues: (...args) => this[`get${this.getGroupValues ? 'Group' : 'Form'}Values`](this, ...args)
       })
     },
     getMessageFunc (ruleName) {

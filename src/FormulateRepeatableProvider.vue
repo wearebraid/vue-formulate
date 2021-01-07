@@ -28,7 +28,7 @@ export default {
   provide () {
     return {
       ...useRegistryProviders(this, ['getFormValues']),
-      formulateSetter: (field, value) => this.setFieldValue(field, value)
+      formulateSetter: (field, value) => this.setGroupValue(field, value)
     }
   },
   inject: {
@@ -42,10 +42,6 @@ export default {
     },
     context: {
       type: Object,
-      required: true
-    },
-    setFieldValue: {
-      type: Function,
       required: true
     },
     uuid: {
@@ -66,10 +62,15 @@ export default {
     this.registerProvider(this)
   },
   beforeDestroy () {
+    this.preventCleanup = true
     this.deregisterProvider(this)
   },
   methods: {
-    ...useRegistryMethods(['setFieldValue']),
+    ...useRegistryMethods(),
+    setGroupValue (field, value) {
+      this.setFieldValue(field, value)
+      this.$emit('input', this.proxy)
+    },
     removeItem () {
       this.$emit('remove', this.index)
     }

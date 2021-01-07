@@ -103,27 +103,33 @@ describe('FormulateInputGroup', () => {
     expect(fields.at(2).element.value).toBe('jim@example.com')
   })
 
-  it('v-modeling a subfield updates group v-model value', async () => {
-    const wrapper = mount({
-      template: `
-        <FormulateInput
-          v-model="users"
-          type="group"
-        >
-          <FormulateInput type="text" v-model="email" name="email" />
-          <FormulateInput type="text" name="name" />
-        </FormulateInput>
-      `,
-      data () {
-        return {
-          users: [{email: 'jon@example.com'}, {email:'jane@example.com'}],
-          email: 'jim@example.com'
-        }
-      }
-    })
-    await flushPromises()
-    expect(wrapper.vm.users).toEqual([{email: 'jim@example.com'}, {email:'jim@example.com'}])
-  })
+  /**
+   * As of 2.5.0 v-modeling a child of a group and a parent of that group at
+   * the same time is no longer strictly supported. Technically it should still
+   * work after the initial load, but never-used "feature" is a casualty of
+   * fixing other group issues.
+   */
+  // it('v-modeling a subfield updates group v-model value', async () => {
+  //   const wrapper = mount({
+  //     template: `
+  //       <FormulateInput
+  //         v-model="users"
+  //         type="group"
+  //       >
+  //         <FormulateInput type="text" v-model="email" name="email" />
+  //         <FormulateInput type="text" name="name" />
+  //       </FormulateInput>
+  //     `,
+  //     data () {
+  //       return {
+  //         users: [{email: 'jon@example.com'}, {email:'jane@example.com'}],
+  //         email: 'jim@example.com'
+  //       }
+  //     }
+  //   })
+  //   await flushPromises()
+  //   expect(wrapper.vm.users).toEqual([{email: 'jim@example.com'}, {email:'jim@example.com'}])
+  // })
 
   it('prevents form submission when children have validation errors', async () => {
     const submit = jest.fn()
@@ -726,5 +732,23 @@ describe('FormulateInputGroup', () => {
       }
     })
     expect(wrapper.findAll('.formulate-input + .formulate-input-group-repeatable-remove').length).toBe(1)
+  })
+
+  it('scopes to the confirm rule to only the current group inputs.', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'passwords',
+        type: 'group'
+      },
+      slots: {
+        default: `
+          <div>
+            <FormulateInput type="password" name="password" error-behavior="live" validation="required" value="abc" />
+            <FormulateInput type="password" name="password_confirm" error-behavior="live" validation="confirm" value="abc" />
+          </div>`
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
   })
 })

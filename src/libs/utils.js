@@ -305,7 +305,10 @@ export function has (ctx, prop) {
  * @param {Symbol} id
  */
 export function setId (o, id) {
-  return Object.defineProperty(o, '__id', Object.assign(Object.create(null), { value: id || nanoid(9) }))
+  if (!has(o, '__id')) {
+    return Object.defineProperty(o, '__id', Object.assign(Object.create(null), { value: id || nanoid(9) }))
+  }
+  return o
 }
 
 /**

@@ -27,7 +27,7 @@ export default {
   inheritAttrs: false,
   provide () {
     return {
-      ...useRegistryProviders(this),
+      ...useRegistryProviders(this, ['getGroupValues']),
       observeErrors: this.addErrorObserver,
       removeErrorObserver: this.removeErrorObserver,
       observeContext: this.addContextObserver,
@@ -64,7 +64,7 @@ export default {
       default: false
     },
     keepModelData: {
-      type: Boolean,
+      type: [Boolean, String],
       default: false
     },
     invalidMessage: {
