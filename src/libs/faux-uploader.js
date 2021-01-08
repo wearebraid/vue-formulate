@@ -8,7 +8,7 @@
  */
 export default function (file, progress, error, options) {
   return new Promise((resolve, reject) => {
-    const totalTime = (options.fauxUploaderDuration || 2000) * (0.5 + Math.random())
+    const totalTime = (options.fauxUploaderDuration || 1500) * (0.5 + Math.random())
     const start = performance.now()
 
     /**

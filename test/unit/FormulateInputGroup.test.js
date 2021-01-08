@@ -131,32 +131,32 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.vm.users).toEqual([{email: 'jim@example.com'}, {email:'jim@example.com'}])
   })
 
-  // it('Can sync values across two different groups', async () => {
-  //     const wrapper = mount({
-  //       template: `
-  //         <div>
-  //           <FormulateInput
-  //             v-model="names"
-  //             type="group"
-  //           >
-  //             <FormulateInput
-  //               type="text"
-  //               name="name"
-  //             />
-  //           </FormulateInput>
-  //         </div>
-  //       `,
-  //       data () {
-  //         return {
-  //           names: [{ name: 'Justin' }]
-  //         }
-  //       }
-  //     })
-  //     await flushPromises()
-  //     wrapper.find('input').setValue('Tom')
-  //     await flushPromises()
-  //     expect(wrapper.findAll('input').map(input => input.value)).toEqual(['Tom', 'Tom'])
-  // })
+  it('Can sync values across two different groups', async () => {
+      const wrapper = mount({
+        template: `
+          <div>
+            <FormulateInput
+              v-model="names"
+              type="group"
+            >
+              <FormulateInput
+                type="text"
+                name="name"
+              />
+            </FormulateInput>
+          </div>
+        `,
+        data () {
+          return {
+            names: [{ name: 'Justin' }]
+          }
+        }
+      })
+      await flushPromises()
+      wrapper.find('input').setValue('Tom')
+      await flushPromises()
+      expect(wrapper.findAll('input').map(input => input.value)).toEqual(['Tom', 'Tom'])
+  })
 
   it('prevents form submission when children have validation errors', async () => {
     const submit = jest.fn()
