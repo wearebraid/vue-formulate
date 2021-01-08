@@ -28,14 +28,15 @@
     id="app"
     class="specimen-list"
   >
-    <SpecimenButton />
+    <Bug192 />
+    <!-- <SpecimenButton />
     <SpecimenBox />
     <SpecimenFile />
     <SpecimenGroup />
     <SpecimenSelect />
     <SpecimenSlider />
     <SpecimenText />
-    <SpecimenTextarea />
+    <SpecimenTextarea /> -->
   </div>
 </template>
 
@@ -50,10 +51,12 @@ import SpecimenButton from './specimens/SpecimenButton'
 import SpecimenBox from './specimens/SpecimenBox'
 import SpecimenSlider from './specimens/SpecimenSlider'
 import SpecimenSelect from './specimens/SpecimenSelect'
+import Bug192 from './Bug192'
 
 export default {
   name: 'App',
   components: {
+    Bug192,
     SpecimenButton,
     SpecimenBox,
     SpecimenText,

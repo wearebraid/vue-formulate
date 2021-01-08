@@ -1,4 +1,4 @@
-import { shallowEqualObjects, has, isEmpty, setId } from './utils'
+import { equals, has, isEmpty, setId } from './utils'
 
 /**
  * Component registry with inherent depth to handle complex nesting. This is
@@ -133,10 +133,10 @@ class Registry {
       component.context.model = this.ctx.initialValues[field]
     } else if (
       (hasVModelValue || hasValue) &&
-      !shallowEqualObjects(component.proxy, this.ctx.initialValues[field])
+      !equals(component.proxy, this.ctx.initialValues[field], true)
     ) {
       // In this case, the field is v-modeled or has an initial value and the
-      // form has no value or a different value, so use the field value
+      // registry has no value or a different value, so use the field value
       this.ctx.setFieldValue(field, component.proxy)
     }
     if (this.childrenShouldShowErrors) {
@@ -228,7 +228,7 @@ export function useRegistryMethods (without = []) {
   const methods = {
     applyInitialValues () {
       if (this.hasInitialValue) {
-        this.proxy = this.initialValues
+        this.proxy = { ...this.initialValues }
       }
     },
     setFieldValue (field, value) {
@@ -239,7 +239,7 @@ export function useRegistryMethods (without = []) {
       } else {
         Object.assign(this.proxy, { [field]: value })
       }
-      this.$emit('input', Object.assign({}, this.proxy))
+      this.$emit('input', { ...this.proxy })
     },
     valueDeps (callerCmp) {
       return Object.keys(this.proxy)
@@ -285,11 +285,12 @@ export function useRegistryMethods (without = []) {
       // Collect all keys, existing and incoming
       const keys = Array.from(new Set(Object.keys(values).concat(Object.keys(this.proxy))))
       keys.forEach(field => {
-        if (!shallowEqualObjects(values[field], this.proxy[field])) {
+        const input = this.registry.has(field) && this.registry.get(field)
+        if (input && !equals(input.proxy, values[field], true)) {
+          input.context.model = values[field]
+        }
+        if (!equals(values[field], this.proxy[field], true)) {
           this.setFieldValue(field, values[field])
-          if (this.registry.has(field) && !shallowEqualObjects(values[field], this.registry.get(field).proxy)) {
-            this.registry.get(field).context.model = values[field]
-          }
         }
       })
     },

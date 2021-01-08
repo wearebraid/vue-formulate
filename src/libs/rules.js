@@ -1,6 +1,6 @@
 import isUrl from 'is-url'
 import FileUpload from '../FileUpload'
-import { shallowEqualObjects, regexForFormat, isEmpty } from './utils'
+import { equals, regexForFormat, isEmpty } from './utils'
 
 /**
  * Library of rules
@@ -136,7 +136,7 @@ export default {
   in: function ({ value }, ...stack) {
     return Promise.resolve(stack.find(item => {
       if (typeof item === 'object') {
-        return shallowEqualObjects(item, value)
+        return equals(item, value)
       }
       return item === value
     }) !== undefined)
@@ -223,7 +223,7 @@ export default {
   not: function ({ value }, ...stack) {
     return Promise.resolve(stack.find(item => {
       if (typeof item === 'object') {
-        return shallowEqualObjects(item, value)
+        return equals(item, value)
       }
       return item === value
     }) === undefined)

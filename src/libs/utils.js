@@ -19,7 +19,7 @@ export function map (original, callback) {
  * @param {} objA
  * @param {*} objB
  */
-export function shallowEqualObjects (objA, objB) {
+export function equals (objA, objB, deep = false) {
   if (objA === objB) {
     return true
   }
@@ -40,8 +40,7 @@ export function shallowEqualObjects (objA, objB) {
 
   for (var i = 0; i < len; i++) {
     var key = aKeys[i]
-
-    if (objA[key] !== objB[key]) {
+    if ((!deep && objA[key] !== objB[key]) || (deep && !equals(objA[key], objB[key], deep))) {
       return false
     }
   }

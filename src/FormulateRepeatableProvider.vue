@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import { equals } from './libs/utils'
 import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
 
 export default {
@@ -58,7 +59,18 @@ export default {
   computed: {
     ...useRegistryComputed()
   },
+  watch: {
+    'context.model': {
+      handler (values) {
+        if (!equals(values[this.index], this.proxy, true)) {
+          this.setValues(values[this.index])
+        }
+      },
+      deep: true
+    }
+  },
   created () {
+    this.applyInitialValues()
     this.registerProvider(this)
   },
   beforeDestroy () {
@@ -68,8 +80,9 @@ export default {
   methods: {
     ...useRegistryMethods(),
     setGroupValue (field, value) {
-      this.setFieldValue(field, value)
-      this.$emit('input', this.proxy)
+      if (!equals(this.proxy[field], value, true)) {
+        this.setFieldValue(field, value)
+      }
     },
     removeItem () {
       this.$emit('remove', this.index)

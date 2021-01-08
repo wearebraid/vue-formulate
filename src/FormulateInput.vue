@@ -87,7 +87,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, camel, has, arrayify, groupBails, isEmpty } from './libs/utils'
+import { equals, parseRules, camel, has, arrayify, groupBails, isEmpty } from './libs/utils'
 
 export default {
   name: 'FormulateInput',
@@ -315,17 +315,23 @@ export default {
       },
       deep: true
     },
-    proxy (newValue, oldValue) {
-      this.performValidation()
-      if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
-        this.context.model = newValue
-      }
-      this.validateDependents(this)
+    proxy: {
+      handler: function (newValue, oldValue) {
+        this.performValidation()
+        if (!this.isVmodeled && !equals(newValue, oldValue, this.type === 'group')) {
+          this.context.model = newValue
+        }
+        this.validateDependents(this)
+      },
+      deep: true
     },
-    formulateValue (newValue, oldValue) {
-      if (this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
-        this.context.model = newValue
-      }
+    formulateValue: {
+      handler: function (newValue, oldValue) {
+        if (this.isVmodeled && !equals(newValue, oldValue, this.type === 'group')) {
+          this.context.model = newValue
+        }
+      },
+      deep: true
     },
     showValidationErrors: {
       handler (val) {
@@ -372,7 +378,7 @@ export default {
       // This should only be run immediately on created and ensures that the
       // proxy and the model are both the same before any additional registration.
       if (
-        !shallowEqualObjects(this.context.model, this.proxy) &&
+        !equals(this.context.model, this.proxy) &&
         // we dont' want to set the model if we are a sub-box of a multi-box field
         (has(this.$options.propsData, 'options') && this.classification === 'box')
       ) {
@@ -403,7 +409,7 @@ export default {
       }
     },
     updateLocalAttributes (value) {
-      if (!shallowEqualObjects(value, this.localAttributes)) {
+      if (!equals(value, this.localAttributes)) {
         this.localAttributes = value
       }
     },
@@ -464,7 +470,7 @@ export default {
       })
     },
     didValidate (messages) {
-      const validationChanged = !shallowEqualObjects(messages, this.validationErrors)
+      const validationChanged = !equals(messages, this.validationErrors)
       this.validationErrors = messages
       if (validationChanged) {
         const errorObject = this.getErrorObject()

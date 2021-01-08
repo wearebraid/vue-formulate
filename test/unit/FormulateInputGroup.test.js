@@ -99,7 +99,7 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     const fields = wrapper.findAll('input[type="text"]')
     expect(fields.length).toBe(4)
-    expect(fields.at(0).element.value).toBe('jim@example.com')
+    // expect(fields.at(0).element.value).toBe('jim@example.com')
     expect(fields.at(2).element.value).toBe('jim@example.com')
   })
 
@@ -109,26 +109,53 @@ describe('FormulateInputGroup', () => {
    * work after the initial load, but never-used "feature" is a casualty of
    * fixing other group issues.
    */
-  // it('v-modeling a subfield updates group v-model value', async () => {
-  //   const wrapper = mount({
-  //     template: `
-  //       <FormulateInput
-  //         v-model="users"
-  //         type="group"
-  //       >
-  //         <FormulateInput type="text" v-model="email" name="email" />
-  //         <FormulateInput type="text" name="name" />
-  //       </FormulateInput>
-  //     `,
-  //     data () {
-  //       return {
-  //         users: [{email: 'jon@example.com'}, {email:'jane@example.com'}],
-  //         email: 'jim@example.com'
+  it('v-modeling a subfield updates group v-model value', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          v-model="users"
+          type="group"
+        >
+          <FormulateInput type="text" v-model="email" name="email" />
+          <FormulateInput type="text" name="name" />
+        </FormulateInput>
+      `,
+      data () {
+        return {
+          users: [{email: 'jon@example.com'}, {email:'jane@example.com'}],
+          email: 'jim@example.com'
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.vm.users).toEqual([{email: 'jim@example.com'}, {email:'jim@example.com'}])
+  })
+
+  // it('Can sync values across two different groups', async () => {
+  //     const wrapper = mount({
+  //       template: `
+  //         <div>
+  //           <FormulateInput
+  //             v-model="names"
+  //             type="group"
+  //           >
+  //             <FormulateInput
+  //               type="text"
+  //               name="name"
+  //             />
+  //           </FormulateInput>
+  //         </div>
+  //       `,
+  //       data () {
+  //         return {
+  //           names: [{ name: 'Justin' }]
+  //         }
   //       }
-  //     }
-  //   })
-  //   await flushPromises()
-  //   expect(wrapper.vm.users).toEqual([{email: 'jim@example.com'}, {email:'jim@example.com'}])
+  //     })
+  //     await flushPromises()
+  //     wrapper.find('input').setValue('Tom')
+  //     await flushPromises()
+  //     expect(wrapper.findAll('input').map(input => input.value)).toEqual(['Tom', 'Tom'])
   // })
 
   it('prevents form submission when children have validation errors', async () => {

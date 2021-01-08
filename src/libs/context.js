@@ -1,4 +1,4 @@
-import { map, arrayify, shallowEqualObjects, isEmpty, camel, has, extractAttributes, cap } from './utils'
+import { map, arrayify, equals, isEmpty, camel, has, extractAttributes, cap } from './utils'
 import { classProps } from './classes'
 
 /**
@@ -96,7 +96,8 @@ function logicalAddLabel () {
     return this.addLabel === true ? `+ Add ${cap(this.type)}` : this.addLabel
   }
   if (typeof this.addLabel === 'boolean') {
-    return `+ ${this.label || this.name || 'Add'}`
+    const label = this.label || this.name
+    return `+ ${typeof label === 'string' ? label + ' ' : ''} Add`
   }
   return this.addLabel
 }
@@ -490,7 +491,7 @@ function modelGetter () {
  **/
 function modelSetter (value) {
   let didUpdate = false
-  if (!shallowEqualObjects(value, this.proxy)) {
+  if (!equals(value, this.proxy, this.type === 'group')) {
     this.proxy = value
     didUpdate = true
   }
