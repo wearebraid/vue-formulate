@@ -144,6 +144,15 @@ describe('FormulateInputGroup', () => {
                 name="name"
               />
             </FormulateInput>
+            <FormulateInput
+              v-model="names"
+              type="group"
+            >
+              <FormulateInput
+                type="text"
+                name="name"
+              />
+            </FormulateInput>
           </div>
         `,
         data () {
@@ -155,7 +164,7 @@ describe('FormulateInputGroup', () => {
       await flushPromises()
       wrapper.find('input').setValue('Tom')
       await flushPromises()
-      expect(wrapper.findAll('input').map(input => input.value)).toEqual(['Tom', 'Tom'])
+      expect(wrapper.findAll('input').wrappers.map(input => input.element.value)).toEqual(['Tom', 'Tom'])
   })
 
   it('prevents form submission when children have validation errors', async () => {
