@@ -849,4 +849,54 @@ describe('FormulateInputGroup', () => {
     // 5 - Invites group -> 1 -> email
     expect(inputs.at(5).find('.formulate-input-errors li').text()).toBe('Bill is not a real person')
   })
+
+  it('allows passing errors down into groups', async () => {
+    const removeListener = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'users',
+        type: 'group',
+        repeatable: true,
+        value: [{ username: 'mermaid', email: 'mermaid@wearebraid.com' }, { username: 'blah', email: 'blah@wearebraid.com' }],
+      },
+      listeners: {
+        'repeatableRemoved': removeListener
+      },
+      slots: {
+        default: `
+          <FormulateInput name="username" error-behavior="live" />
+          <FormulateInput name="email" error-behavior="live" />
+        `
+      }
+    })
+    await flushPromises()
+    wrapper.find('.formulate-input-group-repeatable-remove').trigger('click')
+    await flushPromises()
+    expect(removeListener.mock.calls.length).toBe(1)
+  })
+
+  it('allows passing errors down into groups', async () => {
+    const addListener = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'users',
+        type: 'group',
+        repeatable: true,
+        value: [{}],
+      },
+      listeners: {
+        'repeatableAdded': addListener
+      },
+      slots: {
+        default: `
+          <FormulateInput name="username" error-behavior="live" />
+          <FormulateInput name="email" error-behavior="live" />
+        `
+      }
+    })
+    await flushPromises()
+    wrapper.find('.formulate-input-group-add-more button').trigger('click')
+    await flushPromises()
+    expect(addListener.mock.calls.length).toBe(1)
+  })
 })

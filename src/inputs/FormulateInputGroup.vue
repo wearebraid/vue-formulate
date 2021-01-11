@@ -104,9 +104,11 @@ export default {
   methods: {
     addItem () {
       if (Array.isArray(this.context.model)) {
-        return this.context.model.push(setId({}))
+        this.context.model.push(setId({}))
+      } else {
+        this.context.model = (new Array(this.totalItems + 1)).fill('').map(() => setId({}))
       }
-      this.context.model = (new Array(this.totalItems + 1)).fill('').map(() => setId({}))
+      this.context.rootEmit('repeatableAdded', this.context.model)
     },
     groupItemContext (context, option, groupAttributes) {
       const optionAttributes = { isGrouped: true }
