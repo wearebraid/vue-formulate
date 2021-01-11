@@ -395,9 +395,10 @@ export default {
       if (
         !equals(this.context.model, this.proxy) &&
         // we dont' want to set the model if we are a sub-box of a multi-box field
-        (has(this.$options.propsData, 'options') && this.classification === 'box')
+        (this.classification !== 'box' || has(this.$options.propsData, 'options'))
       ) {
         this.context.model = this.proxy
+        this.$emit('input', this.proxy)
       }
     },
     applyDefaultValue () {

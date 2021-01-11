@@ -930,4 +930,20 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-errors li').text()).toBe('Some text is required.')
     resetInstance()
   })
+
+  it('sets the field based on the value over the v-model when both are set', async () => {
+    const wrapper = mount({
+      template: `<FormulateInput
+        value="abc"
+        v-model="modelValue"
+      />`,
+      data () {
+        return {
+          modelValue: '123'
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('input').element.value).toBe('abc')
+  })
 })
