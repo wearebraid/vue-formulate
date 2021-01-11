@@ -788,23 +788,65 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
   })
 
-  // it('allows passing errors down into groups', async () => {
-  //   const wrapper = mount(FormulateInput, {
-  //     propsData: {
-  //       name: 'users',
-  //       type: 'group',
-  //       value: [{ username: 'mermaid', email: 'mermaid@wearebraid.com' }],
-  //       errors: [{ username: ['This username is taken cause errbody wanna be a mermaid.']}]
-  //     },
-  //     slots: {
-  //       default: `
-  //         <div>
-  //           <FormulateInput name="username" error-behavior="live" />
-  //           <FormulateInput name="email" error-behavior="live" />
-  //         </div>`
-  //     }
-  //   })
-  //   await flushPromises()
-  //   expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
-  // })
+  it('allows passing errors down into groups', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'users',
+        type: 'group',
+        value: [{ username: 'mermaid', email: 'mermaid@wearebraid.com' }],
+        groupErrors: {
+          '0.username': ['This username is taken cause errbody wanna be a mermaid.']
+        }
+      },
+      slots: {
+        default: `
+          <div>
+            <FormulateInput name="username" error-behavior="live" />
+            <FormulateInput name="email" error-behavior="live" />
+          </div>`
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
+  })
+
+  it('allows passing errors down into nested groups', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'users',
+        type: 'group',
+        value: [{
+          username: 'mermaid',
+          email: 'mermaid@wearebraid.com',
+          invites: [
+            { email: 'andy@wearebraid.com' },
+            { email: 'bill@wearebraid.com' }
+          ]
+        }],
+        groupErrors: {
+          '0.username': ['This username is taken cause errbody wanna be a mermaid.'],
+          '0.invites.1.email': 'Bill is not a real person'
+        }
+      },
+      slots: {
+        default: `
+          <div>
+            <FormulateInput name="username" error-behavior="live" />
+            <FormulateInput name="email" error-behavior="live" />
+            <FormulateInput type="group" name="invites" :repeatable="true">
+              <FormulateInput type="email" name="email" />
+            </FormulateInput>
+          </div>`
+      }
+    })
+    await flushPromises()
+    const inputs = wrapper.findAll('.formulate-input')
+    // 0 - Outer wrapper
+    // 1 - Username input
+    // 2 - Email input
+    // 3 - Invites group
+    // 4 - Invites group -> 0 -> email
+    // 5 - Invites group -> 1 -> email
+    expect(inputs.at(5).find('.formulate-input-errors li').text()).toBe('Bill is not a real person')
+  })
 })

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <FormulateForm
+    <!-- <FormulateForm
       :errors="{
         organization: ['This organization name is taken'],
         users: ['Please create another user', 'And after that create yet another'],
@@ -14,7 +14,8 @@
         type="text"
         label="Organization name"
         name="organization"
-      />
+      /> -->
+    <FormulateForm>
       <FormulateInput
         v-model="groupValues"
         type="group"
@@ -24,7 +25,8 @@
         :repeatable="true"
         :errors="['This should show up under the group']"
         :group-errors="{
-          '0.name': ['Please choose a different name [merged from group]']
+          '0.name': ['Please choose a different name [merged from group]'],
+          '1.flavors.1.flavor': 'Another to merge in'
         }"
       >
         <FormulateInput
@@ -45,6 +47,7 @@
         </FormulateInput>
       </FormulateInput>
     </FormulateForm>
+    <!-- </FormulateForm> -->
   </div>
 </template>
 
@@ -55,7 +58,7 @@ export default {
     return {
       groupValues: [
         { name: 'Justin', email: 'justin@wearebraid.com'},
-        { name: 'Bill', email: 'bill@wearebraid.com'},
+        { name: 'Bill', email: 'bill@wearebraid.com', flavors: [{ flavor: 'Strawberry'}, {flavor: 'Apple'}]},
       ]
     }
   }

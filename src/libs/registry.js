@@ -319,6 +319,8 @@ export function useRegistryMethods (without = []) {
         this.errorObservers.push(observer)
         if (observer.type === 'form') {
           observer.callback(this.mergedFormErrors)
+        } else if (observer.type === 'group' && has(this.mergedGroupErrors, observer.field)) {
+          observer.callback(this.mergedGroupErrors[observer.field])
         } else if (has(this.mergedFieldErrors, observer.field)) {
           observer.callback(this.mergedFieldErrors[observer.field])
         }
