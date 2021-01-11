@@ -6,6 +6,7 @@
     <FormulateForm
       :key="testKey"
       ref="testForm"
+      name="testForm"
       @submit="submission"
     >
       <div
@@ -28,15 +29,14 @@
     id="app"
     class="specimen-list"
   >
-    <Bug261 />
-    <!-- <SpecimenButton />
+    <SpecimenButton />
     <SpecimenBox />
     <SpecimenFile />
     <SpecimenGroup />
     <SpecimenSelect />
     <SpecimenSlider />
     <SpecimenText />
-    <SpecimenTextarea /> -->
+    <SpecimenTextarea />
   </div>
 </template>
 
@@ -51,12 +51,10 @@ import SpecimenButton from './specimens/SpecimenButton'
 import SpecimenBox from './specimens/SpecimenBox'
 import SpecimenSlider from './specimens/SpecimenSlider'
 import SpecimenSelect from './specimens/SpecimenSelect'
-import Bug261 from './Bug261'
 
 export default {
   name: 'App',
   components: {
-    Bug261,
     SpecimenButton,
     SpecimenBox,
     SpecimenText,
@@ -79,6 +77,7 @@ export default {
     window.getInputValue = this.inputValue.bind(this)
     window.getSubmittedValue = this.submittedValue.bind(this)
     window.submitForm = this.submitForm.bind(this)
+    window.getVueInstance = () => this
   },
   methods: {
     showTest (data) {

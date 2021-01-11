@@ -315,6 +315,11 @@ class Formulate {
     if (has(this.options.locales, locale)) {
       this.options.locale = locale
       this.selectedLocale = locale
+      // Trigger validation on all forms to swap languages
+      this.registry.forEach((form, name) => {
+        console.log(`running on ${name}`)
+        form.hasValidationErrors()
+      })
     }
   }
 

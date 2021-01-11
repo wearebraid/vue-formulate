@@ -53,7 +53,6 @@ Cypress.Commands.add('submittedValue', (name = 'inputUnderTest') => {
   })
 })
 
-
 // -- This is a child command --
 
 Cypress.Commands.add('shouldHaveTrimmedText', { prevSubject: true }, (subject, equalTo) => {
