@@ -787,4 +787,24 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
   })
+
+  // it('allows passing errors down into groups', async () => {
+  //   const wrapper = mount(FormulateInput, {
+  //     propsData: {
+  //       name: 'users',
+  //       type: 'group',
+  //       value: [{ username: 'mermaid', email: 'mermaid@wearebraid.com' }],
+  //       errors: [{ username: ['This username is taken cause errbody wanna be a mermaid.']}]
+  //     },
+  //     slots: {
+  //       default: `
+  //         <div>
+  //           <FormulateInput name="username" error-behavior="live" />
+  //           <FormulateInput name="email" error-behavior="live" />
+  //         </div>`
+  //     }
+  //   })
+  //   await flushPromises()
+  //   expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
+  // })
 })

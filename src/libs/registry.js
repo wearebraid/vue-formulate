@@ -165,6 +165,7 @@ class Registry {
       register: this.register.bind(this),
       deregister: field => this.remove(field),
       childrenShouldShowErrors: false,
+      errorObservers: [],
       deps: new Map(),
       preventCleanup: false
     }
@@ -183,7 +184,7 @@ export default function useRegistry (contextComponent) {
 /**
  * Computed properties related to the registry.
  */
-export function useRegistryComputed () {
+export function useRegistryComputed (options = {}) {
   return {
     hasInitialValue () {
       return (
@@ -217,6 +218,19 @@ export function useRegistryComputed () {
         return this.context.model[this.index]
       }
       return {}
+    },
+    mergedGroupErrors () {
+      const hasSubFields = /^([^.\d+].*?)\.(\d+\..+)$/
+      return Object.keys(this.mergedFieldErrors)
+        .filter(k => hasSubFields.test(k))
+        .reduce((groupErrorsByRoot, k) => {
+          let [, rootField, groupKey] = k.match(hasSubFields)
+          if (!groupErrorsByRoot[rootField]) {
+            groupErrorsByRoot[rootField] = {}
+          }
+          Object.assign(groupErrorsByRoot[rootField], { [groupKey]: this.mergedFieldErrors[k] })
+          return groupErrorsByRoot
+        }, {})
     }
   }
 }
@@ -299,11 +313,48 @@ export function useRegistryMethods (without = []) {
         this.registry.errors[errorObject.name] = errorObject.hasErrors
       }
       this.$emit('validation', errorObject)
+    },
+    addErrorObserver (observer) {
+      if (!this.errorObservers.find(obs => observer.callback === obs.callback)) {
+        this.errorObservers.push(observer)
+        if (observer.type === 'form') {
+          observer.callback(this.mergedFormErrors)
+        } else if (has(this.mergedFieldErrors, observer.field)) {
+          observer.callback(this.mergedFieldErrors[observer.field])
+        }
+      }
+    },
+    removeErrorObserver (observer) {
+      this.errorObservers = this.errorObservers.filter(obs => obs.callback !== observer)
     }
   }
   return Object.keys(methods).reduce((withMethods, key) => {
     return without.includes(key) ? withMethods : { ...withMethods, [key]: methods[key] }
   }, {})
+}
+
+/**
+ * Unified registry watchers.
+ */
+export function useRegistryWatchers () {
+  return {
+    mergedFieldErrors: {
+      handler (errors) {
+        this.errorObservers
+          .filter(o => o.type === 'input')
+          .forEach(o => o.callback(errors[o.field] || []))
+      },
+      immediate: true
+    },
+    mergedGroupErrors: {
+      handler (errors) {
+        this.errorObservers
+          .filter(o => o.type === 'group')
+          .forEach(o => o.callback(errors[o.field] || {}))
+      },
+      immediate: true
+    }
+  }
 }
 
 /**
@@ -319,7 +370,9 @@ export function useRegistryProviders (ctx, without = []) {
     getFormValues: ctx.valueDeps,
     // Provided on groups only to expose group-level items
     getGroupValues: ctx.valueDeps,
-    validateDependents: ctx.validateDeps
+    validateDependents: ctx.validateDeps,
+    observeErrors: ctx.addErrorObserver,
+    removeErrorObserver: ctx.removeErrorObserver
   }
   const p = Object.keys(providers)
     .filter(provider => !without.includes(provider))

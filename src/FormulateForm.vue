@@ -19,7 +19,7 @@
 <script>
 import { arrayify, has, camel, extractAttributes, isEmpty } from './libs/utils'
 import { classProps } from './libs/classes'
-import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
+import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders, useRegistryWatchers } from './libs/registry'
 import FormSubmission from './FormSubmission'
 
 export default {
@@ -28,8 +28,6 @@ export default {
   provide () {
     return {
       ...useRegistryProviders(this, ['getGroupValues']),
-      observeErrors: this.addErrorObserver,
-      removeErrorObserver: this.removeErrorObserver,
       observeContext: this.addContextObserver,
       removeContextObserver: this.removeContextObserver
     }
@@ -76,7 +74,6 @@ export default {
     return {
       ...useRegistry(this),
       formShouldShowErrors: false,
-      errorObservers: [],
       contextObservers: [],
       namedErrors: [],
       namedFieldErrors: {},
@@ -168,6 +165,7 @@ export default {
     }
   },
   watch: {
+    ...useRegistryWatchers(),
     formulateValue: {
       handler (values) {
         if (this.isVmodeled &&
@@ -183,14 +181,6 @@ export default {
       this.errorObservers
         .filter(o => o.type === 'form')
         .forEach(o => o.callback(errors))
-    },
-    mergedFieldErrors: {
-      handler (errors) {
-        this.errorObservers
-          .filter(o => o.type === 'input')
-          .forEach(o => o.callback(errors[o.field] || []))
-      },
-      immediate: true
     }
   },
   created () {
@@ -206,19 +196,6 @@ export default {
       // given an object of errors, apply them to this form
       this.namedErrors = formErrors
       this.namedFieldErrors = inputErrors
-    },
-    addErrorObserver (observer) {
-      if (!this.errorObservers.find(obs => observer.callback === obs.callback)) {
-        this.errorObservers.push(observer)
-        if (observer.type === 'form') {
-          observer.callback(this.mergedFormErrors)
-        } else if (has(this.mergedFieldErrors, observer.field)) {
-          observer.callback(this.mergedFieldErrors[observer.field])
-        }
-      }
-    },
-    removeErrorObserver (observer) {
-      this.errorObservers = this.errorObservers.filter(obs => obs.callback !== observer)
     },
     addContextObserver (callback) {
       if (!this.contextObservers.find(observer => observer === callback)) {

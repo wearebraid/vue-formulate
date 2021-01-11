@@ -209,6 +209,14 @@ export default {
       type: Boolean,
       default: false
     },
+    groupErrors: {
+      type: Object,
+      default: () => ({}),
+      validator: (value) => {
+        const isK = /^\d+\./
+        return !Object.keys(value).some(k => !isK.test(k))
+      }
+    },
     imageBehavior: {
       type: String,
       default: 'preview'
@@ -271,6 +279,7 @@ export default {
       defaultId: this.$formulate.nextId(this),
       localAttributes: {},
       localErrors: [],
+      localGroupErrors: {},
       proxy: this.getInitialValue(),
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
@@ -348,6 +357,9 @@ export default {
     this.applyDefaultValue()
     if (!this.disableErrors && typeof this.observeErrors === 'function') {
       this.observeErrors({ callback: this.setErrors, type: 'input', field: this.nameOrFallback })
+      if (this.type === 'group') {
+        this.observeErrors({ callback: this.setGroupErrors, type: 'group', field: this.nameOrFallback })
+      }
     }
     this.updateLocalAttributes(this.$attrs)
     this.performValidation()
@@ -355,6 +367,9 @@ export default {
   beforeDestroy () {
     if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
       this.removeErrorObserver(this.setErrors)
+      if (this.type === 'group') {
+        this.removeErrorObserver(this.setGroupErrors)
+      }
     }
     if (typeof this.formulateDeregister === 'function') {
       this.formulateDeregister(this.nameOrFallback)
@@ -531,6 +546,9 @@ export default {
     },
     setErrors (errors) {
       this.localErrors = arrayify(errors)
+    },
+    setGroupErrors (groupErrors) {
+      this.localGroupErrors = groupErrors
     },
     registerRule (rule, args, ruleName, message = null) {
       if (!this.ruleRegistry.some(r => r[2] === ruleName)) {

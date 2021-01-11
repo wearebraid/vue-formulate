@@ -11,6 +11,7 @@
       :index="index"
       :context="context"
       :uuid="item.__id"
+      :errors="groupErrors[index]"
       @remove="removeItem"
       @input="(values) => setItem(index, values)"
     >
@@ -20,7 +21,7 @@
 </template>
 
 <script>
-import { setId } from './libs/utils'
+import { setId, has } from './libs/utils'
 
 export default {
   name: 'FormulateGrouping',
@@ -55,6 +56,10 @@ export default {
     },
     formShouldShowErrors () {
       return this.context.formShouldShowErrors
+    },
+    groupErrors () {
+      return this.items
+        .map((item, index) => has(this.context.groupErrors, index) ? this.context.groupErrors[index] : {})
     }
   },
   watch: {

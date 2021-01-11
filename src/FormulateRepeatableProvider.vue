@@ -23,7 +23,7 @@
 
 <script>
 import { equals } from './libs/utils'
-import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders } from './libs/registry'
+import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders, useRegistryWatchers } from './libs/registry'
 
 export default {
   provide () {
@@ -48,6 +48,10 @@ export default {
     uuid: {
       type: String,
       required: true
+    },
+    errors: {
+      type: Object,
+      required: true
     }
   },
   data () {
@@ -57,9 +61,13 @@ export default {
     }
   },
   computed: {
-    ...useRegistryComputed()
+    ...useRegistryComputed(),
+    mergedFieldErrors () {
+      return this.errors
+    }
   },
   watch: {
+    ...useRegistryWatchers(),
     'context.model': {
       handler (values) {
         if (!equals(values[this.index], this.proxy, true)) {

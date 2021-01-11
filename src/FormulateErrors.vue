@@ -93,7 +93,7 @@ export default {
     // Form errors in an override position.
     if (this.type === 'form' && typeof this.observeErrors === 'function') {
       if (!Array.isArray(this.context.errors)) {
-        this.observeErrors({ callback: this.boundSetErrors, type: this.type })
+        this.observeErrors({ callback: this.boundSetErrors, type: 'form' })
       }
       this.observeContext(this.boundSetFormContext)
     }

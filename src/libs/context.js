@@ -19,6 +19,7 @@ export default {
       errors: this.explicitErrors,
       formShouldShowErrors: this.formShouldShowErrors,
       getValidationErrors: this.getValidationErrors.bind(this),
+      groupErrors: this.mergedGroupErrors,
       hasGivenName: this.hasGivenName,
       hasValue: this.hasValue,
       hasLabel: (this.label && this.classification !== 'button'),
@@ -65,6 +66,7 @@ export default {
   logicalHelpPosition,
   mergedRemovePosition,
   mergedUploadUrl,
+  mergedGroupErrors,
   hasValue,
   visibleValidationErrors,
   slotComponents,
@@ -278,6 +280,27 @@ function mergedValidationName () {
  */
 function mergedUploadUrl () {
   return this.uploadUrl || this.$formulate.getUploadUrl()
+}
+
+/**
+ * Merge localGroupErrors and groupErrors props.
+ */
+function mergedGroupErrors () {
+  const keys = Object.keys(this.groupErrors).concat(Object.keys(this.localGroupErrors))
+  const isGroup = /^(\d+)\.(.*)$/
+  return [...new Set(keys)]
+    .filter(k => isGroup.test(k))
+    .reduce((groupErrors, fieldKey) => {
+      let [, index, subField] = fieldKey.match(isGroup)
+      if (!has(groupErrors, index)) {
+        groupErrors[index] = {}
+      }
+      const fieldErrors = [...new Set(
+        arrayify(this.groupErrors[fieldKey]).concat(arrayify(this.localGroupErrors[fieldKey]))
+      )]
+      groupErrors[index] = Object.assign(groupErrors[index], { [subField]: fieldErrors })
+      return groupErrors
+    }, {})
 }
 
 /**
