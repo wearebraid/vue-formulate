@@ -8,10 +8,10 @@
       v-bind="attributes"
       v-on="$listeners"
     >
-      <slot>
-        <span
-          :class="`formulate-input-element--${context.type}--label`"
-          v-text="context.value || context.label || context.name || 'Submit'"
+      <slot :context="context">
+        <component
+          :is="context.slotComponents.buttonContent"
+          :context="context"
         />
       </slot>
     </button>

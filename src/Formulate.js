@@ -25,6 +25,7 @@ import FormulateInputGroup from './inputs/FormulateInputGroup.vue'
 import FormulateInputButton from './inputs/FormulateInputButton.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
+import FormulateButtonContent from './slots/FormulateButtonContent.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
 import FormulateRepeatableProvider from './FormulateRepeatableProvider.vue'
 import FormulateRepeatableRemove from './slots/FormulateRepeatableRemove.vue'
@@ -58,6 +59,7 @@ class Formulate {
         FormulateInputButton,
         FormulateInputSelect,
         FormulateInputSlider,
+        FormulateButtonContent,
         FormulateInputTextArea,
         FormulateRepeatableRemove,
         FormulateRepeatableProvider
@@ -70,7 +72,8 @@ class Formulate {
         label: 'FormulateLabel',
         remove: 'FormulateRepeatableRemove',
         repeatable: 'FormulateRepeatable',
-        uploadAreaMask: 'div'
+        uploadAreaMask: 'div',
+        buttonContent: 'FormulateButtonContent'
       },
       slotProps: {},
       library,

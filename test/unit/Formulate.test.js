@@ -80,6 +80,7 @@ describe('Formulate', () => {
       'FormulateInputButton',
       'FormulateInputSelect',
       'FormulateInputSlider',
+      'FormulateButtonContent',
       'FormulateInputTextArea',
       'FormulateRepeatableRemove',
       'FormulateRepeatableProvider'

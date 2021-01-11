@@ -446,7 +446,8 @@ function slotComponents () {
     label: fn(this.type, 'label'),
     remove: fn(this.type, 'remove'),
     repeatable: fn(this.type, 'repeatable'),
-    uploadAreaMask: fn(this.type, 'uploadAreaMask')
+    uploadAreaMask: fn(this.type, 'uploadAreaMask'),
+    buttonContent: fn(this.type, 'buttonContent')
   }
 }
 
@@ -469,7 +470,7 @@ function slotProps () {
 /**
  * Bound into the context object.
  */
-function blurHandler () {
+function blurHandler (e) {
   if (this.errorBehavior === 'blur') {
     this.behavioralErrorVisibility = true
   }

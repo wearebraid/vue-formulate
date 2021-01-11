@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import flushPromises from 'flush-promises'
-import { mount } from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import Formulate from '@/Formulate.js'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateInputButton from '@/inputs/FormulateInputButton.vue'
@@ -137,6 +137,19 @@ describe('FormulateInputButton', () => {
     wrapper.find('button').trigger('focus')
     await flushPromises()
     expect(focus.mock.calls.length).toBe(1);
+  })
+
+  it('renders the slotComponent buttonContent', async () => {
+    const localVue = createLocalVue()
+    localVue.component('CustomButtonContent', {
+      render: function (h) {
+        return h('div', { class: 'custom-button-content' }, this.context.label)
+      },
+      props: ['context']
+    })
+    localVue.use(Formulate, { slotComponents: { buttonContent: 'CustomButtonContent' } })
+    const wrapper = mount(FormulateInput, { localVue, propsData: { type: 'button', label: 'My button yall!' } })
+    expect(wrapper.find('.custom-button-content').text()).toBe('My button yall!')
   })
 
 })
