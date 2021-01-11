@@ -87,9 +87,13 @@ export default {
       return extractAttributes(this.$attrs, classProps.filter(p => /^form/.test(p)))
     },
     attributes () {
-      return Object.keys(this.$attrs)
+      const attrs = Object.keys(this.$attrs)
         .filter(attr => !has(this.pseudoProps, camel(attr)))
         .reduce((fields, field) => ({ ...fields, [field]: this.$attrs[field] }), {}) // Create an object of attributes to re-bind
+      if (typeof this.name === 'string') {
+        Object.assign(attrs, { name: this.name })
+      }
+      return attrs
     },
     hasErrors () {
       return Object.values(this.registry.errors).some(hasErrors => hasErrors)

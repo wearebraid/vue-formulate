@@ -322,6 +322,13 @@ describe('FormulateForm', () => {
     expect(wrapper.find('.formulate-input-error').exists()).toBe(true)
   })
 
+  it('renders the name attribute', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { name: 'login' }
+    })
+    expect(wrapper.attributes('name')).toBe('login')
+  })
+
   it('automatically registers with root plugin', async () => {
     const wrapper = mount(FormulateForm, {
       propsData: { formulateValue: { box3: [] }, name: 'login' }
@@ -1055,7 +1062,7 @@ describe('FormulateForm', () => {
       `
     })
     await flushPromises()
-    expect(Object.keys(wrapper.find('form').attributes())).toEqual(['data-has-this-attribute', 'class'])
+    expect(Object.keys(wrapper.find('form').attributes())).toEqual(['data-has-this-attribute', 'name', 'class'])
     expect(wrapper.find('form').attributes('class')).toBe('abc formulate-form formulate-form--search bg-white py-10 def')
   })
 
