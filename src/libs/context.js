@@ -288,16 +288,17 @@ function mergedUploadUrl () {
 function mergedGroupErrors () {
   const keys = Object.keys(this.groupErrors).concat(Object.keys(this.localGroupErrors))
   const isGroup = /^(\d+)\.(.*)$/
-  return [...new Set(keys)]
+  // Using new Set() to remove duplicates.
+  return Array.from(new Set(keys))
     .filter(k => isGroup.test(k))
     .reduce((groupErrors, fieldKey) => {
       let [, index, subField] = fieldKey.match(isGroup)
       if (!has(groupErrors, index)) {
         groupErrors[index] = {}
       }
-      const fieldErrors = [...new Set(
+      const fieldErrors = Array.from(new Set(
         arrayify(this.groupErrors[fieldKey]).concat(arrayify(this.localGroupErrors[fieldKey]))
-      )]
+      ))
       groupErrors[index] = Object.assign(groupErrors[index], { [subField]: fieldErrors })
       return groupErrors
     }, {})

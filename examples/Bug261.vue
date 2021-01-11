@@ -1,5 +1,28 @@
 <template>
   <div>
+    <FormulateInput
+      type="group"
+      :repeatable="true"
+      name="invitees"
+      :group-errors="{
+        '0.email': 'This email is already in use.',
+        '1.name': 'Yeah...pretty sure “Rensmold” isn’t a real last name.'
+      }"
+      :value="[
+        { name: 'Todd Berkins', email: 'todd@example.com' },
+        { name: 'Stella Rensmold', email: 'stella@example.com' },
+      ]"
+    >
+      <FormulateInput
+        name="name"
+        label="Invitee's name"
+      />
+      <FormulateInput
+        name="email"
+        label="What is this user's email?"
+      />
+    </FormulateInput>
+
     <!-- <FormulateForm
       :errors="{
         organization: ['This organization name is taken'],
@@ -14,8 +37,7 @@
         type="text"
         label="Organization name"
         name="organization"
-      /> -->
-    <FormulateForm>
+      />
       <FormulateInput
         v-model="groupValues"
         type="group"
@@ -25,8 +47,7 @@
         :repeatable="true"
         :errors="['This should show up under the group']"
         :group-errors="{
-          '0.name': ['Please choose a different name [merged from group]'],
-          '1.flavors.1.flavor': 'Another to merge in'
+          '0.name': 'Please choose a different name [merged from group]'
         }"
       >
         <FormulateInput
@@ -46,22 +67,21 @@
           />
         </FormulateInput>
       </FormulateInput>
-    </FormulateForm>
-    <!-- </FormulateForm> -->
+    </FormulateForm> -->
   </div>
 </template>
 
 <script>
 /* eslint-disable */
-export default {
-  data () {
-    return {
-      groupValues: [
-        { name: 'Justin', email: 'justin@wearebraid.com'},
-        { name: 'Bill', email: 'bill@wearebraid.com', flavors: [{ flavor: 'Strawberry'}, {flavor: 'Apple'}]},
-      ]
-    }
-  }
-};
+// export default {
+//   data () {
+//     return {
+//       groupValues: [
+//         { name: 'Justin', email: 'justin@wearebraid.com'},
+//         { name: 'Bill', email: 'bill@wearebraid.com', flavors: [{ flavor: 'Strawberry'}, {flavor: 'Apple'}]},
+//       ]
+//     }
+//   }
+// };
 </script>
 
