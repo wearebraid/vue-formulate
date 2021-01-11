@@ -89,7 +89,8 @@ class Formulate {
       baseClasses: b => b,
       coreClasses,
       classes: {},
-      useInputDecorators: true
+      useInputDecorators: true,
+      validationNameStrategy: false
     }
     this.registry = new Map()
     this.idRegistry = {}

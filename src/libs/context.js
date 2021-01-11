@@ -262,14 +262,13 @@ function mergedRemovePosition () {
  * The validation label to use.
  */
 function mergedValidationName () {
-  if (this.validationName) {
-    return this.validationName
+  const strategy = this.$formulate.options.validationNameStrategy || ['validationName', 'name', 'label', 'type']
+  if (Array.isArray(strategy)) {
+    const key = strategy.find(key => typeof this[key] === 'string')
+    return this[key]
   }
-  if (typeof this.name === 'string') {
-    return this.name
-  }
-  if (this.label) {
-    return this.label
+  if (typeof strategy === 'function') {
+    return strategy.call(this, this)
   }
   return this.type
 }

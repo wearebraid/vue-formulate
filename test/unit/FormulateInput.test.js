@@ -23,7 +23,8 @@ const options = {
       component: 'FormulateInputBox'
     }
   },
-  useInputDecorators: true
+  useInputDecorators: true,
+  validationNameStrategy: false
 }
 Vue.use(Formulate, options)
 
@@ -874,6 +875,59 @@ describe('FormulateInput', () => {
     } })
     await flushPromises()
     expect(wrapper.find('.formulate-input-element-decorator').exists()).toBeFalsy()
+    resetInstance()
+  })
+
+  it('uses the validationName by default', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+    })
+
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      label: 'Hello world',
+      name: 'something',
+      validationName: 'This field',
+      validation: 'required',
+      errorBehavior: 'live'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('This field is required.')
+    resetInstance()
+  })
+
+  it('allows overriding the validation strategy via array', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      validationNameStrategy: ['label', 'name']
+    })
+
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      label: 'Hello world',
+      name: 'something',
+      validation: 'required',
+      errorBehavior: 'live'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('Hello world is required.')
+    resetInstance()
+  })
+
+  it('allows overriding the validation strategy via function', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      validationNameStrategy: function (vm) {
+        return vm.type === 'text' ? 'Some text' : vm.context.name
+      }
+    })
+
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      label: 'Hello world',
+      name: 'something',
+      validation: 'required',
+      errorBehavior: 'live'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('Some text is required.')
     resetInstance()
   })
 })
