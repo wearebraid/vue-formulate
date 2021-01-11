@@ -88,7 +88,8 @@ class Formulate {
       idPrefix: 'formulate-',
       baseClasses: b => b,
       coreClasses,
-      classes: {}
+      classes: {},
+      useInputDecorators: true
     }
     this.registry = new Map()
     this.idRegistry = {}

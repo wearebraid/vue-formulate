@@ -36,6 +36,7 @@
     -->
     <component
       :is="`label`"
+      v-if="usesDecorator"
       :class="context.classes.decorator"
       :for="attributes.id"
     />
@@ -47,6 +48,11 @@ import FormulateInputMixin from '../FormulateInputMixin'
 
 export default {
   name: 'FormulateInputBox',
-  mixins: [FormulateInputMixin]
+  mixins: [FormulateInputMixin],
+  computed: {
+    usesDecorator () {
+      return this.$formulate.options.useInputDecorators
+    }
+  }
 }
 </script>

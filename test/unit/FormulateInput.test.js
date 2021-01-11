@@ -22,7 +22,8 @@ const options = {
       classification: 'box',
       component: 'FormulateInputBox'
     }
-  }
+  },
+  useInputDecorators: true
 }
 Vue.use(Formulate, options)
 
@@ -855,6 +856,24 @@ describe('FormulateInput', () => {
     } })
     await flushPromises()
     expect(wrapper.find('button.my-custom-input').text()).toBe('foo-bar')
+    resetInstance()
+  })
+
+  it('allows the disabling of input decorators with useInputDecorators: false', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      useInputDecorators: false
+    })
+
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      type: 'checkbox',
+      options: {
+        a: 'A',
+        b: 'B'
+      }
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-element-decorator').exists()).toBeFalsy()
     resetInstance()
   })
 })
