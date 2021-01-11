@@ -347,6 +347,12 @@ export default {
         this.$emit('error-visibility', val)
       },
       immediate: true
+    },
+    validation: {
+      handler () {
+        this.performValidation()
+      },
+      deep: true
     }
   },
   created () {

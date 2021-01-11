@@ -946,4 +946,26 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.find('input').element.value).toBe('abc')
   })
+
+  it('re-runs validation rules if the validation rules change', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          :validation="validationRules"
+          error-behavior="live"
+          name="city"
+        />
+      `,
+      data () {
+        return {
+          validationRules: 'required'
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('City is required.')
+    wrapper.vm.validationRules = 'optional'
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').exists()).toBeFalsy()
+  })
 })
