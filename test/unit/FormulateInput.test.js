@@ -968,4 +968,20 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.find('.formulate-input-errors li').exists()).toBeFalsy()
   })
+
+  it('exposes validation rules within the context object', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          label="Email"
+          validation="required"
+        >
+          <template #label="{ rules, label }">
+            <label>{{ label }}{{ rules.some(({ ruleName }) => ruleName === 'required') ? '*' : '' }}</label>
+          </template>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('label').text()).toBe('Email*')
+  })
 })

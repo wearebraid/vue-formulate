@@ -41,6 +41,7 @@ export default {
       removePosition: this.mergedRemovePosition,
       repeatable: this.repeatable,
       rootEmit: this.$emit.bind(this),
+      rules: this.ruleDetails,
       setErrors: this.setErrors.bind(this),
       showValidationErrors: this.showValidationErrors,
       slotComponents: this.slotComponents,
@@ -77,6 +78,7 @@ export default {
   slotProps,
   pseudoProps,
   isValid,
+  ruleDetails,
 
   // Not used in context
   isVmodeled,
@@ -301,6 +303,14 @@ function mergedGroupErrors () {
       groupErrors[index] = Object.assign(groupErrors[index], { [subField]: fieldErrors })
       return groupErrors
     }, {})
+}
+
+/**
+ * Takes the parsed validation rules and makes them a bit more readable.
+ */
+function ruleDetails () {
+  return this.parsedValidation
+    .map(([, args, ruleName]) => ({ ruleName, args }))
 }
 
 /**

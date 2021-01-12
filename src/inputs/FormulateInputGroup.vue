@@ -85,6 +85,7 @@ export default {
         rootEmit,
         help,
         pseudoProps,
+        rules,
         model,
         ...context
       } = this.context
