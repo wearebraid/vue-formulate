@@ -899,4 +899,28 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     expect(addListener.mock.calls.length).toBe(1)
   })
+
+  it('ensures there are always a minimum number of items even if the model has fewer', async () => {
+    const wrapper = mount({
+      template: `<FormulateInput
+        type="group"
+        :minimum="5"
+        v-model="names"
+      >
+        <FormulateInput name="name" />
+      </FormulateInput>`,
+      data () {
+        return {
+          names: [{name: 'a' }, {name: 'b'}, {name: 'c'}]
+        }
+      }
+    })
+    await flushPromises()
+    const inputs = wrapper.findAll('input[name="name"]')
+    expect(inputs.length).toBe(5)
+    expect(wrapper.vm.names).toEqual([{name: 'a' }, {name: 'b'}, {name: 'c'}])
+    inputs.at(4).setValue('bob')
+    await flushPromises()
+    expect(wrapper.vm.names).toEqual([{name: 'a' }, {name: 'b'}, {name: 'c'}, {}, {name: 'bob'}])
+  })
 })

@@ -50,6 +50,10 @@ export default {
         if (!this.context.repeatable && this.context.model.length === 0) {
           return [setId({})]
         }
+        if (this.context.model.length < this.context.minimum) {
+          return (new Array(this.context.minimum || 1)).fill('')
+            .map((t, index) => setId(has(this.context.model, index) ? this.context.model[index] : {}))
+        }
         return this.context.model.map(item => setId(item, item.__id))
       }
       return (new Array(this.context.minimum || 1)).fill('').map(() => setId({}))
@@ -96,7 +100,7 @@ export default {
     setItem (index, groupProxy) {
       // Note: value must have an __id to use this function
       // const values = Array.isArray(this.context.model) ? this.context.model : this.items
-      if (Array.isArray(this.context.model)) {
+      if (Array.isArray(this.context.model) && this.context.model.length >= this.context.minimum) {
         this.context.model.splice(index, 1, setId(groupProxy, this.context.model[index].__id))
       } else {
         this.context.model = this.items.map((item, i) => i === index ? setId(groupProxy) : item)
