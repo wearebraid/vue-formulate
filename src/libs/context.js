@@ -395,16 +395,6 @@ function createOptionList (optionData) {
   }
   const options = Array.isArray(optionData) ? optionData : Object.keys(optionData).map(value => ({ label: optionData[value], value }))
   return options.map(createOption.bind(this))
-  // if (!Array.isArray(options) && options && typeof options === 'object') {
-  //   const optionList = []
-  //   for (const value in options) {
-  //     optionList.push({ value, label: options[value], id: `${this.elementAttributes.id}_${value}` })
-  //   }
-  //   return optionList
-  // } else if (Array.isArray(options)) {
-  //   options = options.map(option => option.id ? option : { ...option, id: `${this.elementAttributes.id}_${option.value}` })
-  // }
-  // return options
 }
 
 /**
@@ -418,6 +408,9 @@ function createOption (option) {
   }
   if (typeof option === 'string') {
     return { label: option, value: option, id: `${this.elementAttributes.id}_${option}` }
+  }
+  if (typeof option.value === 'number') {
+    option.value = String(option.value)
   }
   return Object.assign({
     value: '',
