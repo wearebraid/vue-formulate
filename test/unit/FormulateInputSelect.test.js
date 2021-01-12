@@ -130,4 +130,15 @@ describe('FormulateInputSelect', () => {
     await flushPromises()
     expect(wrapper.vm.context.model).toEqual([])
   })
+
+  it('allows using an array of strings as options', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', options: ['Sydney', 'New York', 'Chicago'] },
+    })
+    await flushPromises()
+    expect(wrapper.findAll('select option')
+      .wrappers
+      .map(option => `${option.attributes('value')} - ${option.text()}`)
+    ).toEqual(['Sydney - Sydney', 'New York - New York', 'Chicago - Chicago'])
+  })
 })

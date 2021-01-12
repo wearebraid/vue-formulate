@@ -389,17 +389,41 @@ function isVmodeled () {
  * @param {array|object}
  * @return {array}
  */
-function createOptionList (options) {
-  if (!Array.isArray(options) && options && typeof options === 'object') {
-    const optionList = []
-    for (const value in options) {
-      optionList.push({ value, label: options[value], id: `${this.elementAttributes.id}_${value}` })
-    }
-    return optionList
-  } else if (Array.isArray(options)) {
-    options = options.map(option => option.id ? option : { ...option, id: `${this.elementAttributes.id}_${option.value}` })
+function createOptionList (optionData) {
+  if (!optionData) {
+    return []
   }
-  return options
+  const options = Array.isArray(optionData) ? optionData : Object.keys(optionData).map(value => ({ label: optionData[value], value }))
+  return options.map(createOption.bind(this))
+  // if (!Array.isArray(options) && options && typeof options === 'object') {
+  //   const optionList = []
+  //   for (const value in options) {
+  //     optionList.push({ value, label: options[value], id: `${this.elementAttributes.id}_${value}` })
+  //   }
+  //   return optionList
+  // } else if (Array.isArray(options)) {
+  //   options = options.map(option => option.id ? option : { ...option, id: `${this.elementAttributes.id}_${option.value}` })
+  // }
+  // return options
+}
+
+/**
+ * Given a wide ranging input (string, object, etc) return an option item
+ * @param {typeof} option
+ */
+function createOption (option) {
+  // Numbers are not allowed
+  if (typeof option === 'number') {
+    option = String(option)
+  }
+  if (typeof option === 'string') {
+    return { label: option, value: option, id: `${this.elementAttributes.id}_${option}` }
+  }
+  return Object.assign({
+    value: '',
+    label: '',
+    id: `${this.elementAttributes.id}_${option.value || option.label}`
+  }, option)
 }
 
 /**
