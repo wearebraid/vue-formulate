@@ -342,6 +342,21 @@ describe('FormulateInput', () => {
     expect(wrapper.find('input').attributes('aria-describedby')).toBeFalsy()
   });
 
+  it('it allows overriding aria-describedby', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'text',
+        validation: 'required',
+        errorBehavior: 'live',
+        value: 'bar',
+        help: 'abc',
+        'aria-describedby': 'other-id'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('input').attributes('aria-describedby')).toBe('other-id')
+  });
+
   it('can bail on validation when encountering the bail rule', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { type: 'text', validation: 'bail|required|in:xyz', errorBehavior: 'live' }
