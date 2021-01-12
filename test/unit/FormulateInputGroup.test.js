@@ -923,4 +923,28 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     expect(wrapper.vm.names).toEqual([{name: 'a' }, {name: 'b'}, {name: 'c'}, {}, {name: 'bob'}])
   })
+
+  it('can add items on a group that is artificially filled to minimum length', async () => {
+    const wrapper = mount({
+      template: `<FormulateInput
+        type="group"
+        :minimum="5"
+        :repeatable="true"
+        v-model="names"
+      >
+        <FormulateInput name="name" />
+      </FormulateInput>`,
+      data () {
+        return {
+          names: [{name: 'a' }, {name: 'b'}, {name: 'c'}]
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.findAll('input[name="name"]').length).toBe(5)
+    wrapper.find('.formulate-input-group-add-more button').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('input[name="name"]').length).toBe(6)
+    expect(wrapper.vm.names.length).toBe(6)
+  })
 })

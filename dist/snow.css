@@ -358,6 +358,9 @@
         transition: background-color .2s;
         overflow: hidden;
         text-indent: -1000px; }
+        .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove[data-disabled] {
+          opacity: .2;
+          pointer-events: none; }
         .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove::before, .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove::after {
           content: '';
           position: absolute;

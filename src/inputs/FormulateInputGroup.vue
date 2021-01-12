@@ -96,7 +96,9 @@ export default {
       ))
     },
     totalItems () {
-      return Array.isArray(this.context.model) ? this.context.model.length : this.context.minimum || 1
+      return Array.isArray(this.context.model) && this.context.model.length > this.context.minimum
+        ? this.context.model.length
+        : this.context.minimum || 1
     },
     canAddMore () {
       return (this.context.repeatable && this.totalItems < this.context.limit)
@@ -105,7 +107,11 @@ export default {
   methods: {
     addItem () {
       if (Array.isArray(this.context.model)) {
-        this.context.model.push(setId({}))
+        const minDiff = (this.context.minimum - this.context.model.length) + 1
+        const toAdd = Math.max(minDiff, 1)
+        for (let i = 0; i < toAdd; i++) {
+          this.context.model.push(setId({}))
+        }
       } else {
         this.context.model = (new Array(this.totalItems + 1)).fill('').map(() => setId({}))
       }

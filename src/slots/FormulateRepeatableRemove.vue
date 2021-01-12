@@ -2,6 +2,7 @@
   <a
     v-if="context.repeatable"
     :class="context.classes.groupRepeatableRemove"
+    :data-disabled="context.model.length <= context.minimum"
     role="button"
     @click.prevent="removeItem"
     @keypress.enter="removeItem"

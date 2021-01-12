@@ -456,6 +456,11 @@
           overflow: hidden;
           text-indent: -1000px;
 
+          &[data-disabled] {
+            opacity: .2;
+            pointer-events: none;
+          }
+
           &::before,
           &::after {
             content: '';
