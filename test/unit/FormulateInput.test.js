@@ -420,6 +420,17 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
   })
 
+  it('shows errors when error-behavior is value and an input is blurred', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required',
+      errorBehavior: 'value',
+    } })
+    wrapper.find('input').trigger('blur')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
+  })
+
   it('shows errors initially when error-behavior is value and it has a value', async () => {
     const wrapper = mount(FormulateInput, { propsData: {
       type: 'text',

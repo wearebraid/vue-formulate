@@ -500,7 +500,7 @@ function slotProps () {
  * Bound into the context object.
  */
 function blurHandler () {
-  if (this.errorBehavior === 'blur') {
+  if (this.errorBehavior === 'blur' || this.errorBehavior === 'value') {
     this.behavioralErrorVisibility = true
   }
 }
