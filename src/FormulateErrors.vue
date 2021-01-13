@@ -1,17 +1,13 @@
 <template>
-  <ul
-    v-if="visibleErrors.length"
-    :class="outerClass"
-  >
-    <li
-      v-for="error in visibleErrors"
-      :key="error"
-      :class="itemClass"
-      :role="role"
-      :aria-live="ariaLive"
-      v-text="error"
-    />
-  </ul>
+  <component
+    :is="slotComponent"
+    :visible-errors="visibleErrors"
+    :item-class="itemClass"
+    :outer-class="outerClass"
+    :role="role"
+    :aria-live="ariaLive"
+    :type="type"
+  />
 </template>
 
 <script>
@@ -86,6 +82,9 @@ export default {
     },
     ariaLive () {
       return this.type === 'form' ? 'assertive' : 'polite'
+    },
+    slotComponent () {
+      return this.$formulate.slotComponent(null, 'errorList')
     }
   },
   created () {

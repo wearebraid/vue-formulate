@@ -18,6 +18,7 @@ import FormulateGrouping from './FormulateGrouping.vue'
 import FormulateLabel from './slots/FormulateLabel.vue'
 import FormulateAddMore from './slots/FormulateAddMore.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
+import FormulateErrorList from './slots/FormulateErrorList.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
 import FormulateInputFile from './inputs/FormulateInputFile.vue'
 import FormulateRepeatable from './slots/FormulateRepeatable.vue'
@@ -54,6 +55,7 @@ class Formulate {
         FormulateInputBox,
         FormulateInputText,
         FormulateInputFile,
+        FormulateErrorList,
         FormulateRepeatable,
         FormulateInputGroup,
         FormulateInputButton,
@@ -73,7 +75,8 @@ class Formulate {
         remove: 'FormulateRepeatableRemove',
         repeatable: 'FormulateRepeatable',
         uploadAreaMask: 'div',
-        buttonContent: 'FormulateButtonContent'
+        buttonContent: 'FormulateButtonContent',
+        errorList: 'FormulateErrorList'
       },
       slotProps: {},
       library,

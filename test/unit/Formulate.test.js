@@ -75,6 +75,7 @@ describe('Formulate', () => {
       'FormulateInputBox',
       'FormulateInputText',
       'FormulateInputFile',
+      'FormulateErrorList',
       'FormulateRepeatable',
       'FormulateInputGroup',
       'FormulateInputButton',

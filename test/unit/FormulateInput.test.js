@@ -999,4 +999,36 @@ describe('FormulateInput', () => {
     })
     expect(wrapper.find('label').text()).toBe('Email*')
   })
+
+  it('can override the errorList slotComponent', async () => {
+    const localVue = createLocalVue()
+    localVue.component('CustomErrors', {
+      render: function (h) {
+        return h(
+          'div',
+          { class: 'custom-errors' },
+          this.visibleErrors
+            .map(error => h('div', { class: 'error-item', key: error }, error))
+        )
+      },
+      props: ['visibleErrors']
+    })
+    localVue.use(Formulate, {
+      slotComponents: {
+        errorList: 'CustomErrors'
+      }
+    })
+    const wrapper = mount(FormulateInput, {
+      localVue,
+      propsData: {
+        name: 'name',
+        validation: 'required',
+        errorBehavior: 'live'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-error').exists()).toBeFalsy()
+    expect(wrapper.find('.custom-errors .error-item').text()).toBe('Name is required.')
+    resetInstance()
+  })
 })

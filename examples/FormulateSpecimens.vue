@@ -68,8 +68,7 @@ export default {
     return {
       testKey: false,
       provingGroundValue: null,
-      provingGroundSubmissionResolver: () => {},
-      test: {}
+      provingGroundSubmissionResolver: () => {}
     }
   },
   mounted () {
