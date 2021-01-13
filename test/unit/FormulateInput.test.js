@@ -409,6 +409,43 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(false)
   })
 
+  it('does not show errors initially when error-behavior is value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required',
+      errorBehavior: 'value',
+    } })
+    wrapper.find('input').trigger('input')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
+  })
+
+  it('shows errors initially when error-behavior is value and it has a value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required|email',
+      errorBehavior: 'value',
+      value: 'test'
+    } })
+    wrapper.find('input').setValue('Added some text')
+    await flushPromises()
+    expect(wrapper.vm.touched).toBe(true)
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
+  })
+
+  it('hides errors initially, and then shows them after first touch when error-behavior is value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required|email',
+      errorBehavior: 'value'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
+    wrapper.find('input').setValue('Added some text')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
+  })
+
   it('displays errors when error-behavior is submit and form is submitted', async () => {
     const wrapper = mount(FormulateForm, {
       slots: {

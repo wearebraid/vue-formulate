@@ -202,7 +202,7 @@ export default {
       type: String,
       default: 'blur',
       validator: function (value) {
-        return ['blur', 'live', 'submit'].includes(value)
+        return ['blur', 'live', 'submit', 'value'].includes(value)
       }
     },
     showErrors: {
@@ -287,7 +287,8 @@ export default {
       pendingValidation: Promise.resolve(),
       // These registries are used for injected messages registrants only (mostly internal).
       ruleRegistry: [],
-      messageRegistry: {}
+      messageRegistry: {},
+      touched: false
     }
   },
   computed: {
@@ -334,6 +335,9 @@ export default {
           this.context.model = newValue
         }
         this.validateDependents(this)
+        if (!this.touched && newValue) {
+          this.touched = true
+        }
       },
       deep: true
     },
@@ -356,6 +360,11 @@ export default {
         this.performValidation()
       },
       deep: true
+    },
+    touched (value) {
+      if (this.errorBehavior === 'value' && value) {
+        this.behavioralErrorVisibility = value
+      }
     }
   },
   created () {
@@ -372,6 +381,9 @@ export default {
     }
     this.updateLocalAttributes(this.$attrs)
     this.performValidation()
+    if (this.hasValue) {
+      this.touched = true
+    }
   },
   beforeDestroy () {
     if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
