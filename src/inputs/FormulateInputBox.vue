@@ -3,6 +3,10 @@
     :class="context.classes.element"
     :data-type="context.type"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    />
     <!--
       This explicit break out of types is due to a Vue bug that causes IE11 to
       not when using v-model + dynamic :type + :value (thanks @Christoph-Wagner)
@@ -39,6 +43,10 @@
       v-if="usesDecorator"
       :class="context.classes.decorator"
       :for="attributes.id"
+    />
+    <FormulateSlot
+      name="suffix"
+      :context="context"
     />
   </div>
 </template>

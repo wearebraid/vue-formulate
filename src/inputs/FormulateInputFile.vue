@@ -4,6 +4,10 @@
     :data-type="context.type"
     :data-has-files="hasFiles"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    />
     <div
       :class="context.classes.uploadArea"
       :data-has-files="hasFiles"
@@ -39,6 +43,10 @@
         :context="context"
       />
     </div>
+    <FormulateSlot
+      name="suffix"
+      :context="context"
+    />
   </div>
 </template>
 

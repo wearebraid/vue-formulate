@@ -947,4 +947,25 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.findAll('input[name="name"]').length).toBe(6)
     expect(wrapper.vm.names.length).toBe(6)
   })
+
+  it('allows slot injection of of a prefix and suffix', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="group"
+          label="money"
+        >
+          <template #prefix="{ label }">
+            <span>\${{ label }}</span>
+          </template>
+          <template #suffix="{ label }">
+            <span>after {{ label }}</span>
+          </template>
+          <div></div>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('.formulate-input-element > span').text()).toBe('$money')
+    expect(wrapper.find('.formulate-input-element > *:last-child').text()).toBe('after money')
+  })
 })

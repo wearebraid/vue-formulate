@@ -5,6 +5,10 @@
     role="group"
     :aria-labelledby="labeledBy"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    />
     <template
       v-if="subType !== 'grouping'"
     >
@@ -41,6 +45,10 @@
         />
       </FormulateSlot>
     </template>
+    <FormulateSlot
+      name="suffix"
+      :context="context"
+    />
   </div>
 </template>
 

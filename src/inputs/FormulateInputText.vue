@@ -3,6 +3,10 @@
     :class="context.classes.element"
     :data-type="context.type"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    />
     <input
       v-model="context.model"
       :type="type"
@@ -10,6 +14,10 @@
       @blur="context.blurHandler"
       v-on="$listeners"
     >
+    <FormulateSlot
+      name="suffix"
+      :context="context"
+    />
   </div>
 </template>
 

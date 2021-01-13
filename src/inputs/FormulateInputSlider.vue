@@ -3,6 +3,10 @@
     :class="context.classes.element"
     :data-type="context.type"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    />
     <input
       v-model="context.model"
       :type="type"
@@ -14,6 +18,10 @@
       v-if="context.showValue"
       :class="context.classes.rangeValue"
       v-text="context.model"
+    />
+    <FormulateSlot
+      name="suffix"
+      :context="context"
     />
   </div>
 </template>

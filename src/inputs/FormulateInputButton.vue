@@ -3,6 +3,10 @@
     :class="context.classes.element"
     :data-type="context.type"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    />
     <button
       :type="type"
       v-bind="attributes"
@@ -15,6 +19,10 @@
         />
       </slot>
     </button>
+    <FormulateSlot
+      name="suffix"
+      :context="context"
+    />
   </div>
 </template>
 

@@ -4,6 +4,10 @@
     :data-type="context.type"
     :data-multiple="attributes && attributes.multiple !== undefined"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    />
     <select
       v-model="context.model"
       v-bind="attributes"
@@ -49,6 +53,10 @@
         </optgroup>
       </template>
     </select>
+    <FormulateSlot
+      name="suffix"
+      :context="context"
+    />
   </div>
 </template>
 

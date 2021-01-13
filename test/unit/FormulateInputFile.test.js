@@ -187,14 +187,23 @@ describe('FormulateInputFile', () => {
     expect(callback).toHaveBeenCalled()
   })
 
-  /**
-   * ===========================================================================
-   * Currently there appears to be no way to properly mock upload data in
-   * vue-test-utils because JSDom doesn't implement DataTransfer:
-   *
-   * https://stackoverflow.com/questions/48993134/how-to-test-input-file-with-jest-and-vue-test-utils
-   */
-  // it('type "image" renders a file element', async () => {
-
-  // })
+  it('allows slot injection of of a prefix and suffix', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="file"
+          label="money"
+        >
+          <template #prefix="{ label }">
+            <span>\${{ label }}</span>
+          </template>
+          <template #suffix="{ label }">
+            <span>after {{ label }}</span>
+          </template>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('.formulate-input-element > span').text()).toBe('$money')
+    expect(wrapper.find('.formulate-input-element > *:last-child').text()).toBe('after money')
+  })
 })
