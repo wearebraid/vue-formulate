@@ -1107,4 +1107,24 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.formulate-input-element .custom-prefix').text()).toBe('Hello therejustin')
     resetInstance()
   })
+
+  it('emits a blur-context event on blur', async () => {
+    const listener = jest.fn();
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'text',
+        validation: 'required|email',
+        value: 'not an email',
+        errorBehavior: 'live'
+      },
+      listeners: {
+        'blur-context': listener
+      }
+    })
+    await flushPromises()
+    wrapper.find('input').trigger('blur')
+    await flushPromises()
+    expect(listener.mock.calls.length).toBe(1)
+    expect(listener.mock.calls[0][0].isValid).toBe(false)
+  })
 })
