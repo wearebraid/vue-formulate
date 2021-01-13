@@ -2,6 +2,8 @@
   <div
     :class="context.classes.element"
     :data-is-repeatable="context.repeatable"
+    role="group"
+    :aria-labelledby="labeledBy"
   >
     <template
       v-if="subType !== 'grouping'"
@@ -102,6 +104,9 @@ export default {
     },
     canAddMore () {
       return (this.context.repeatable && this.totalItems < this.context.limit)
+    },
+    labeledBy () {
+      return this.context.label && `${this.context.id}_label`
     }
   },
   methods: {
