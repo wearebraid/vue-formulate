@@ -68,15 +68,17 @@ class Formulate {
       },
       slotComponents: {
         addMore: 'FormulateAddMore',
+        buttonContent: 'FormulateButtonContent',
+        errorList: 'FormulateErrorList',
         errors: 'FormulateErrors',
         file: 'FormulateFile',
         help: 'FormulateHelp',
         label: 'FormulateLabel',
+        prefix: false,
         remove: 'FormulateRepeatableRemove',
         repeatable: 'FormulateRepeatable',
-        uploadAreaMask: 'div',
-        buttonContent: 'FormulateButtonContent',
-        errorList: 'FormulateErrorList'
+        suffix: false,
+        uploadAreaMask: 'div'
       },
       slotProps: {},
       library,

@@ -6,7 +6,13 @@
     <FormulateSlot
       name="prefix"
       :context="context"
-    />
+    >
+      <component
+        :is="context.slotComponents.prefix"
+        v-if="context.slotComponents.prefix"
+        :context="context"
+      />
+    </FormulateSlot>
     <!--
       This explicit break out of types is due to a Vue bug that causes IE11 to
       not when using v-model + dynamic :type + :value (thanks @Christoph-Wagner)
@@ -47,7 +53,13 @@
     <FormulateSlot
       name="suffix"
       :context="context"
-    />
+    >
+      <component
+        :is="context.slotComponents.suffix"
+        v-if="context.slotComponents.suffix"
+        :context="context"
+      />
+    </FormulateSlot>
   </div>
 </template>
 

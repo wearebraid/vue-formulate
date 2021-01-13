@@ -1031,4 +1031,32 @@ describe('FormulateInput', () => {
     expect(wrapper.find('.custom-errors .error-item').text()).toBe('Name is required.')
     resetInstance()
   })
+
+  it('can override the prefix slotComponent', async () => {
+    const localVue = createLocalVue()
+    localVue.component('PrefixMe', {
+      render: function (h) {
+        return h(
+          'div',
+          { class: 'custom-prefix' },
+          ['Hello there', this.context.name]
+        )
+      },
+      props: ['context']
+    })
+    localVue.use(Formulate, {
+      slotComponents: {
+        prefix: 'PrefixMe'
+      }
+    })
+    const wrapper = mount(FormulateInput, {
+      localVue,
+      propsData: {
+        name: 'justin',
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-element .custom-prefix').text()).toBe('Hello therejustin')
+    resetInstance()
+  })
 })

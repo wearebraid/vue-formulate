@@ -467,14 +467,16 @@ function slotComponents () {
   const fn = this.$formulate.slotComponent.bind(this.$formulate)
   return {
     addMore: fn(this.type, 'addMore'),
+    buttonContent: fn(this.type, 'buttonContent'),
     errors: fn(this.type, 'errors'),
     file: fn(this.type, 'file'),
     help: fn(this.type, 'help'),
     label: fn(this.type, 'label'),
+    prefix: fn(this.type, 'prefix'),
     remove: fn(this.type, 'remove'),
     repeatable: fn(this.type, 'repeatable'),
-    uploadAreaMask: fn(this.type, 'uploadAreaMask'),
-    buttonContent: fn(this.type, 'buttonContent')
+    suffix: fn(this.type, 'suffix'),
+    uploadAreaMask: fn(this.type, 'uploadAreaMask')
   }
 }
 

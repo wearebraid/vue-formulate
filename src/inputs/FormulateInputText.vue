@@ -6,7 +6,13 @@
     <FormulateSlot
       name="prefix"
       :context="context"
-    />
+    >
+      <component
+        :is="context.slotComponents.prefix"
+        v-if="context.slotComponents.prefix"
+        :context="context"
+      />
+    </FormulateSlot>
     <input
       v-model="context.model"
       :type="type"
@@ -17,7 +23,13 @@
     <FormulateSlot
       name="suffix"
       :context="context"
-    />
+    >
+      <component
+        :is="context.slotComponents.suffix"
+        v-if="context.slotComponents.suffix"
+        :context="context"
+      />
+    </FormulateSlot>
   </div>
 </template>
 

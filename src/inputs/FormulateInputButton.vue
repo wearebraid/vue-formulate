@@ -6,7 +6,13 @@
     <FormulateSlot
       name="prefix"
       :context="context"
-    />
+    >
+      <component
+        :is="context.slotComponents.prefix"
+        v-if="context.slotComponents.prefix"
+        :context="context"
+      />
+    </FormulateSlot>
     <button
       :type="type"
       v-bind="attributes"
@@ -22,7 +28,13 @@
     <FormulateSlot
       name="suffix"
       :context="context"
-    />
+    >
+      <component
+        :is="context.slotComponents.suffix"
+        v-if="context.slotComponents.suffix"
+        :context="context"
+      />
+    </FormulateSlot>
   </div>
 </template>
 
