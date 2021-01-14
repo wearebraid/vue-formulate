@@ -325,7 +325,6 @@ class Formulate {
       this.selectedLocale = locale
       // Trigger validation on all forms to swap languages
       this.registry.forEach((form, name) => {
-        console.log(`running on ${name}`)
         form.hasValidationErrors()
       })
     }
