@@ -160,6 +160,58 @@ describe('FormulateSchema', () => {
         }
       }
     })
+  })
 
+  it('can emit events from children', async () => {
+    const customBlurHandler = jest.fn()
+    const directlyCalled = jest.fn()
+    const changedState = jest.fn()
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        :schema="schema"
+        @blur="customBlurHandler"
+        @changed-state="changedState"
+      />`,
+      data () {
+        return {
+          schema: [
+            {
+              name: 'username',
+              '@input': directlyCalled
+            },
+            {
+              name: 'password',
+              '@blur': true
+            },
+            {
+              component: 'div',
+              children: [
+                {
+                  type: 'select',
+                  name: 'state',
+                  options: ['Kansas', 'Nebraska', 'Iowa'],
+                  value: 'Iowa',
+                  '@change': 'changed-state'
+                }
+              ]
+            }
+          ]
+        }
+      },
+      methods: {
+        customBlurHandler,
+        changedState
+      }
+    })
+    await flushPromises()
+    wrapper.find('input[name="username"]').setValue('cooldude45')
+    wrapper.find('input[name="password"]').trigger('blur')
+    wrapper.find('option[value="Nebraska"]').setSelected('Nebraska')
+    await flushPromises()
+    expect(directlyCalled.mock.calls.length).toBe(1)
+    expect(customBlurHandler.mock.calls.length).toBe(1)
+    expect(customBlurHandler.mock.calls[0][0]).toBeInstanceOf(FocusEvent)
+    expect(changedState.mock.calls.length).toBe(1)
   })
 })

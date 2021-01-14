@@ -7,6 +7,7 @@
     <FormulateSchema
       v-if="schema"
       :schema="schema"
+      v-on="schemaListeners"
     />
     <FormulateErrors
       v-if="!hasFormErrorObservers"
@@ -83,6 +84,10 @@ export default {
   },
   computed: {
     ...useRegistryComputed(),
+    schemaListeners () {
+      const { submit, ...listeners } = this.$listeners
+      return listeners
+    },
     pseudoProps () {
       return extractAttributes(this.$attrs, classProps.filter(p => /^form/.test(p)))
     },
