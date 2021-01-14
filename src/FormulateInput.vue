@@ -451,7 +451,7 @@ export default {
       }
     },
     performValidation () {
-      let rules = this.parsedValidation
+      let rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
       // Add in ruleRegistry rules. These are added directly via injection from
       // children and not part of the standard validation rule set.
       rules = this.ruleRegistry.length ? this.ruleRegistry.concat(rules) : rules

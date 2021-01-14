@@ -365,6 +365,20 @@ describe('FormulateInput', () => {
     expect(wrapper.vm.context.visibleValidationErrors.length).toBe(1);
   })
 
+  it('continues to bail after content was entered', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', name: 'letters', validation: 'bail|required|in:xyz', errorBehavior: 'live' }
+    })
+    await flushPromises();
+    wrapper.find('input').setValue('xyz')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-input-errors li').length).toBe(0);
+    wrapper.find('input').setValue('')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-input-errors li').length).toBe(1);
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('Letters is required.');
+  })
+
   it('can show multiple validation errors if they occur before the bail rule', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { type: 'text', validation: 'required|in:xyz|bail', errorBehavior: 'live' }
