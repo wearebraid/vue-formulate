@@ -3,7 +3,7 @@
     :class="context.classes.element"
     :data-is-repeatable="context.repeatable"
     role="group"
-    :aria-labelledby="labeledBy"
+    :aria-labelledby="labelledBy"
   >
     <FormulateSlot
       name="prefix"
@@ -125,7 +125,7 @@ export default {
     canAddMore () {
       return (this.context.repeatable && this.totalItems < this.context.limit)
     },
-    labeledBy () {
+    labelledBy () {
       return this.context.label && `${this.context.id}_label`
     }
   },
