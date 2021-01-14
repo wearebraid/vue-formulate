@@ -99,7 +99,6 @@ export default {
     },
     setItem (index, groupProxy) {
       // Note: value must have an __id to use this function
-      // const values = Array.isArray(this.context.model) ? this.context.model : this.items
       if (Array.isArray(this.context.model) && this.context.model.length >= this.context.minimum) {
         this.context.model.splice(index, 1, setId(groupProxy, this.context.model[index].__id))
       } else {

@@ -99,7 +99,6 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     const fields = wrapper.findAll('input[type="text"]')
     expect(fields.length).toBe(4)
-    // expect(fields.at(0).element.value).toBe('jim@example.com')
     expect(fields.at(2).element.value).toBe('jim@example.com')
   })
 
