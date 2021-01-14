@@ -6,6 +6,7 @@ import FileUpload from '@/FileUpload.js'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateForm from '@/FormulateForm.vue'
 import FormulateGrouping from '@/FormulateGrouping.vue'
+import FormulateRepeatableRemove from '@/slots/FormulateRepeatableRemove.vue'
 import FormulateRepeatableProvider from '@/FormulateRepeatableProvider.vue'
 
 Vue.use(Formulate)
@@ -98,10 +99,15 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     const fields = wrapper.findAll('input[type="text"]')
     expect(fields.length).toBe(4)
-    expect(fields.at(0).element.value).toBe('jim@example.com')
     expect(fields.at(2).element.value).toBe('jim@example.com')
   })
 
+  /**
+   * As of 2.5.0 v-modeling a child of a group and a parent of that group at
+   * the same time is no longer strictly supported. Technically it should still
+   * work after the initial load, but never-used "feature" is a casualty of
+   * fixing other group issues.
+   */
   it('v-modeling a subfield updates group v-model value', async () => {
     const wrapper = mount({
       template: `
@@ -122,6 +128,42 @@ describe('FormulateInputGroup', () => {
     })
     await flushPromises()
     expect(wrapper.vm.users).toEqual([{email: 'jim@example.com'}, {email:'jim@example.com'}])
+  })
+
+  it('Can sync values across two different groups', async () => {
+      const wrapper = mount({
+        template: `
+          <div>
+            <FormulateInput
+              v-model="names"
+              type="group"
+            >
+              <FormulateInput
+                type="text"
+                name="name"
+              />
+            </FormulateInput>
+            <FormulateInput
+              v-model="names"
+              type="group"
+            >
+              <FormulateInput
+                type="text"
+                name="name"
+              />
+            </FormulateInput>
+          </div>
+        `,
+        data () {
+          return {
+            names: [{ name: 'Justin' }]
+          }
+        }
+      })
+      await flushPromises()
+      wrapper.find('input').setValue('Tom')
+      await flushPromises()
+      expect(wrapper.findAll('input').wrappers.map(input => input.element.value)).toEqual(['Tom', 'Tom'])
   })
 
   it('prevents form submission when children have validation errors', async () => {
@@ -504,6 +546,22 @@ describe('FormulateInputGroup', () => {
     expect(repeatables.at(1).text()).toBe('test-1')
   })
 
+  it('exposes the index to the remove slot', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="group"
+          name="test"
+          :value="[{}, {}]"
+        >
+        </FormulateInput>
+      `,
+    })
+    const removes = wrapper.findAllComponents(FormulateRepeatableRemove)
+    expect(removes.at(0).vm.index).toBe(0)
+    expect(removes.at(1).vm.index).toBe(1)
+  })
+
   it('forces non-repeatable groups to not initialize with an empty array', async () => {
     const wrapper = mount({
       template: `
@@ -689,5 +747,224 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.findComponent(FormulateRepeatableProvider).vm.registry.has('test')).toBe(true)
     expect(wrapper.findComponent(FormulateRepeatableProvider).vm.proxy).toEqual({})
     expect(wrapper.findComponent(FormulateForm).vm.proxy).toEqual({ country: 'it', languages: [{}] })
+  })
+
+  it('places remove slot before inputs by default', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'group', repeatable: true },
+      slots: {
+        default: '<FormulateInput type="text" />'
+      }
+    })
+    expect(wrapper.findAll('.formulate-input-group-repeatable-remove + .formulate-input').length).toBe(1)
+  })
+
+  it('allows remove slot position to be overwritten by removePosition prop', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'group', repeatable: true, removePosition: 'after' },
+      slots: {
+        default: '<FormulateInput type="text" />'
+      }
+    })
+    expect(wrapper.findAll('.formulate-input + .formulate-input-group-repeatable-remove').length).toBe(1)
+  })
+
+  it('scopes to the confirm rule to only the current group inputs.', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'passwords',
+        type: 'group'
+      },
+      slots: {
+        default: `
+          <div>
+            <FormulateInput type="password" name="password" error-behavior="live" validation="required" value="abc" />
+            <FormulateInput type="password" name="password_confirm" error-behavior="live" validation="confirm" value="abc" />
+          </div>`
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
+  })
+
+  it('allows passing errors down into groups', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'users',
+        type: 'group',
+        value: [{ username: 'mermaid', email: 'mermaid@wearebraid.com' }],
+        groupErrors: {
+          '0.username': ['This username is taken cause errbody wanna be a mermaid.']
+        }
+      },
+      slots: {
+        default: `
+          <div>
+            <FormulateInput name="username" error-behavior="live" />
+            <FormulateInput name="email" error-behavior="live" />
+          </div>`
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
+  })
+
+  it('allows passing errors down into nested groups', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'users',
+        type: 'group',
+        value: [{
+          username: 'mermaid',
+          email: 'mermaid@wearebraid.com',
+          invites: [
+            { email: 'andy@wearebraid.com' },
+            { email: 'bill@wearebraid.com' }
+          ]
+        }],
+        groupErrors: {
+          '0.username': ['This username is taken cause errbody wanna be a mermaid.'],
+          '0.invites.1.email': 'Bill is not a real person'
+        }
+      },
+      slots: {
+        default: `
+          <div>
+            <FormulateInput name="username" error-behavior="live" />
+            <FormulateInput name="email" error-behavior="live" />
+            <FormulateInput type="group" name="invites" :repeatable="true">
+              <FormulateInput type="email" name="email" />
+            </FormulateInput>
+          </div>`
+      }
+    })
+    await flushPromises()
+    const inputs = wrapper.findAll('.formulate-input')
+    // 0 - Outer wrapper
+    // 1 - Username input
+    // 2 - Email input
+    // 3 - Invites group
+    // 4 - Invites group -> 0 -> email
+    // 5 - Invites group -> 1 -> email
+    expect(inputs.at(5).find('.formulate-input-errors li').text()).toBe('Bill is not a real person')
+  })
+
+  it('allows passing errors down into groups', async () => {
+    const removeListener = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'users',
+        type: 'group',
+        repeatable: true,
+        value: [{ username: 'mermaid', email: 'mermaid@wearebraid.com' }, { username: 'blah', email: 'blah@wearebraid.com' }],
+      },
+      listeners: {
+        'repeatableRemoved': removeListener
+      },
+      slots: {
+        default: `
+          <FormulateInput name="username" error-behavior="live" />
+          <FormulateInput name="email" error-behavior="live" />
+        `
+      }
+    })
+    await flushPromises()
+    wrapper.find('.formulate-input-group-repeatable-remove').trigger('click')
+    await flushPromises()
+    expect(removeListener.mock.calls.length).toBe(1)
+  })
+
+  it('allows passing errors down into groups', async () => {
+    const addListener = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        name: 'users',
+        type: 'group',
+        repeatable: true,
+        value: [{}],
+      },
+      listeners: {
+        'repeatableAdded': addListener
+      },
+      slots: {
+        default: `
+          <FormulateInput name="username" error-behavior="live" />
+          <FormulateInput name="email" error-behavior="live" />
+        `
+      }
+    })
+    await flushPromises()
+    wrapper.find('.formulate-input-group-add-more button').trigger('click')
+    await flushPromises()
+    expect(addListener.mock.calls.length).toBe(1)
+  })
+
+  it('ensures there are always a minimum number of items even if the model has fewer', async () => {
+    const wrapper = mount({
+      template: `<FormulateInput
+        type="group"
+        :minimum="5"
+        v-model="names"
+      >
+        <FormulateInput name="name" />
+      </FormulateInput>`,
+      data () {
+        return {
+          names: [{name: 'a' }, {name: 'b'}, {name: 'c'}]
+        }
+      }
+    })
+    await flushPromises()
+    const inputs = wrapper.findAll('input[name="name"]')
+    expect(inputs.length).toBe(5)
+    expect(wrapper.vm.names).toEqual([{name: 'a' }, {name: 'b'}, {name: 'c'}])
+    inputs.at(4).setValue('bob')
+    await flushPromises()
+    expect(wrapper.vm.names).toEqual([{name: 'a' }, {name: 'b'}, {name: 'c'}, {}, {name: 'bob'}])
+  })
+
+  it('can add items on a group that is artificially filled to minimum length', async () => {
+    const wrapper = mount({
+      template: `<FormulateInput
+        type="group"
+        :minimum="5"
+        :repeatable="true"
+        v-model="names"
+      >
+        <FormulateInput name="name" />
+      </FormulateInput>`,
+      data () {
+        return {
+          names: [{name: 'a' }, {name: 'b'}, {name: 'c'}]
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.findAll('input[name="name"]').length).toBe(5)
+    wrapper.find('.formulate-input-group-add-more button').trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('input[name="name"]').length).toBe(6)
+    expect(wrapper.vm.names.length).toBe(6)
+  })
+
+  it('allows slot injection of of a prefix and suffix', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="group"
+          label="money"
+        >
+          <template #prefix="{ label }">
+            <span>\${{ label }}</span>
+          </template>
+          <template #suffix="{ label }">
+            <span>after {{ label }}</span>
+          </template>
+          <div></div>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('.formulate-input-element > span').text()).toBe('$money')
+    expect(wrapper.find('.formulate-input-element > *:last-child').text()).toBe('after money')
   })
 })

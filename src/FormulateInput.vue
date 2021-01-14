@@ -87,7 +87,7 @@
 
 <script>
 import context from './libs/context'
-import { shallowEqualObjects, parseRules, camel, has, arrayify, groupBails, isEmpty } from './libs/utils'
+import { equals, parseRules, camel, has, arrayify, groupBails, isEmpty } from './libs/utils'
 
 export default {
   name: 'FormulateInput',
@@ -105,6 +105,7 @@ export default {
     formulateRegister: { default: undefined },
     formulateDeregister: { default: undefined },
     getFormValues: { default: () => () => ({}) },
+    getGroupValues: { default: undefined },
     validateDependents: { default: () => () => {} },
     observeErrors: { default: undefined },
     removeErrorObserver: { default: undefined },
@@ -177,6 +178,10 @@ export default {
       type: [String, Array, Boolean],
       default: false
     },
+    removePosition: {
+      type: [String, Boolean],
+      default: false
+    },
     repeatable: {
       type: Boolean,
       default: false
@@ -197,12 +202,20 @@ export default {
       type: String,
       default: 'blur',
       validator: function (value) {
-        return ['blur', 'live', 'submit'].includes(value)
+        return ['blur', 'live', 'submit', 'value'].includes(value)
       }
     },
     showErrors: {
       type: Boolean,
       default: false
+    },
+    groupErrors: {
+      type: Object,
+      default: () => ({}),
+      validator: (value) => {
+        const isK = /^\d+\./
+        return !Object.keys(value).some(k => !isK.test(k))
+      }
     },
     imageBehavior: {
       type: String,
@@ -246,14 +259,18 @@ export default {
     },
     addLabel: {
       type: [Boolean, String],
-      default: false
+      default: true
     },
     removeLabel: {
       type: [Boolean, String],
       default: false
     },
     keepModelData: {
-      type: [Boolean],
+      type: [Boolean, String],
+      default: 'inherit'
+    },
+    ignored: {
+      type: [Boolean, String],
       default: false
     }
   },
@@ -262,6 +279,7 @@ export default {
       defaultId: this.$formulate.nextId(this),
       localAttributes: {},
       localErrors: [],
+      localGroupErrors: {},
       proxy: this.getInitialValue(),
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
@@ -269,7 +287,8 @@ export default {
       pendingValidation: Promise.resolve(),
       // These registries are used for injected messages registrants only (mostly internal).
       ruleRegistry: [],
-      messageRegistry: {}
+      messageRegistry: {},
+      touched: false
     }
   },
   computed: {
@@ -287,6 +306,9 @@ export default {
         parsedValidationRules[camel(key)] = this.validationRules[key]
       })
       return parsedValidationRules
+    },
+    parsedValidation () {
+      return parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
     },
     messages () {
       const messages = {}
@@ -306,23 +328,43 @@ export default {
       },
       deep: true
     },
-    proxy (newValue, oldValue) {
-      this.performValidation()
-      if (!this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
-        this.context.model = newValue
-      }
-      this.validateDependents(this)
+    proxy: {
+      handler: function (newValue, oldValue) {
+        this.performValidation()
+        if (!this.isVmodeled && !equals(newValue, oldValue, this.type === 'group')) {
+          this.context.model = newValue
+        }
+        this.validateDependents(this)
+        if (!this.touched && newValue) {
+          this.touched = true
+        }
+      },
+      deep: true
     },
-    formulateValue (newValue, oldValue) {
-      if (this.isVmodeled && !shallowEqualObjects(newValue, oldValue)) {
-        this.context.model = newValue
-      }
+    formulateValue: {
+      handler: function (newValue, oldValue) {
+        if (this.isVmodeled && !equals(newValue, oldValue, this.type === 'group')) {
+          this.context.model = newValue
+        }
+      },
+      deep: true
     },
     showValidationErrors: {
       handler (val) {
         this.$emit('error-visibility', val)
       },
       immediate: true
+    },
+    validation: {
+      handler () {
+        this.performValidation()
+      },
+      deep: true
+    },
+    touched (value) {
+      if (this.errorBehavior === 'value' && value) {
+        this.behavioralErrorVisibility = value
+      }
     }
   },
   created () {
@@ -333,13 +375,22 @@ export default {
     this.applyDefaultValue()
     if (!this.disableErrors && typeof this.observeErrors === 'function') {
       this.observeErrors({ callback: this.setErrors, type: 'input', field: this.nameOrFallback })
+      if (this.type === 'group') {
+        this.observeErrors({ callback: this.setGroupErrors, type: 'group', field: this.nameOrFallback })
+      }
     }
     this.updateLocalAttributes(this.$attrs)
     this.performValidation()
+    if (this.hasValue) {
+      this.touched = true
+    }
   },
   beforeDestroy () {
     if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
       this.removeErrorObserver(this.setErrors)
+      if (this.type === 'group') {
+        this.removeErrorObserver(this.setGroupErrors)
+      }
     }
     if (typeof this.formulateDeregister === 'function') {
       this.formulateDeregister(this.nameOrFallback)
@@ -363,11 +414,12 @@ export default {
       // This should only be run immediately on created and ensures that the
       // proxy and the model are both the same before any additional registration.
       if (
-        !shallowEqualObjects(this.context.model, this.proxy) &&
+        !equals(this.context.model, this.proxy) &&
         // we dont' want to set the model if we are a sub-box of a multi-box field
-        (has(this.$options.propsData, 'options') && this.classification === 'box')
+        (this.classification !== 'box' || has(this.$options.propsData, 'options'))
       ) {
         this.context.model = this.proxy
+        this.$emit('input', this.proxy)
       }
     },
     applyDefaultValue () {
@@ -394,7 +446,7 @@ export default {
       }
     },
     updateLocalAttributes (value) {
-      if (!shallowEqualObjects(value, this.localAttributes)) {
+      if (!equals(value, this.localAttributes)) {
         this.localAttributes = value
       }
     },
@@ -412,6 +464,7 @@ export default {
         var res = rule({
           value: this.context.model,
           getFormValues: (...args) => this.getFormValues(this, ...args),
+          getGroupValues: (...args) => this[`get${this.getGroupValues ? 'Group' : 'Form'}Values`](this, ...args),
           name: this.context.name
         }, ...args)
         res = (res instanceof Promise) ? res : Promise.resolve(res)
@@ -454,7 +507,7 @@ export default {
       })
     },
     didValidate (messages) {
-      const validationChanged = !shallowEqualObjects(messages, this.validationErrors)
+      const validationChanged = !equals(messages, this.validationErrors)
       this.validationErrors = messages
       if (validationChanged) {
         const errorObject = this.getErrorObject()
@@ -471,7 +524,8 @@ export default {
         value: this.context.model,
         vm: this,
         formValues: this.getFormValues(this),
-        getFormValues: (...args) => this.getFormValues(this, ...args)
+        getFormValues: (...args) => this.getFormValues(this, ...args),
+        getGroupValues: (...args) => this[`get${this.getGroupValues ? 'Group' : 'Form'}Values`](this, ...args)
       })
     },
     getMessageFunc (ruleName) {
@@ -514,6 +568,9 @@ export default {
     },
     setErrors (errors) {
       this.localErrors = arrayify(errors)
+    },
+    setGroupErrors (groupErrors) {
+      this.localGroupErrors = groupErrors
     },
     registerRule (rule, args, ruleName, message = null) {
       if (!this.ruleRegistry.some(r => r[2] === ruleName)) {

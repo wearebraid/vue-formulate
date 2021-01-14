@@ -13,10 +13,12 @@ import FormulateForm from './FormulateForm.vue'
 import FormulateInput from './FormulateInput.vue'
 import FormulateErrors from './FormulateErrors.vue'
 import FormulateHelp from './slots/FormulateHelp.vue'
+import FormulateFile from './slots/FormulateFile.vue'
 import FormulateGrouping from './FormulateGrouping.vue'
 import FormulateLabel from './slots/FormulateLabel.vue'
 import FormulateAddMore from './slots/FormulateAddMore.vue'
 import FormulateInputBox from './inputs/FormulateInputBox.vue'
+import FormulateErrorList from './slots/FormulateErrorList.vue'
 import FormulateInputText from './inputs/FormulateInputText.vue'
 import FormulateInputFile from './inputs/FormulateInputFile.vue'
 import FormulateRepeatable from './slots/FormulateRepeatable.vue'
@@ -24,6 +26,7 @@ import FormulateInputGroup from './inputs/FormulateInputGroup.vue'
 import FormulateInputButton from './inputs/FormulateInputButton.vue'
 import FormulateInputSelect from './inputs/FormulateInputSelect.vue'
 import FormulateInputSlider from './inputs/FormulateInputSlider.vue'
+import FormulateButtonContent from './slots/FormulateButtonContent.vue'
 import FormulateInputTextArea from './inputs/FormulateInputTextArea.vue'
 import FormulateRepeatableProvider from './FormulateRepeatableProvider.vue'
 import FormulateRepeatableRemove from './slots/FormulateRepeatableRemove.vue'
@@ -41,6 +44,7 @@ class Formulate {
       components: {
         FormulateSlot,
         FormulateForm,
+        FormulateFile,
         FormulateHelp,
         FormulateLabel,
         FormulateInput,
@@ -51,22 +55,30 @@ class Formulate {
         FormulateInputBox,
         FormulateInputText,
         FormulateInputFile,
+        FormulateErrorList,
         FormulateRepeatable,
         FormulateInputGroup,
         FormulateInputButton,
         FormulateInputSelect,
         FormulateInputSlider,
+        FormulateButtonContent,
         FormulateInputTextArea,
         FormulateRepeatableRemove,
         FormulateRepeatableProvider
       },
       slotComponents: {
-        label: 'FormulateLabel',
-        help: 'FormulateHelp',
-        errors: 'FormulateErrors',
-        repeatable: 'FormulateRepeatable',
         addMore: 'FormulateAddMore',
-        remove: 'FormulateRepeatableRemove'
+        buttonContent: 'FormulateButtonContent',
+        errorList: 'FormulateErrorList',
+        errors: 'FormulateErrors',
+        file: 'FormulateFile',
+        help: 'FormulateHelp',
+        label: 'FormulateLabel',
+        prefix: false,
+        remove: 'FormulateRepeatableRemove',
+        repeatable: 'FormulateRepeatable',
+        suffix: false,
+        uploadAreaMask: 'div'
       },
       slotProps: {},
       library,
@@ -80,10 +92,13 @@ class Formulate {
       errorHandler: (err) => err,
       plugins: [ en ],
       locales: {},
+      failedValidation: () => false,
       idPrefix: 'formulate-',
       baseClasses: b => b,
       coreClasses,
-      classes: {}
+      classes: {},
+      useInputDecorators: true,
+      validationNameStrategy: false
     }
     this.registry = new Map()
     this.idRegistry = {}
@@ -308,6 +323,10 @@ class Formulate {
     if (has(this.options.locales, locale)) {
       this.options.locale = locale
       this.selectedLocale = locale
+      // Trigger validation on all forms to swap languages
+      this.registry.forEach((form, name) => {
+        form.hasValidationErrors()
+      })
     }
   }
 
@@ -437,6 +456,13 @@ class Formulate {
    */
   createUpload (fileList, context) {
     return new FileUpload(fileList, context, this.options)
+  }
+
+  /**
+   * A FormulateForm failed to submit due to existing validation errors.
+   */
+  failedValidation (form) {
+    return this.options.failedValidation(this)
   }
 }
 

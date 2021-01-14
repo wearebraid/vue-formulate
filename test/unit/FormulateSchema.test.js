@@ -105,4 +105,113 @@ describe('FormulateSchema', () => {
     await flushPromises()
     expect(wrapper.findAll('input').wrappers.map(input => input.element.value)).toEqual(['Justin', 'BAR', 'FOOEY'])
   })
+
+  it('can render two divs back to back with unique keys', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          :schema="schema"
+        />
+      `,
+      data () {
+        return {
+          switch: true
+        }
+      },
+      computed: {
+        schema () {
+          return [
+            { component: 'div', 'data-is-first': true, children: this.switch ? 'abc' : 'def' },
+            { component: 'div', 'data-is-second': true, children: this.switch ? 'def' : 'abc' }
+          ]
+        }
+      }
+    })
+    expect(wrapper.find('[data-is-first]').text()).toBe('abc')
+    wrapper.setData({ switch: false })
+    await flushPromises()
+    expect(wrapper.find('[data-is-first]').text()).toBe('def')
+  })
+
+  it('can uniquely key grouped inputs', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          :schema="schema"
+        />
+      `,
+      data () {
+        return {
+          switch: true
+        }
+      },
+      computed: {
+        schema () {
+          return [
+            {
+              type: 'group',
+              value: [{}, {}],
+              children: [
+                { type: 'text', value: 'abc' },
+                { type: 'text', value: 'def' }
+              ]
+            }
+          ]
+        }
+      }
+    })
+  })
+
+  it('can emit events from children', async () => {
+    const customBlurHandler = jest.fn()
+    const directlyCalled = jest.fn()
+    const changedState = jest.fn()
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        :schema="schema"
+        @blur="customBlurHandler"
+        @changed-state="changedState"
+      />`,
+      data () {
+        return {
+          schema: [
+            {
+              name: 'username',
+              '@input': directlyCalled
+            },
+            {
+              name: 'password',
+              '@blur': true
+            },
+            {
+              component: 'div',
+              children: [
+                {
+                  type: 'select',
+                  name: 'state',
+                  options: ['Kansas', 'Nebraska', 'Iowa'],
+                  value: 'Iowa',
+                  '@change': 'changed-state'
+                }
+              ]
+            }
+          ]
+        }
+      },
+      methods: {
+        customBlurHandler,
+        changedState
+      }
+    })
+    await flushPromises()
+    wrapper.find('input[name="username"]').setValue('cooldude45')
+    wrapper.find('input[name="password"]').trigger('blur')
+    wrapper.find('option[value="Nebraska"]').setSelected('Nebraska')
+    await flushPromises()
+    expect(directlyCalled.mock.calls.length).toBe(1)
+    expect(customBlurHandler.mock.calls.length).toBe(1)
+    expect(customBlurHandler.mock.calls[0][0]).toBeInstanceOf(FocusEvent)
+    expect(changedState.mock.calls.length).toBe(1)
+  })
 })

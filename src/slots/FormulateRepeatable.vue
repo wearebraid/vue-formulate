@@ -2,6 +2,7 @@
   <div
     :class="context.classes.groupRepeatable"
   >
+    <slot v-if="context.removePosition === 'after'" />
     <FormulateSlot
       name="remove"
       :context="context"
@@ -10,11 +11,12 @@
       <component
         :is="context.slotComponents.remove"
         :context="context"
+        :index="index"
         :remove-item="removeItem"
         v-bind="context.slotProps.remove"
       />
     </FormulateSlot>
-    <slot />
+    <slot v-if="context.removePosition === 'before'" />
   </div>
 </template>
 

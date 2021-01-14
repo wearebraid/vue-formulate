@@ -64,6 +64,7 @@ describe('Formulate', () => {
     const components = [
       'FormulateSlot',
       'FormulateForm',
+      'FormulateFile',
       'FormulateHelp',
       'FormulateLabel',
       'FormulateInput',
@@ -74,11 +75,13 @@ describe('Formulate', () => {
       'FormulateInputBox',
       'FormulateInputText',
       'FormulateInputFile',
+      'FormulateErrorList',
       'FormulateRepeatable',
       'FormulateInputGroup',
       'FormulateInputButton',
       'FormulateInputSelect',
       'FormulateInputSlider',
+      'FormulateButtonContent',
       'FormulateInputTextArea',
       'FormulateRepeatableRemove',
       'FormulateRepeatableProvider'

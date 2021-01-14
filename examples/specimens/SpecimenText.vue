@@ -7,6 +7,7 @@
         label="Pick a color?"
         type="color"
         help="Choose your favorite."
+        validation="required|between:0,10"
       />
     </div>
     <div class="specimen">

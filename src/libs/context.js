@@ -1,4 +1,4 @@
-import { map, arrayify, shallowEqualObjects, isEmpty, camel, has } from './utils'
+import { map, arrayify, equals, isEmpty, camel, has, extractAttributes, cap } from './utils'
 import { classProps } from './classes'
 
 /**
@@ -19,6 +19,7 @@ export default {
       errors: this.explicitErrors,
       formShouldShowErrors: this.formShouldShowErrors,
       getValidationErrors: this.getValidationErrors.bind(this),
+      groupErrors: this.mergedGroupErrors,
       hasGivenName: this.hasGivenName,
       hasValue: this.hasValue,
       hasLabel: (this.label && this.classification !== 'button'),
@@ -26,6 +27,7 @@ export default {
       help: this.help,
       helpPosition: this.logicalHelpPosition,
       id: this.id || this.defaultId,
+      ignored: has(this.$options.propsData, 'ignored'),
       isValid: this.isValid,
       imageBehavior: this.imageBehavior,
       label: this.label,
@@ -36,8 +38,10 @@ export default {
       performValidation: this.performValidation.bind(this),
       pseudoProps: this.pseudoProps,
       preventWindowDrops: this.preventWindowDrops,
+      removePosition: this.mergedRemovePosition,
       repeatable: this.repeatable,
       rootEmit: this.$emit.bind(this),
+      rules: this.ruleDetails,
       setErrors: this.setErrors.bind(this),
       showValidationErrors: this.showValidationErrors,
       slotComponents: this.slotComponents,
@@ -61,7 +65,9 @@ export default {
   elementAttributes,
   logicalLabelPosition,
   logicalHelpPosition,
+  mergedRemovePosition,
   mergedUploadUrl,
+  mergedGroupErrors,
   hasValue,
   visibleValidationErrors,
   slotComponents,
@@ -72,6 +78,7 @@ export default {
   slotProps,
   pseudoProps,
   isValid,
+  ruleDetails,
 
   // Not used in context
   isVmodeled,
@@ -89,8 +96,12 @@ export default {
  * The label to display when adding a new group.
  */
 function logicalAddLabel () {
+  if (this.classification === 'file') {
+    return this.addLabel === true ? `+ Add ${cap(this.type)}` : this.addLabel
+  }
   if (typeof this.addLabel === 'boolean') {
-    return `+ ${this.label || this.name || 'Add'}`
+    const label = this.label || this.name
+    return `+ ${typeof label === 'string' ? label + ' ' : ''} Add`
   }
   return this.addLabel
 }
@@ -127,21 +138,6 @@ function typeContext () {
       }
       return {}
   }
-}
-
-/**
- * Extract a set of attributes.
- * @param {string} keysToExtract
- */
-function extractAttributes (obj, keys) {
-  return Object.keys(obj).reduce((props, key) => {
-    // All class keys are "pseudo props"
-    const propKey = camel(key)
-    if (keys.includes(propKey)) {
-      props[propKey] = obj[key]
-    }
-    return props
-  }, {})
 }
 
 /**
@@ -191,7 +187,7 @@ function elementAttributes () {
   }
 
   // If there is help text, have this element be described by it.
-  if (this.help) {
+  if (this.help && !has(attrs, 'aria-describedby')) {
     attrs['aria-describedby'] = `${attrs.id}-help`
   }
 
@@ -258,17 +254,23 @@ function logicalHelpPosition () {
 }
 
 /**
+ * Set remove button position for repeatable inputs
+ */
+function mergedRemovePosition () {
+  return (this.type === 'group') ? this.removePosition || 'before' : false
+}
+
+/**
  * The validation label to use.
  */
 function mergedValidationName () {
-  if (this.validationName) {
-    return this.validationName
+  const strategy = this.$formulate.options.validationNameStrategy || ['validationName', 'name', 'label', 'type']
+  if (Array.isArray(strategy)) {
+    const key = strategy.find(key => typeof this[key] === 'string')
+    return this[key]
   }
-  if (typeof this.name === 'string') {
-    return this.name
-  }
-  if (this.label) {
-    return this.label
+  if (typeof strategy === 'function') {
+    return strategy.call(this, this)
   }
   return this.type
 }
@@ -279,6 +281,36 @@ function mergedValidationName () {
  */
 function mergedUploadUrl () {
   return this.uploadUrl || this.$formulate.getUploadUrl()
+}
+
+/**
+ * Merge localGroupErrors and groupErrors props.
+ */
+function mergedGroupErrors () {
+  const keys = Object.keys(this.groupErrors).concat(Object.keys(this.localGroupErrors))
+  const isGroup = /^(\d+)\.(.*)$/
+  // Using new Set() to remove duplicates.
+  return Array.from(new Set(keys))
+    .filter(k => isGroup.test(k))
+    .reduce((groupErrors, fieldKey) => {
+      let [, index, subField] = fieldKey.match(isGroup)
+      if (!has(groupErrors, index)) {
+        groupErrors[index] = {}
+      }
+      const fieldErrors = Array.from(new Set(
+        arrayify(this.groupErrors[fieldKey]).concat(arrayify(this.localGroupErrors[fieldKey]))
+      ))
+      groupErrors[index] = Object.assign(groupErrors[index], { [subField]: fieldErrors })
+      return groupErrors
+    }, {})
+}
+
+/**
+ * Takes the parsed validation rules and makes them a bit more readable.
+ */
+function ruleDetails () {
+  return this.parsedValidation
+    .map(([, args, ruleName]) => ({ ruleName, args }))
 }
 
 /**
@@ -357,17 +389,34 @@ function isVmodeled () {
  * @param {array|object}
  * @return {array}
  */
-function createOptionList (options) {
-  if (!Array.isArray(options) && options && typeof options === 'object') {
-    const optionList = []
-    for (const value in options) {
-      optionList.push({ value, label: options[value], id: `${this.elementAttributes.id}_${value}` })
-    }
-    return optionList
-  } else if (Array.isArray(options)) {
-    options = options.map(option => option.id ? option : { ...option, id: `${this.elementAttributes.id}_${option.value}` })
+function createOptionList (optionData) {
+  if (!optionData) {
+    return []
   }
-  return options
+  const options = Array.isArray(optionData) ? optionData : Object.keys(optionData).map(value => ({ label: optionData[value], value }))
+  return options.map(createOption.bind(this))
+}
+
+/**
+ * Given a wide ranging input (string, object, etc) return an option item
+ * @param {typeof} option
+ */
+function createOption (option) {
+  // Numbers are not allowed
+  if (typeof option === 'number') {
+    option = String(option)
+  }
+  if (typeof option === 'string') {
+    return { label: option, value: option, id: `${this.elementAttributes.id}_${option}` }
+  }
+  if (typeof option.value === 'number') {
+    option.value = String(option.value)
+  }
+  return Object.assign({
+    value: '',
+    label: '',
+    id: `${this.elementAttributes.id}_${option.value || option.label}`
+  }, option)
 }
 
 /**
@@ -417,12 +466,17 @@ function hasVisibleErrors () {
 function slotComponents () {
   const fn = this.$formulate.slotComponent.bind(this.$formulate)
   return {
-    label: fn(this.type, 'label'),
-    help: fn(this.type, 'help'),
-    errors: fn(this.type, 'errors'),
-    repeatable: fn(this.type, 'repeatable'),
     addMore: fn(this.type, 'addMore'),
-    remove: fn(this.type, 'remove')
+    buttonContent: fn(this.type, 'buttonContent'),
+    errors: fn(this.type, 'errors'),
+    file: fn(this.type, 'file'),
+    help: fn(this.type, 'help'),
+    label: fn(this.type, 'label'),
+    prefix: fn(this.type, 'prefix'),
+    remove: fn(this.type, 'remove'),
+    repeatable: fn(this.type, 'repeatable'),
+    suffix: fn(this.type, 'suffix'),
+    uploadAreaMask: fn(this.type, 'uploadAreaMask')
   }
 }
 
@@ -446,9 +500,10 @@ function slotProps () {
  * Bound into the context object.
  */
 function blurHandler () {
-  if (this.errorBehavior === 'blur') {
+  if (this.errorBehavior === 'blur' || this.errorBehavior === 'value') {
     this.behavioralErrorVisibility = true
   }
+  this.$nextTick(() => this.$emit('blur-context', this.context))
 }
 
 /**
@@ -490,11 +545,11 @@ function modelGetter () {
  **/
 function modelSetter (value) {
   let didUpdate = false
-  if (!shallowEqualObjects(value, this.proxy)) {
+  if (!equals(value, this.proxy, this.type === 'group')) {
     this.proxy = value
     didUpdate = true
   }
-  if (this.context.name && typeof this.formulateSetter === 'function') {
+  if (!this.context.ignored && this.context.name && typeof this.formulateSetter === 'function') {
     this.formulateSetter(this.context.name, value)
   }
   if (didUpdate) {

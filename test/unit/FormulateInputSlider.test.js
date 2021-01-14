@@ -96,4 +96,27 @@ describe('FormulateInputSlider', () => {
     await flushPromises()
     expect(focus.mock.calls.length).toBe(1);
   })
+
+  it('allows slot injection of of a prefix and suffix', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="range"
+          label="money"
+          min="10"
+          max="20"
+          value="15"
+        >
+          <template #prefix="{ label }">
+            <span>\${{ label }}</span>
+          </template>
+          <template #suffix="{ label }">
+            <span>after {{ label }}</span>
+          </template>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('.formulate-input-element > span').text()).toBe('$money')
+    expect(wrapper.find('.formulate-input-element > *:last-child').text()).toBe('after money')
+  })
 })

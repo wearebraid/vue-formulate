@@ -1,6 +1,6 @@
 import isUrl from 'is-url'
 import FileUpload from '../FileUpload'
-import { shallowEqualObjects, regexForFormat, isEmpty } from './utils'
+import { equals, regexForFormat, isEmpty } from './utils'
 
 /**
  * Library of rules
@@ -81,14 +81,14 @@ export default {
    * Confirm that the value of one field is the same as another, mostly used
    * for password confirmations.
    */
-  confirm: function ({ value, getFormValues, name }, field) {
+  confirm: function ({ value, getGroupValues, name }, field) {
     return Promise.resolve((() => {
-      const formValues = getFormValues()
+      const values = getGroupValues()
       var confirmationFieldName = field
       if (!confirmationFieldName) {
         confirmationFieldName = /_confirm$/.test(name) ? name.substr(0, name.length - 8) : `${name}_confirm`
       }
-      return formValues[confirmationFieldName] === value
+      return values[confirmationFieldName] === value
     })())
   },
 
@@ -136,7 +136,7 @@ export default {
   in: function ({ value }, ...stack) {
     return Promise.resolve(stack.find(item => {
       if (typeof item === 'object') {
-        return shallowEqualObjects(item, value)
+        return equals(item, value)
       }
       return item === value
     }) !== undefined)
@@ -223,7 +223,7 @@ export default {
   not: function ({ value }, ...stack) {
     return Promise.resolve(stack.find(item => {
       if (typeof item === 'object') {
-        return shallowEqualObjects(item, value)
+        return equals(item, value)
       }
       return item === value
     }) === undefined)

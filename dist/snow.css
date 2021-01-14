@@ -212,6 +212,9 @@
     .formulate-input[data-classification='button'] button[disabled] {
       background-color: #cecece;
       border-color: #cecece; }
+      .formulate-input[data-classification='button'] button[disabled]:active {
+        background-color: #cecece;
+        border-color: #cecece; }
     .formulate-input[data-classification='button'] button[data-ghost] {
       color: #41b883;
       background-color: transparent;
@@ -355,6 +358,9 @@
         transition: background-color .2s;
         overflow: hidden;
         text-indent: -1000px; }
+        .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove[data-disabled] {
+          opacity: .2;
+          pointer-events: none; }
         .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove::before, .formulate-input[data-classification='group'] [data-is-repeatable] .formulate-input-group-repeatable-remove::after {
           content: '';
           position: absolute;
@@ -435,6 +441,26 @@
     list-style-type: none;
     margin: 0;
     padding: 0; }
+    .formulate-input[data-classification="file"] .formulate-files .formulate-file-add {
+      appearance: none;
+      display: block;
+      min-width: 75px;
+      border: 1px solid #41b883;
+      color: #41b883;
+      padding: 5px;
+      border-radius: 5px;
+      text-align: center;
+      position: relative;
+      font-size: 13px;
+      background-color: transparent;
+      cursor: pointer;
+      margin: .5em 0; }
+      .formulate-input[data-classification="file"] .formulate-files .formulate-file-add input {
+        position: absolute;
+        display: block;
+        cursor: pointer; }
+        .formulate-input[data-classification="file"] .formulate-files .formulate-file-add input::-webkit-file-upload-button {
+          display: none; }
     .formulate-input[data-classification="file"] .formulate-files .formulate-file-progress {
       background-color: #cecece;
       height: .3em;

@@ -1,6 +1,7 @@
 import { parseRules, parseLocale, regexForFormat, cloneDeep, isValueType, camel, groupBails, isEmpty } from '@/libs/utils'
 import rules from '@/libs/rules'
 import FileUpload from '@/FileUpload';
+import { equals } from '../../src/libs/utils';
 
 describe('parseRules', () => {
   it('parses single string rules, returning empty arguments array', () => {
@@ -284,5 +285,16 @@ describe('groupBails', () => {
     it('is false when zero value', () => expect(isEmpty(0)).toBe(false))
     it('is false when has array values', () => expect(isEmpty(['first'])).toBe(false))
     it('is false when has object has values', () => expect(isEmpty([{ key: 'value' }])).toBe(false))
+  })
+
+  describe('equals', () => {
+    it('is true when simple empty objects', () => expect(equals({}, {})).toBe(true))
+    it('is true when same properties and values', () => expect(equals({ a: 'a' }, { a: 'a' })).toBe(true))
+    it('is false when same properties and different', () => expect(equals({ a: 'a' }, { a: 'b' })).toBe(false))
+    it('is false when different properties and same values', () => expect(equals({ a: 'a' }, { a: 'b' })).toBe(false))
+    it('is true when multiple properties and same values of different types', () => expect(equals({ a: 'a', c: 123 }, { a: 'a', c: 123 })).toBe(true))
+    it('is true with scalar strings', () => expect(equals('abc', 'abc')).toBe(true))
+    it('is true with scalar numbers', () => expect(equals(123, 123)).toBe(true))
+    it('is false with different scalar numbers', () => expect(equals(123, 456)).toBe(false))
   })
 })

@@ -9,47 +9,44 @@
       :data-has-error="!!file.error"
       :data-has-preview="!!(imagePreview && file.previewData)"
     >
-      <div :class="context.classes.file">
-        <div
-          v-if="!!(imagePreview && file.previewData)"
-          :class="context.classes.fileImagePreview"
-        >
-          <img
-            :src="file.previewData"
-          >
-        </div>
-        <div
-          :class="context.classes.fileName"
-          :title="file.name"
-          v-text="file.name"
+      <FormulateSlot
+        name="file"
+        :context="context"
+        :file="file"
+        :image-preview="imagePreview"
+      >
+        <component
+          :is="context.slotComponents.file"
+          :context="context"
+          :file="file"
+          :image-preview="imagePreview"
         />
-        <div
-          v-if="file.progress !== false"
-          :data-just-finished="file.justFinished"
-          :data-is-finished="!file.justFinished && file.complete"
-          :class="context.classes.fileProgress"
-        >
-          <div
-            :class="context.classes.fileProgressInner"
-            :style="{width: file.progress + '%'}"
-          />
-        </div>
-        <div
-          v-if="(file.complete && !file.justFinished) || file.progress === false"
-          :class="context.classes.fileRemove"
-          @click="file.removeFile"
-        />
-      </div>
+      </FormulateSlot>
       <div
         v-if="file.error"
         :class="context.classes.fileUploadError"
         v-text="file.error"
       />
     </li>
+    <div
+      v-if="isMultiple && context.addLabel"
+      :class="context.classes.fileAdd"
+      role="button"
+    >
+      {{ context.addLabel }}
+      <input
+        ref="addFiles"
+        type="file"
+        multiple
+        :class="context.classes.fileAddInput"
+        @change="appendFiles"
+      >
+    </div>
   </ul>
 </template>
 
 <script>
+import { has } from './libs/utils'
 import FileUpload from './FileUpload'
 
 export default {
@@ -71,6 +68,9 @@ export default {
   computed: {
     fileUploads () {
       return this.files.files || []
+    },
+    isMultiple () {
+      return has(this.context.attributes, 'multiple')
     }
   },
   watch: {
@@ -83,6 +83,14 @@ export default {
   mounted () {
     if (this.imagePreview) {
       this.files.loadPreviews()
+    }
+  },
+  methods: {
+    appendFiles () {
+      const input = this.$refs.addFiles
+      if (input.files.length) {
+        this.files.mergeFileList(input)
+      }
     }
   }
 }

@@ -22,7 +22,9 @@ const options = {
       classification: 'box',
       component: 'FormulateInputBox'
     }
-  }
+  },
+  useInputDecorators: true,
+  validationNameStrategy: false
 }
 Vue.use(Formulate, options)
 
@@ -340,12 +342,41 @@ describe('FormulateInput', () => {
     expect(wrapper.find('input').attributes('aria-describedby')).toBeFalsy()
   });
 
+  it('it allows overriding aria-describedby', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'text',
+        validation: 'required',
+        errorBehavior: 'live',
+        value: 'bar',
+        help: 'abc',
+        'aria-describedby': 'other-id'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('input').attributes('aria-describedby')).toBe('other-id')
+  });
+
   it('can bail on validation when encountering the bail rule', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: { type: 'text', validation: 'bail|required|in:xyz', errorBehavior: 'live' }
     })
     await flushPromises();
     expect(wrapper.vm.context.visibleValidationErrors.length).toBe(1);
+  })
+
+  it('continues to bail after content was entered', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'text', name: 'letters', validation: 'bail|required|in:xyz', errorBehavior: 'live' }
+    })
+    await flushPromises();
+    wrapper.find('input').setValue('xyz')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-input-errors li').length).toBe(0);
+    wrapper.find('input').setValue('')
+    await flushPromises()
+    expect(wrapper.findAll('.formulate-input-errors li').length).toBe(1);
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('Letters is required.');
   })
 
   it('can show multiple validation errors if they occur before the bail rule', async () => {
@@ -390,6 +421,54 @@ describe('FormulateInput', () => {
     wrapper.find('input').trigger('blur')
     await flushPromises()
     expect(wrapper.find('.formulate-input-errors').exists()).toBe(false)
+  })
+
+  it('does not show errors initially when error-behavior is value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required',
+      errorBehavior: 'value',
+    } })
+    wrapper.find('input').trigger('input')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
+  })
+
+  it('shows errors when error-behavior is value and an input is blurred', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required',
+      errorBehavior: 'value',
+    } })
+    wrapper.find('input').trigger('blur')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
+  })
+
+  it('shows errors initially when error-behavior is value and it has a value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required|email',
+      errorBehavior: 'value',
+      value: 'test'
+    } })
+    wrapper.find('input').setValue('Added some text')
+    await flushPromises()
+    expect(wrapper.vm.touched).toBe(true)
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
+  })
+
+  it('hides errors initially, and then shows them after first touch when error-behavior is value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: {
+      type: 'text',
+      validation: 'required|email',
+      errorBehavior: 'value'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeFalsy()
+    wrapper.find('input').setValue('Added some text')
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors').exists()).toBeTruthy()
   })
 
   it('displays errors when error-behavior is submit and form is submitted', async () => {
@@ -856,5 +935,210 @@ describe('FormulateInput', () => {
     await flushPromises()
     expect(wrapper.find('button.my-custom-input').text()).toBe('foo-bar')
     resetInstance()
+  })
+
+  it('allows the disabling of input decorators with useInputDecorators: false', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      useInputDecorators: false
+    })
+
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      type: 'checkbox',
+      options: {
+        a: 'A',
+        b: 'B'
+      }
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-element-decorator').exists()).toBeFalsy()
+    resetInstance()
+  })
+
+  it('uses the validationName by default', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+    })
+
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      label: 'Hello world',
+      name: 'something',
+      validationName: 'This field',
+      validation: 'required',
+      errorBehavior: 'live'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('This field is required.')
+    resetInstance()
+  })
+
+  it('allows overriding the validation strategy via array', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      validationNameStrategy: ['label', 'name']
+    })
+
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      label: 'Hello world',
+      name: 'something',
+      validation: 'required',
+      errorBehavior: 'live'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('Hello world is required.')
+    resetInstance()
+  })
+
+  it('allows overriding the validation strategy via function', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Formulate, {
+      validationNameStrategy: function (vm) {
+        return vm.type === 'text' ? 'Some text' : vm.context.name
+      }
+    })
+
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      label: 'Hello world',
+      name: 'something',
+      validation: 'required',
+      errorBehavior: 'live'
+    } })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('Some text is required.')
+    resetInstance()
+  })
+
+  it('sets the field based on the value over the v-model when both are set', async () => {
+    const wrapper = mount({
+      template: `<FormulateInput
+        value="abc"
+        v-model="modelValue"
+      />`,
+      data () {
+        return {
+          modelValue: '123'
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('input').element.value).toBe('abc')
+  })
+
+  it('re-runs validation rules if the validation rules change', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          :validation="validationRules"
+          error-behavior="live"
+          name="city"
+        />
+      `,
+      data () {
+        return {
+          validationRules: 'required'
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').text()).toBe('City is required.')
+    wrapper.vm.validationRules = 'optional'
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-errors li').exists()).toBeFalsy()
+  })
+
+  it('exposes validation rules within the context object', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          label="Email"
+          validation="required"
+        >
+          <template #label="{ rules, label }">
+            <label>{{ label }}{{ rules.some(({ ruleName }) => ruleName === 'required') ? '*' : '' }}</label>
+          </template>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('label').text()).toBe('Email*')
+  })
+
+  it('can override the errorList slotComponent', async () => {
+    const localVue = createLocalVue()
+    localVue.component('CustomErrors', {
+      render: function (h) {
+        return h(
+          'div',
+          { class: 'custom-errors' },
+          this.visibleErrors
+            .map(error => h('div', { class: 'error-item', key: error }, error))
+        )
+      },
+      props: ['visibleErrors']
+    })
+    localVue.use(Formulate, {
+      slotComponents: {
+        errorList: 'CustomErrors'
+      }
+    })
+    const wrapper = mount(FormulateInput, {
+      localVue,
+      propsData: {
+        name: 'name',
+        validation: 'required',
+        errorBehavior: 'live'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-error').exists()).toBeFalsy()
+    expect(wrapper.find('.custom-errors .error-item').text()).toBe('Name is required.')
+    resetInstance()
+  })
+
+  it('can override the prefix slotComponent', async () => {
+    const localVue = createLocalVue()
+    localVue.component('PrefixMe', {
+      render: function (h) {
+        return h(
+          'div',
+          { class: 'custom-prefix' },
+          ['Hello there', this.context.name]
+        )
+      },
+      props: ['context']
+    })
+    localVue.use(Formulate, {
+      slotComponents: {
+        prefix: 'PrefixMe'
+      }
+    })
+    const wrapper = mount(FormulateInput, {
+      localVue,
+      propsData: {
+        name: 'justin',
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.formulate-input-element .custom-prefix').text()).toBe('Hello therejustin')
+    resetInstance()
+  })
+
+  it('emits a blur-context event on blur', async () => {
+    const listener = jest.fn();
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'text',
+        validation: 'required|email',
+        value: 'not an email',
+        errorBehavior: 'live'
+      },
+      listeners: {
+        'blur-context': listener
+      }
+    })
+    await flushPromises()
+    wrapper.find('input').trigger('blur')
+    await flushPromises()
+    expect(listener.mock.calls.length).toBe(1)
+    expect(listener.mock.calls[0][0].isValid).toBe(false)
   })
 })

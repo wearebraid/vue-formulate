@@ -9,6 +9,12 @@
         :options="{mercury: 'Mercury', venus: 'Venus', earth: 'Earth', mars: 'Mars'}"
         help="Average temperature on the surface of the planet."
       />
+      <FormulateInput
+        label="Who makes the best rockets?"
+        type="select"
+        :options="['SpaceX', 'United Launch Alliance', 'Avio', 'Aerojet Rocketdyne', 'Russians']"
+        help="Select your favorite"
+      />
     </div>
     <div class="specimen">
       <h3>Select with placeholder</h3>

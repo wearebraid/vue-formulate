@@ -130,4 +130,36 @@ describe('FormulateInputSelect', () => {
     await flushPromises()
     expect(wrapper.vm.context.model).toEqual([])
   })
+
+  it('allows using an array of strings as options', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: { type: 'select', options: ['Sydney', 'New York', 'Chicago'] },
+    })
+    await flushPromises()
+    expect(wrapper.findAll('select option')
+      .wrappers
+      .map(option => `${option.attributes('value')} - ${option.text()}`)
+    ).toEqual(['Sydney - Sydney', 'New York - New York', 'Chicago - Chicago'])
+  })
+
+  it('allows slot injection of of a prefix and suffix', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="select"
+          label="money"
+          :options="['a', 'b']"
+        >
+          <template #prefix="{ label }">
+            <span>\${{ label }}</span>
+          </template>
+          <template #suffix="{ label }">
+            <span>after {{ label }}</span>
+          </template>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('.formulate-input-element > span').text()).toBe('$money')
+    expect(wrapper.find('.formulate-input-element > *:last-child').text()).toBe('after money')
+  })
 })

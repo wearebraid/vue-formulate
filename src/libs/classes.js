@@ -24,16 +24,23 @@ export const classKeys = [
   'files',
   'file',
   'fileName',
+  'fileAdd',
+  'fileAddInput',
   'fileRemove',
   'fileProgress',
   'fileUploadError',
   'fileImagePreview',
+  'fileImagePreviewImage',
   'fileProgressInner',
   // Groups
   'grouping',
   'groupRepeatable',
   'groupRepeatableRemove',
-  'groupAddMore'
+  'groupAddMore',
+  // Forms
+  'form',
+  'formErrors',
+  'formError'
 ]
 
 /**
@@ -57,7 +64,7 @@ export const states = {
 const classGenerator = (classKey, context) => {
   // camelCase to dash-case
   const key = classKey.replace(/[A-Z]/g, c => '-' + c.toLowerCase())
-  const prefix = key.substr(0, 4) === 'file' ? '' : '-input'
+  const prefix = ['form', 'file'].includes(key.substr(0, 4)) ? '' : '-input'
   const element = ['decorator', 'range-value'].includes(key) ? '-element' : ''
   const base = `formulate${prefix}${element}${key !== 'outer' ? `-${key}` : ''}`
   return key === 'input' ? [] : [base].concat(classModifiers(base, classKey, context))
@@ -84,6 +91,11 @@ const classModifiers = (base, classKey, context) => {
       break
     case 'help':
       modifiers.push(`${base}--${context.helpPosition}`)
+      break
+    case 'form':
+      if (context.name) {
+        modifiers.push(`${base}--${context.name}`)
+      }
   }
   return modifiers
 }

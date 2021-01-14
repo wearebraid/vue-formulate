@@ -149,28 +149,28 @@ describe('between', () => {
  */
 describe('confirm', () => {
   it('passes when the values are the same strings', async () => expect(await rules.confirm(
-    { value: 'abc', name: 'password', getFormValues: () => ({ password_confirm: 'abc' }) }
+    { value: 'abc', name: 'password', getGroupValues: () => ({ password_confirm: 'abc' }) }
   )).toBe(true))
 
   it('passes when the values are the same integers', async () => expect(await rules.confirm(
-    { value: 4422132, name: 'xyz', getFormValues: () => ({ xyz_confirm: 4422132 }) }
+    { value: 4422132, name: 'xyz', getGroupValues: () => ({ xyz_confirm: 4422132 }) }
   )).toBe(true))
 
   it('passes when using a custom field', async () => expect(await rules.confirm(
-    { value: 4422132, name: 'name', getFormValues: () => ({ other_field: 4422132 }) },
+    { value: 4422132, name: 'name', getGroupValues: () => ({ other_field: 4422132 }) },
     'other_field'
   )).toBe(true))
 
   it('passes when using a field ends in _confirm', async () => expect(await rules.confirm(
-    { value: '$ecret', name: 'password_confirm', getFormValues: () => ({ password: '$ecret' }) }
+    { value: '$ecret', name: 'password_confirm', getGroupValues: () => ({ password: '$ecret' }) }
   )).toBe(true))
 
   it('fails when using different strings', async () => expect(await rules.confirm(
-    { value: 'Justin', name: 'name', getFormValues: () => ({ name_confirm: 'Daniel' }) },
+    { value: 'Justin', name: 'name', getGroupValues: () => ({ name_confirm: 'Daniel' }) },
   )).toBe(false))
 
   it('fails when the types are different', async () => expect(await rules.confirm(
-    { value: '1234', name: 'num', getFormValues: () => ({ num_confirm: 1234 }) },
+    { value: '1234', name: 'num', getGroupValues: () => ({ num_confirm: 1234 }) },
   )).toBe(false))
 })
 

@@ -63,6 +63,20 @@ describe('FormulateInputFile', () => {
       .toBe('test-class')
   })
 
+  it('can add classes to the input image preview image', () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'image',
+        fileImagePreviewImageClass: ['test-abc'],
+        value: [
+          { url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' }
+        ]
+      }
+    })
+    expect(wrapper.find('.formulate-file-image-preview img').attributes('class'))
+      .toBe('formulate-file-image-preview-image test-abc')
+  })
+
   it('has default upload area class and can override it', async () => {
     const wrapper = mount(FormulateInput, {
       propsData: {
@@ -114,14 +128,82 @@ describe('FormulateInputFile', () => {
     expect(focus.mock.calls.length).toBe(1);
   })
 
-  /**
-   * ===========================================================================
-   * Currently there appears to be no way to properly mock upload data in
-   * vue-test-utils because JSDom doesn't implement DataTransfer:
-   *
-   * https://stackoverflow.com/questions/48993134/how-to-test-input-file-with-jest-and-vue-test-utils
-   */
-  // it('type "image" renders a file element', async () => {
+  it('removes a file from initial value', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', value: [ { url: 'https://via.placeholder.com/350x150.png' } ] } })
+    expect(wrapper.vm.context.model.files).toHaveLength(1)
+    wrapper.vm.context.model.files[0].removeFile()
+    expect(wrapper.vm.context.model.files).toHaveLength(0)
+  })
 
-  // })
+  it('allows overriding the file slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'file',
+        value: [ { url: 'https://via.placeholder.com/350x150.png' } ]
+      },
+      scopedSlots: {
+        file: '<span class="file-slot-override">FILE {{ props.file.name }} HERE</span>'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.file-slot-override').text()).toBe('FILE 350x150.png HERE')
+  })
+
+  it('allows overriding the uploadAreaMask slot', async () => {
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'file'
+      },
+      scopedSlots: {
+        uploadAreaMask: '<span class="dropzone-here">CHECKOUT THIS DROPZONE! hasFiles: {{ props.hasFiles }}</span>'
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('.dropzone-here').text()).toBe('CHECKOUT THIS DROPZONE! hasFiles: false')
+  })
+
+  it('caches uploadPromise', async () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'image', value: [ { url: 'https://via.placeholder.com/350x150.png' } ] } })
+    expect(wrapper.vm.context.model).toBeInstanceOf(FileUpload)
+    expect(wrapper.vm.context.model.upload()).toBeInstanceOf(Promise)
+    expect(wrapper.vm.context.model.upload()).toEqual(wrapper.vm.context.model.uploadPromise)
+    await flushPromises()
+    expect(wrapper.vm.context.model.uploadPromise).toBeInstanceOf(Promise);
+  })
+
+  it('emits a @file-removed event', async () => {
+    const callback = jest.fn()
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'file',
+        value: [ { url: 'https://via.placeholder.com/350x150.png'} ]
+      },
+      listeners: {
+        'file-removed': callback
+      }
+    })
+    wrapper.find('.formulate-file-remove').trigger('click')
+    await flushPromises()
+    expect(callback).toHaveBeenCalled()
+  })
+
+  it('allows slot injection of of a prefix and suffix', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="file"
+          label="money"
+        >
+          <template #prefix="{ label }">
+            <span>\${{ label }}</span>
+          </template>
+          <template #suffix="{ label }">
+            <span>after {{ label }}</span>
+          </template>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('.formulate-input-element > span').text()).toBe('$money')
+    expect(wrapper.find('.formulate-input-element > *:last-child').text()).toBe('after money')
+  })
 })

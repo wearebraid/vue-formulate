@@ -29,6 +29,7 @@
         help="Fields can be grouped"
         :repeatable="true"
         minimum="3"
+        :value="[{ name: 'Justin' }, { name: 'Bob' }]"
         add-label="Add new user"
         remove-label="Remove user"
       >

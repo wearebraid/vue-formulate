@@ -4,6 +4,16 @@
     :data-type="context.type"
     :data-has-files="hasFiles"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    >
+      <component
+        :is="context.slotComponents.prefix"
+        v-if="context.slotComponents.prefix"
+        :context="context"
+      />
+    </FormulateSlot>
     <div
       :class="context.classes.uploadArea"
       :data-has-files="hasFiles"
@@ -19,10 +29,19 @@
         @dragover="handleDragOver"
         @dragleave="handleDragLeave"
       >
-      <div
-        v-show="!hasFiles"
-        :class="context.classes.uploadAreaMask"
-      />
+      <FormulateSlot
+        name="uploadAreaMask"
+        :context="context"
+        :has-files="hasFiles"
+      >
+        <component
+          :is="context.slotComponents.uploadAreaMask"
+          v-show="!hasFiles"
+          :has-files="context.slotComponents.uploadAreaMask === 'div' ? false : hasFiles"
+          :data-has-files="context.slotComponents.uploadAreaMask === 'div' ? hasFiles : false"
+          :class="context.classes.uploadAreaMask"
+        />
+      </FormulateSlot>
       <FormulateFiles
         v-if="hasFiles"
         :files="context.model"
@@ -30,6 +49,16 @@
         :context="context"
       />
     </div>
+    <FormulateSlot
+      name="suffix"
+      :context="context"
+    >
+      <component
+        :is="context.slotComponents.suffix"
+        v-if="context.slotComponents.suffix"
+        :context="context"
+      />
+    </FormulateSlot>
   </div>
 </template>
 

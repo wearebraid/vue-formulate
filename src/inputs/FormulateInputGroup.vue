@@ -2,7 +2,19 @@
   <div
     :class="context.classes.element"
     :data-is-repeatable="context.repeatable"
+    role="group"
+    :aria-labelledby="labelledBy"
   >
+    <FormulateSlot
+      name="prefix"
+      :context="context"
+    >
+      <component
+        :is="context.slotComponents.prefix"
+        v-if="context.slotComponents.prefix"
+        :context="context"
+      />
+    </FormulateSlot>
     <template
       v-if="subType !== 'grouping'"
     >
@@ -39,6 +51,16 @@
         />
       </FormulateSlot>
     </template>
+    <FormulateSlot
+      name="suffix"
+      :context="context"
+    >
+      <component
+        :is="context.slotComponents.suffix"
+        v-if="context.slotComponents.suffix"
+        :context="context"
+      />
+    </FormulateSlot>
   </div>
 </template>
 
@@ -85,6 +107,7 @@ export default {
         rootEmit,
         help,
         pseudoProps,
+        rules,
         model,
         ...context
       } = this.context
@@ -95,18 +118,29 @@ export default {
       ))
     },
     totalItems () {
-      return Array.isArray(this.context.model) ? this.context.model.length : this.context.minimum || 1
+      return Array.isArray(this.context.model) && this.context.model.length > this.context.minimum
+        ? this.context.model.length
+        : this.context.minimum || 1
     },
     canAddMore () {
       return (this.context.repeatable && this.totalItems < this.context.limit)
+    },
+    labelledBy () {
+      return this.context.label && `${this.context.id}_label`
     }
   },
   methods: {
     addItem () {
       if (Array.isArray(this.context.model)) {
-        return this.context.model.push(setId({}))
+        const minDiff = (this.context.minimum - this.context.model.length) + 1
+        const toAdd = Math.max(minDiff, 1)
+        for (let i = 0; i < toAdd; i++) {
+          this.context.model.push(setId({}))
+        }
+      } else {
+        this.context.model = (new Array(this.totalItems + 1)).fill('').map(() => setId({}))
       }
-      this.context.model = (new Array(this.totalItems + 1)).fill('').map(() => setId({}))
+      this.context.rootEmit('repeatableAdded', this.context.model)
     },
     groupItemContext (context, option, groupAttributes) {
       const optionAttributes = { isGrouped: true }

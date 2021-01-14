@@ -235,6 +235,11 @@
     &[disabled] {
       background-color: $formulate-gray-d;
       border-color: $formulate-gray-d;
+
+      &:active {
+        background-color: $formulate-gray-d;
+        border-color: $formulate-gray-d;
+      }
     }
 
     &[data-ghost] {
@@ -451,6 +456,11 @@
           overflow: hidden;
           text-indent: -1000px;
 
+          &[data-disabled] {
+            opacity: .2;
+            pointer-events: none;
+          }
+
           &::before,
           &::after {
             content: '';
@@ -573,6 +583,32 @@
       list-style-type: none;
       margin: 0;
       padding: 0;
+
+      .formulate-file-add {
+        appearance: none;
+        display: block;
+        min-width: 75px;
+        border: 1px solid $formulate-green;
+        color: $formulate-green;
+        padding: 5px;
+        border-radius: 5px;
+        text-align: center;
+        position: relative;
+        font-size: 13px;
+        background-color: transparent;
+        cursor: pointer;
+        margin: .5em 0;
+
+        input {
+          position: absolute;
+          display: block;
+          cursor: pointer;
+
+          &::-webkit-file-upload-button {
+            display: none;
+          }
+        }
+      }
 
       .formulate-file-progress {
         background-color: $formulate-gray-d;

@@ -6,7 +6,22 @@ import FormSubmission from '../../src/FormSubmission.js'
 import FormulateForm from '@/FormulateForm.vue'
 import FormulateInput from '@/FormulateInput.vue'
 
-Vue.use(Formulate)
+Vue.use(Formulate, {
+  classes: {
+    form: ['bg-white py-10']
+  },
+  library: {
+    onlyOut: {
+      classification: 'text',
+      component: {
+        props: ['context'],
+        render: function (h) {
+          return h('div', {attrs: {'data-output': true }}, this.context.model)
+        }
+      }
+    }
+  }
+})
 
 describe('FormulateForm', () => {
   it('render a form DOM element', () => {
@@ -245,30 +260,45 @@ describe('FormulateForm', () => {
   })
 
   it('emits an instance of FormSubmission', async () => {
+    const submitRaw = jest.fn();
     const wrapper = mount(FormulateForm, {
-      slots: { default: '<FormulateInput type="text" formulate-value="123" name="testinput" />' }
+      slots: { default: '<FormulateInput type="text" formulate-value="123" name="testinput" />' },
+      listeners: { 'submit-raw': submitRaw }
     })
     wrapper.find('form').trigger('submit')
     await flushPromises()
-    expect(wrapper.emitted('submit-raw')[0][0]).toBeInstanceOf(FormSubmission)
+    expect(submitRaw).toHaveBeenCalledWith(expect.any(FormSubmission))
   })
 
   it('resolves hasValidationErrors to true', async () => {
+    const submitRaw = jest.fn()
     const wrapper = mount(FormulateForm, {
-      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' }
+      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" />' },
+      listeners: { 'submit-raw': submitRaw }
     })
     wrapper.find('form').trigger('submit')
     await flushPromises()
-    const submission = wrapper.emitted('submit-raw')[0][0]
+    const submission = submitRaw.mock.calls[0][0]
     expect(await submission.hasValidationErrors()).toBe(true)
   })
 
-  it('resolves submitted form values to an object', async () => {
+  it('does not resolve a submitted form that doesnt have a handler', async () => {
     const wrapper = mount(FormulateForm, {
       slots: { default: '<FormulateInput type="text" validation="required" name="testinput" value="Justin" />' }
     })
     const submission = await wrapper.vm.formSubmitted()
-    expect(submission).toEqual({testinput: 'Justin'})
+    expect(submission).toEqual(false)
+  })
+
+  it('resolves a submitted form with a handler', async () => {
+    const wrapper = mount(FormulateForm, {
+      listeners: {
+        submit: () => {}
+      },
+      slots: { default: '<FormulateInput type="text" validation="required" name="testinput" value="Justin" />' }
+    })
+    const submission = await wrapper.vm.formSubmitted()
+    expect(submission).toEqual({ testinput: 'Justin' })
   })
 
   it('accepts a values prop and uses it to set the initial values', async () => {
@@ -290,6 +320,13 @@ describe('FormulateForm', () => {
     await wrapper.vm.$nextTick()
     await flushPromises()
     expect(wrapper.find('.formulate-input-error').exists()).toBe(true)
+  })
+
+  it('renders the name attribute', async () => {
+    const wrapper = mount(FormulateForm, {
+      propsData: { name: 'login' }
+    })
+    expect(wrapper.attributes('name')).toBe('login')
   })
 
   it('automatically registers with root plugin', async () => {
@@ -923,5 +960,273 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(wrapper.findComponent(FormulateForm).vm.registry.has('test')).toBe(true)
     expect(wrapper.findComponent(FormulateForm).vm.proxy).toEqual({ country: 'it', test: 'JigglyPuff' })
+  })
+
+  it('waits for one submission to finish before allowing the next one and exposes an isLoading prop', async () => {
+    let resolveMe;
+    const waitForMe = new Promise((resolve, reject) => resolveMe = resolve)
+
+    const submit = jest.fn(() => waitForMe)
+    const wrapper = mount({
+      template: `
+        <FormulateForm @submit="submit">
+          <template #default="{ isLoading }">{{ isLoading ? "yes" : "no" }}</template>
+        </FormulateForm>
+      `,
+      methods: {
+        submit
+      }
+    })
+
+    expect(wrapper.text()).toEqual('no')
+
+    await wrapper.trigger('submit')
+    await flushPromises()
+    expect(submit).toHaveBeenCalledTimes(1)
+    expect(wrapper.text()).toEqual('yes')
+
+    // submit is still waiting for the previous call to finish
+    await wrapper.trigger('submit')
+    await flushPromises()
+    expect(submit).toHaveBeenCalledTimes(1)
+    expect(wrapper.text()).toEqual('yes')
+
+    resolveMe()
+    await flushPromises()
+    expect(wrapper.text()).toEqual('no')
+
+    // now it is resolved and the next submit can be called
+    await wrapper.trigger('submit')
+    await flushPromises()
+    expect(submit).toHaveBeenCalledTimes(2)
+    // This will resolve immediately since it has already been resolved
+    expect(wrapper.text()).toEqual('no')
+  })
+
+  it('waits for a submit-raw to resolve before calling submit', async () => {
+    let resolveMe;
+    const waitForMe = new Promise((resolve, reject) => resolveMe = resolve)
+
+    const submit = jest.fn(() => {})
+    const submitRaw = jest.fn(() => waitForMe)
+    const wrapper = mount({
+      template: `
+        <FormulateForm @submit="submit" @submitRaw="submitRaw">
+          <template #default="{ isLoading }">{{ isLoading ? "yes" : "no" }}</template>
+        </FormulateForm>
+      `,
+      methods: {
+        submit,
+        submitRaw
+      }
+    })
+
+    expect(wrapper.text()).toEqual('no')
+
+    await wrapper.trigger('submit')
+    await flushPromises()
+    expect(submitRaw).toHaveBeenCalledTimes(1)
+    expect(submit).toHaveBeenCalledTimes(0)
+    expect(wrapper.text()).toEqual('yes')
+    resolveMe()
+    await flushPromises()
+    expect(submit).toHaveBeenCalledTimes(1)
+  })
+
+  it('ignored fields do not push their values to form', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm>
+        <FormulateInput name="search_users" ignored />
+        <FormulateInput name="email" />
+      </FormulateForm>
+      `
+    })
+    await flushPromises()
+    let registeredFields = wrapper.findComponent(FormulateForm).vm.registry.keys()
+    expect(registeredFields.includes('search_users')).toBe(false)
+    expect(registeredFields.includes('email')).toBe(true)
+    wrapper.find('input').setValue('jon')
+    await flushPromises()
+    registeredFields = Object.keys(wrapper.findComponent(FormulateForm).vm.proxy)
+    expect(registeredFields.includes('search_users')).toBe(false)
+  })
+
+  it('allows styling a form with a global form class', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm name="search" class="abc" :form-class="['def']" data-has-this-attribute>
+        <FormulateInput name="search_users" />
+        <FormulateInput name="email" />
+      </FormulateForm>
+      `
+    })
+    await flushPromises()
+    expect(Object.keys(wrapper.find('form').attributes())).toEqual(['data-has-this-attribute', 'name', 'class'])
+    expect(wrapper.find('form').attributes('class')).toBe('abc formulate-form formulate-form--search bg-white py-10 def')
+  })
+
+  it('tracks it’s validation state with formContext', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm #default="{ hasErrors }">
+        <FormulateInput name="search_users" validation="required" />
+        <FormulateInput name="email" validation="required|email" />
+        <FormulateInput type="submit" :disabled="hasErrors" />
+      </FormulateForm>
+      `
+    })
+    await flushPromises()
+    expect(wrapper.find('button[disabled]').exists()).toBe(true)
+    const inputs = wrapper.findAll('input')
+    const search = inputs.at(0)
+    const email = inputs.at(1)
+    search.setValue('justin')
+    email.setValue('schroeder')
+    await flushPromises()
+    // Should still fail
+    expect(wrapper.find('button[disabled]').exists()).toBe(true)
+    email.setValue('hello@wearebraid.com')
+    await flushPromises()
+    // Should now pass
+    expect(wrapper.find('button[disabled]').exists()).toBe(false)
+  })
+
+  it('emits a failed-validation error with references to all failing fields', async () => {
+    const failed = jest.fn()
+    const wrapper = mount({
+      template: `
+      <FormulateForm @failed-validation="failed">
+        <FormulateInput name="search_users" validation="required" />
+        <FormulateInput name="boxy" type="checkbox" :options="{a: 'A', b: 'B'}" validation="required" :value="['a']" />
+        <FormulateInput name="email" validation="required|email" />
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `,
+      methods: {
+        failed
+      }
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    const fields = wrapper.findAllComponents(FormulateInput)
+    expect(Object.keys(failed.mock.calls[0][0])).toEqual(['search_users', 'email'])
+    expect(failed.mock.calls[0][0].search_users).toBe(fields.at(0).vm)
+  })
+
+  it('Shows an error message when some of the fields are not validated on submit', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        invalid-message="Not all the fields are valid."
+      >
+        <FormulateInput name="search_users" validation="required" />
+        <FormulateInput name="boxy" type="checkbox" :options="{a: 'A', b: 'B'}" validation="required" :value="['a']" />
+        <FormulateInput name="email" validation="required|email" />
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('.formulate-form-errors li').text()).toBe('Not all the fields are valid.')
+  })
+
+  it('Shows an error message with invalid-message when using a function', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        :invalid-message="(fields) => Object.keys(fields).join(', ')"
+      >
+        <FormulateInput name="search_users" validation="required" />
+        <FormulateInput name="boxy" type="checkbox" :options="{a: 'A', b: 'B'}" validation="required" :value="['a']" />
+        <FormulateInput name="email" type="email" validation="required|email" />
+        <FormulateInput type="submit" />
+      </FormulateForm>
+      `
+    })
+    wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('.formulate-form-errors li').text()).toBe('search_users, email')
+    wrapper.find('input').setValue('justin')
+    wrapper.find('input[type="email"]').setValue('justin@wearebraid.com')
+    await flushPromises()
+    expect(wrapper.find('.formulate-form-errors').exists()).toBe(false)
+  })
+
+  it('can change form error wrapper and internal classes via class key props', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        :form-errors="['some invalid thing happened']"
+        :form-errors-class="['foobar']"
+        form-error-class="error-message"
+      >
+        <span>Empty form</span>
+      </FormulateForm>
+      `
+    })
+    expect(wrapper.find('ul').attributes('class')).toBe('formulate-form-errors foobar')
+    expect(wrapper.find('li').attributes('class')).toBe('error-message')
+  })
+
+  it('can change form error wrapper and internal classes via class key props with overridden FormErrors', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        :form-errors="['some invalid thing happened']"
+        :form-errors-class="['foobar']"
+        form-error-class="error-message"
+      >
+        <span>Empty form</span>
+        <FormulateErrors />
+      </FormulateForm>
+      `
+    })
+    expect(wrapper.find('span + ul').attributes('class')).toBe('formulate-form-errors foobar')
+    expect(wrapper.find('span + ul > li').attributes('class')).toBe('error-message')
+  })
+
+  it('It allows state keys to be used on forms', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm
+        form-has-value-class="form-has-a-value"
+      >
+        <FormulateInput name="name" />
+      </FormulateForm>
+      `
+    })
+    expect(wrapper.find('form').attributes('class')).toBe('formulate-form bg-white py-10')
+    wrapper.find('input').setValue('lauren')
+    await flushPromises()
+    expect(wrapper.find('form').attributes('class')).toBe('formulate-form bg-white py-10 form-has-a-value')
+  })
+
+  it('Allows mutating a number as value of v-modeled FormulateForm', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formValues"
+        >
+          <FormulateInput
+            type="onlyOut"
+            name="number"
+          />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          formValues: {
+            number: 1234
+          }
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.find('[data-output]').text()).toBe('1234')
+    wrapper.vm.formValues.number = 4567
+    await flushPromises()
+    expect(wrapper.find('[data-output]').text()).toBe('4567')
   })
 })

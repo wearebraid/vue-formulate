@@ -9,11 +9,11 @@
       v-for="(item, index) in items"
       :key="item.__id"
       :index="index"
-      :set-field-value="(field, value) => setFieldValue(index, field, value)"
       :context="context"
       :uuid="item.__id"
+      :errors="groupErrors[index]"
       @remove="removeItem"
-      @input="setItem"
+      @input="(values) => setItem(index, values)"
     >
       <slot />
     </FormulateRepeatableProvider>
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { setId, shallowEqualObjects } from './libs/utils'
+import { setId, has } from './libs/utils'
 
 export default {
   name: 'FormulateGrouping',
@@ -50,12 +50,20 @@ export default {
         if (!this.context.repeatable && this.context.model.length === 0) {
           return [setId({})]
         }
+        if (this.context.model.length < this.context.minimum) {
+          return (new Array(this.context.minimum || 1)).fill('')
+            .map((t, index) => setId(has(this.context.model, index) ? this.context.model[index] : {}))
+        }
         return this.context.model.map(item => setId(item, item.__id))
       }
       return (new Array(this.context.minimum || 1)).fill('').map(() => setId({}))
     },
     formShouldShowErrors () {
       return this.context.formShouldShowErrors
+    },
+    groupErrors () {
+      return this.items
+        .map((item, index) => has(this.context.groupErrors, index) ? this.context.groupErrors[index] : {})
     }
   },
   watch: {
@@ -78,23 +86,6 @@ export default {
     this.formulateRemoveRule('formulateGrouping')
   },
   methods: {
-    getAtIndex (index) {
-      if (typeof this.context.model[index] !== 'undefined' && this.context.model[index].__id) {
-        return this.context.model[index]
-      } else if (typeof this.context.model[index] !== 'undefined') {
-        return setId(this.context.model[index])
-      } else if (typeof this.context.model[index] === 'undefined' && typeof this.items[index] !== 'undefined') {
-        return setId({}, this.items[index].__id)
-      }
-      return setId({})
-    },
-    setFieldValue (index, field, value) {
-      const values = Array.isArray(this.context.model) ? this.context.model : []
-      const previous = this.getAtIndex(index)
-      const updated = setId(Object.assign({}, previous, { [field]: value }), previous.__id)
-      values.splice(index, 1, updated)
-      this.context.model = values
-    },
     validateGroup () {
       return Promise.all(this.providers.reduce((resolvers, provider) => {
         if (provider && typeof provider.hasValidationErrors === 'function') {
@@ -106,22 +97,23 @@ export default {
     showErrors () {
       this.providers.forEach(p => p && typeof p.showErrors === 'function' && p.showErrors())
     },
-    setItem (value) {
+    setItem (index, groupProxy) {
       // Note: value must have an __id to use this function
-      const values = Array.isArray(this.context.model) ? this.context.model : []
-      const index = values.findIndex(row => row.__id === value.__id)
-      if (index > -1 && !shallowEqualObjects(values[index], value)) {
-        values.splice(index, 1, value)
-        this.context.model = values
+      if (Array.isArray(this.context.model) && this.context.model.length >= this.context.minimum) {
+        this.context.model.splice(index, 1, setId(groupProxy, this.context.model[index].__id))
+      } else {
+        this.context.model = this.items.map((item, i) => i === index ? setId(groupProxy) : item)
       }
     },
     removeItem (index) {
       if (Array.isArray(this.context.model) && this.context.model.length > this.context.minimum) {
         // In this context we actually have data
-        this.context.model.splice(index, 1)
-      } else if (this.items.length > this.context.minimum) {
+        this.context.model = this.context.model.filter((item, i) => i === index ? false : item)
+        this.context.rootEmit('repeatableRemoved', this.context.model)
+      } else if (!Array.isArray(this.context.model) && this.items.length > this.context.minimum) {
         // In this context the fields have never been touched (not "dirty")
         this.context.model = (new Array(this.items.length - 1)).fill('').map(() => setId({}))
+        this.context.rootEmit('repeatableRemoved', this.context.model)
       }
       // Otherwise, do nothing, we're at our minimum
     },

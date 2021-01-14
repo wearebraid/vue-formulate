@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import flushPromises from 'flush-promises'
-import { mount } from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import Formulate from '@/Formulate.js'
 import FormulateInput from '@/FormulateInput.vue'
 import FormulateInputButton from '@/inputs/FormulateInputButton.vue'
@@ -139,5 +139,38 @@ describe('FormulateInputButton', () => {
     expect(focus.mock.calls.length).toBe(1);
   })
 
+  it('allows slot injection of of a prefix and suffix', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          type="button"
+          label="money"
+        >
+          <template #prefix="{ label }">
+            <span>\${{ label }}</span>
+          </template>
+          <template #suffix="{ label }">
+            <span>after {{ label }}</span>
+          </template>
+        </FormulateInput>
+      `
+    })
+    expect(wrapper.find('.formulate-input-element > span').text()).toBe('$money')
+    expect(wrapper.find('.formulate-input-element > *:last-child').text()).toBe('after money')
+  })
+
+  // Note, this should be the last test
+  it('renders the slotComponent buttonContent', async () => {
+    const localVue = createLocalVue()
+    localVue.component('CustomButtonContent', {
+      render: function (h) {
+        return h('div', { class: 'custom-button-content' }, this.context.label)
+      },
+      props: ['context']
+    })
+    localVue.use(Formulate, { slotComponents: { buttonContent: 'CustomButtonContent' } })
+    const wrapper = mount(FormulateInput, { localVue, propsData: { type: 'button', label: 'My button yall!' } })
+    expect(wrapper.find('.custom-button-content').text()).toBe('My button yall!')
+  })
 })
 

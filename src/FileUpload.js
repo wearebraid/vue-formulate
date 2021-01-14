@@ -11,13 +11,20 @@ class FileUpload {
    * @param {FileList} fileList
    * @param {object} context
    */
-  constructor (input, context, options = {}) {
+  constructor (input, context, globalOptions = {}) {
     this.input = input
     this.fileList = input.files
     this.files = []
-    this.options = { ...{ mimes: {} }, ...options }
+    this.options = {
+      ...{ mimes: {} },
+      ...globalOptions
+    }
     this.results = false
     this.context = context
+    this.dataTransferCheck()
+    if (context && context.uploadUrl) {
+      this.options.uploadUrl = context.uploadUrl
+    }
     this.uploadPromise = null
     if (Array.isArray(this.fileList)) {
       this.rehydrateFileList(this.fileList)
@@ -38,7 +45,7 @@ class FileUpload {
       const ext = (url && url.lastIndexOf('.') !== -1) ? url.substr(url.lastIndexOf('.') + 1) : false
       const mime = this.options.mimes[ext] || false
       fileList.push(Object.assign({}, item, url ? {
-        name: url.substr((url.lastIndexOf('/') + 1) || 0),
+        name: item.name || url.substr((url.lastIndexOf('/') + 1) || 0),
         type: item.type ? item.type : mime,
         previewData: url
       } : {}))
@@ -89,7 +96,7 @@ class FileUpload {
    */
   uploaderIsAxios () {
     if (
-      this.hasUploader &&
+      this.hasUploader() &&
       typeof this.context.uploader.request === 'function' &&
       typeof this.context.uploader.get === 'function' &&
       typeof this.context.uploader.delete === 'function' &&
@@ -129,11 +136,23 @@ class FileUpload {
    * Perform the file upload.
    */
   upload () {
-    if (this.uploadPromise) {
-      return this.uploadPromise
-    }
-    this.uploadPromise = new Promise((resolve, reject) => {
-      if (!this.hasUploader) {
+    // If someone calls upload() when an upload is already in process or there
+    // already was an upload completed, chain the upload request to the
+    // existing one. Already uploaded files wont re-upload and it ensures any
+    // files that were added after the initial list are completed too.
+    this.uploadPromise = this.uploadPromise
+      ? this.uploadPromise.then(() => this.__performUpload())
+      : this.__performUpload()
+    return this.uploadPromise
+  }
+
+  /**
+   * Perform the actual upload event. Intended to be a private method that is
+   * only called through the upload() function as chaining utility.
+   */
+  __performUpload () {
+    return new Promise((resolve, reject) => {
+      if (!this.hasUploader()) {
         return reject(new Error('No uploader has been defined'))
       }
       Promise.all(this.files.map(file => {
@@ -143,19 +162,21 @@ class FileUpload {
           file.file,
           (progress) => {
             file.progress = progress
+            this.context.rootEmit('file-upload-progress', progress)
             if (progress >= 100) {
               if (!file.complete) {
                 file.justFinished = true
                 setTimeout(() => { file.justFinished = false }, this.options.uploadJustCompleteDuration)
               }
               file.complete = true
+              this.context.rootEmit('file-upload-complete', file)
             }
           },
           (error) => {
             file.progress = 0
             file.error = error
             file.complete = true
-            this.uploadPromise = null
+            this.context.rootEmit('file-upload-error', error)
             reject(error)
           },
           this.options
@@ -165,9 +186,10 @@ class FileUpload {
           this.results = this.mapUUID(results)
           resolve(results)
         })
-        .catch(err => { throw new Error(err) })
+        .catch(err => {
+          throw new Error(err)
+        })
     })
-    return this.uploadPromise
   }
 
   /**
@@ -175,16 +197,46 @@ class FileUpload {
    * @param {string} uuid
    */
   removeFile (uuid) {
-    this.files = this.files.filter(file => file.uuid !== uuid)
-    this.results = this.results.filter(file => file.__id !== uuid)
+    const originalLength = this.files.length
+    this.files = this.files.filter(file => file && file.uuid !== uuid)
+    if (Array.isArray(this.results)) {
+      this.results = this.results.filter(file => file && file.__id !== uuid)
+    }
     this.context.performValidation()
-    if (window && this.fileList instanceof FileList) {
+    if (window && this.fileList instanceof FileList && this.supportsDataTransfers) {
       const transfer = new DataTransfer()
-      this.files.map(file => transfer.items.add(file.file))
+      this.files.forEach(file => transfer.items.add(file.file))
       this.fileList = transfer.files
       this.input.files = this.fileList
     } else {
-      this.fileList = this.fileList.filter(file => file.__id !== uuid)
+      this.fileList = this.fileList.filter(file => file && file.__id !== uuid)
+    }
+    if (originalLength > this.files.length) {
+      this.context.rootEmit('file-removed', this.files)
+    }
+  }
+
+  /**
+   * Given another input element, add the files from that FileList to the
+   * input being represented by this FileUpload.
+   *
+   * @param {HTMLElement} input
+   */
+  mergeFileList (input) {
+    this.addFileList(input.files)
+    // Create a new mutable FileList
+    if (this.supportsDataTransfers) {
+      const transfer = new DataTransfer()
+      this.files.forEach(file => transfer.items.add(file.file))
+      this.fileList = transfer.files
+      this.input.files = this.fileList
+      // Reset the merged FileList to empty
+      input.files = (new DataTransfer()).files
+    }
+    this.context.performValidation()
+    this.loadPreviews()
+    if (this.context.uploadBehavior !== 'delayed') {
+      this.upload()
     }
   }
 
@@ -202,10 +254,15 @@ class FileUpload {
   }
 
   /**
-   * Get the files.
+   * Check if the current browser supports the DataTransfer constructor.
    */
-  getFileList () {
-    return this.fileList
+  dataTransferCheck () {
+    try {
+      new DataTransfer() // eslint-disable-line
+      this.supportsDataTransfers = true
+    } catch (err) {
+      this.supportsDataTransfers = false
+    }
   }
 
   /**
@@ -220,7 +277,10 @@ class FileUpload {
    * @param {array} items expects an array of objects [{ url: '/uploads/file.pdf' }]
    */
   mapUUID (items) {
-    return items.map((result, index) => setId(result, this.files[index].uuid))
+    return items.map((result, index) => {
+      this.files[index].path = result !== undefined ? result : false
+      return result && setId(result, this.files[index].uuid)
+    })
   }
 
   toString () {

@@ -20,5 +20,6 @@ module.exports = {
   collectCoverageFrom: [
     "src/*.{js,vue}",
   ],
+  testMatch: ["<rootDir>/test/unit/*.test.js"]
   // verbose: true
 }

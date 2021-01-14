@@ -1,4 +1,4 @@
-import { shallowEqualObjects, has, isEmpty, setId } from './utils'
+import { equals, has, isEmpty, setId } from './utils'
 
 /**
  * Component registry with inherent depth to handle complex nesting. This is
@@ -11,6 +11,7 @@ class Registry {
    */
   constructor (ctx) {
     this.registry = new Map()
+    this.errors = {}
     this.ctx = ctx
   }
 
@@ -21,6 +22,7 @@ class Registry {
    */
   add (name, component) {
     this.registry.set(name, component)
+    this.errors = { ...this.errors, [name]: component.getErrorObject().hasErrors }
     return this
   }
 
@@ -29,12 +31,25 @@ class Registry {
    * @param {string} name
    */
   remove (name) {
+    // Clean up dependent validations
     this.ctx.deps.delete(this.registry.get(name))
     this.ctx.deps.forEach(dependents => dependents.delete(name))
-    const cleanUp = this.ctx.keepModelData ? false : (this.registry.has(name) ? !this.registry.get(name).keepModelData : true)
+
+    // Determine if we're keep the model data or destroying it
+    let keepData = this.ctx.keepModelData
+    if (!keepData && this.registry.has(name) && this.registry.get(name).keepModelData !== 'inherit') {
+      keepData = this.registry.get(name).keepModelData
+    }
+    if (this.ctx.preventCleanup) {
+      keepData = true
+    }
+
     this.registry.delete(name)
-    // Clean up if the component being removed does not have `keepModelData`
-    if (cleanUp) {
+    const { [name]: trash, ...errorValues } = this.errors
+    this.errors = errorValues
+
+    // Clean up the model if we don't explicitly state otherwise
+    if (!keepData) {
       const { [name]: value, ...newProxy } = this.ctx.proxy
       if (this.ctx.uuid) {
         // If the registry context has a uuid (row.__id) be sure to include it in
@@ -86,6 +101,10 @@ class Registry {
    * @param {vm} component the actual component instance.
    */
   register (field, component) {
+    if (has(component.$options.propsData, 'ignored')) {
+      // Any presence of the `ignored` prop will ensure this input is skipped.
+      return false
+    }
     if (this.registry.has(field)) {
       // Here we check to see if the field we are about to register is going to
       // immediately be removed. That indicates this field is switching like in
@@ -114,10 +133,10 @@ class Registry {
       component.context.model = this.ctx.initialValues[field]
     } else if (
       (hasVModelValue || hasValue) &&
-      !shallowEqualObjects(component.proxy, this.ctx.initialValues[field])
+      !equals(component.proxy, this.ctx.initialValues[field], true)
     ) {
       // In this case, the field is v-modeled or has an initial value and the
-      // form has no value or a different value, so use the field value
+      // registry has no value or a different value, so use the field value
       this.ctx.setFieldValue(field, component.proxy)
     }
     if (this.childrenShouldShowErrors) {
@@ -146,7 +165,9 @@ class Registry {
       register: this.register.bind(this),
       deregister: field => this.remove(field),
       childrenShouldShowErrors: false,
-      deps: new Map()
+      errorObservers: [],
+      deps: new Map(),
+      preventCleanup: false
     }
   }
 }
@@ -163,7 +184,7 @@ export default function useRegistry (contextComponent) {
 /**
  * Computed properties related to the registry.
  */
-export function useRegistryComputed () {
+export function useRegistryComputed (options = {}) {
   return {
     hasInitialValue () {
       return (
@@ -184,19 +205,32 @@ export function useRegistryComputed () {
         typeof this.formulateValue === 'object'
       ) {
         // If there is a v-model on the form/group, use those values as first priority
-        return Object.assign({}, this.formulateValue) // @todo - use a deep clone to detach reference types
+        return { ...this.formulateValue } // @todo - use a deep clone to detach reference types?
       } else if (
         has(this.$options.propsData, 'values') &&
         typeof this.values === 'object'
       ) {
         // If there are values, use them as secondary priority
-        return Object.assign({}, this.values)
+        return { ...this.values }
       } else if (
         this.isGrouping && typeof this.context.model[this.index] === 'object'
       ) {
         return this.context.model[this.index]
       }
       return {}
+    },
+    mergedGroupErrors () {
+      const hasSubFields = /^([^.\d+].*?)\.(\d+\..+)$/
+      return Object.keys(this.mergedFieldErrors)
+        .filter(k => hasSubFields.test(k))
+        .reduce((groupErrorsByRoot, k) => {
+          let [, rootField, groupKey] = k.match(hasSubFields)
+          if (!groupErrorsByRoot[rootField]) {
+            groupErrorsByRoot[rootField] = {}
+          }
+          Object.assign(groupErrorsByRoot[rootField], { [groupKey]: this.mergedFieldErrors[k] })
+          return groupErrorsByRoot
+        }, {})
     }
   }
 }
@@ -208,7 +242,7 @@ export function useRegistryMethods (without = []) {
   const methods = {
     applyInitialValues () {
       if (this.hasInitialValue) {
-        this.proxy = this.initialValues
+        this.proxy = { ...this.initialValues }
       }
     },
     setFieldValue (field, value) {
@@ -219,7 +253,7 @@ export function useRegistryMethods (without = []) {
       } else {
         Object.assign(this.proxy, { [field]: value })
       }
-      this.$emit('input', Object.assign({}, this.proxy))
+      this.$emit('input', { ...this.proxy })
     },
     valueDeps (callerCmp) {
       return Object.keys(this.proxy)
@@ -265,18 +299,65 @@ export function useRegistryMethods (without = []) {
       // Collect all keys, existing and incoming
       const keys = Array.from(new Set(Object.keys(values).concat(Object.keys(this.proxy))))
       keys.forEach(field => {
-        if (!shallowEqualObjects(values[field], this.proxy[field])) {
-          this.setFieldValue(field, values[field])
-          if (this.registry.has(field) && !shallowEqualObjects(values[field], this.registry.get(field).proxy)) {
-            this.registry.get(field).context.model = values[field]
-          }
+        const input = this.registry.has(field) && this.registry.get(field)
+        let value = values[field]
+        if (input && !equals(input.proxy, value, true)) {
+          input.context.model = value
+        }
+        if (!equals(value, this.proxy[field], true)) {
+          this.setFieldValue(field, value)
         }
       })
+    },
+    updateValidation (errorObject) {
+      if (has(this.registry.errors, errorObject.name)) {
+        this.registry.errors[errorObject.name] = errorObject.hasErrors
+      }
+      this.$emit('validation', errorObject)
+    },
+    addErrorObserver (observer) {
+      if (!this.errorObservers.find(obs => observer.callback === obs.callback)) {
+        this.errorObservers.push(observer)
+        if (observer.type === 'form') {
+          observer.callback(this.mergedFormErrors)
+        } else if (observer.type === 'group' && has(this.mergedGroupErrors, observer.field)) {
+          observer.callback(this.mergedGroupErrors[observer.field])
+        } else if (has(this.mergedFieldErrors, observer.field)) {
+          observer.callback(this.mergedFieldErrors[observer.field])
+        }
+      }
+    },
+    removeErrorObserver (observer) {
+      this.errorObservers = this.errorObservers.filter(obs => obs.callback !== observer)
     }
   }
   return Object.keys(methods).reduce((withMethods, key) => {
     return without.includes(key) ? withMethods : { ...withMethods, [key]: methods[key] }
   }, {})
+}
+
+/**
+ * Unified registry watchers.
+ */
+export function useRegistryWatchers () {
+  return {
+    mergedFieldErrors: {
+      handler (errors) {
+        this.errorObservers
+          .filter(o => o.type === 'input')
+          .forEach(o => o.callback(errors[o.field] || []))
+      },
+      immediate: true
+    },
+    mergedGroupErrors: {
+      handler (errors) {
+        this.errorObservers
+          .filter(o => o.type === 'group')
+          .forEach(o => o.callback(errors[o.field] || {}))
+      },
+      immediate: true
+    }
+  }
 }
 
 /**
@@ -287,8 +368,14 @@ export function useRegistryProviders (ctx, without = []) {
     formulateSetter: ctx.setFieldValue,
     formulateRegister: ctx.register,
     formulateDeregister: ctx.deregister,
+    formulateFieldValidation: ctx.updateValidation,
+    // Provided on forms only to let getFormValues to fall back to form
     getFormValues: ctx.valueDeps,
-    validateDependents: ctx.validateDeps
+    // Provided on groups only to expose group-level items
+    getGroupValues: ctx.valueDeps,
+    validateDependents: ctx.validateDeps,
+    observeErrors: ctx.addErrorObserver,
+    removeErrorObserver: ctx.removeErrorObserver
   }
   const p = Object.keys(providers)
     .filter(provider => !without.includes(provider))

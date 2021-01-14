@@ -19,12 +19,16 @@ export function map (original, callback) {
  * @param {} objA
  * @param {*} objB
  */
-export function shallowEqualObjects (objA, objB) {
+export function equals (objA, objB, deep = false) {
   if (objA === objB) {
     return true
   }
   if (!objA || !objB) {
     return false
+  }
+  if (typeof objA !== 'object' && typeof objB !== 'object') {
+    // Compare scalar values
+    return objA === objB
   }
   var aKeys = Object.keys(objA)
   var bKeys = Object.keys(objB)
@@ -36,8 +40,7 @@ export function shallowEqualObjects (objA, objB) {
 
   for (var i = 0; i < len; i++) {
     var key = aKeys[i]
-
-    if (objA[key] !== objB[key]) {
+    if ((!deep && objA[key] !== objB[key]) || (deep && !equals(objA[key], objB[key], deep))) {
       return false
     }
   }
@@ -301,7 +304,10 @@ export function has (ctx, prop) {
  * @param {Symbol} id
  */
 export function setId (o, id) {
-  return Object.defineProperty(o, '__id', Object.assign(Object.create(null), { value: id || nanoid(9) }))
+  if (!has(o, '__id')) {
+    return Object.defineProperty(o, '__id', Object.assign(Object.create(null), { value: id || nanoid(9) }))
+  }
+  return o
 }
 
 /**
@@ -325,3 +331,38 @@ export function isEmpty (value) {
     )
   )
 }
+
+/**
+ * Extract a set of attributes.
+ * @param {object} obj object to extract from
+ * @param {array} array of keys to extract
+ */
+export function extractAttributes (obj, keys) {
+  return Object.keys(obj).reduce((props, key) => {
+    const propKey = camel(key)
+    if (keys.includes(propKey)) {
+      props[propKey] = obj[key]
+    }
+    return props
+  }, {})
+}
+
+/**
+ * Create a hash of a given string.
+ * Credit: https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript#answer-52171480
+ *
+ * @param {string} str
+ * @param {int} seed
+ */
+export function cyrb43 (str, seed = 0) {
+  let h1 = 0xdeadbeef ^ seed
+  let h2 = 0x41c6ce57 ^ seed
+  for (let i = 0, ch; i < str.length; i++) {
+    ch = str.charCodeAt(i)
+    h1 = Math.imul(h1 ^ ch, 2654435761)
+    h2 = Math.imul(h2 ^ ch, 1597334677)
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909)
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0)
+};
