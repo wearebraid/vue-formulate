@@ -199,6 +199,7 @@ export default {
   created () {
     this.$formulate.register(this)
     this.applyInitialValues()
+    this.$emit('created', this)
   },
   destroyed () {
     this.$formulate.deregister(this)
