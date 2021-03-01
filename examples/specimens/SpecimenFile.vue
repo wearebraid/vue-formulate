@@ -20,6 +20,7 @@
         name="file"
         type="file"
         :outer-class="['file-input-2']"
+        :value="[{ url: 'apple.pdf' }]"
         help="Select any file to upload"
         validation="mime:application/pdf"
       />

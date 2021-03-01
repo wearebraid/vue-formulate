@@ -227,7 +227,11 @@ class FileUpload {
     // Create a new mutable FileList
     if (this.supportsDataTransfers) {
       const transfer = new DataTransfer()
-      this.files.forEach(file => transfer.items.add(file.file))
+      this.files.forEach(file => {
+        if (file.file instanceof File) {
+          transfer.items.add(file.file)
+        }
+      })
       this.fileList = transfer.files
       this.input.files = this.fileList
       // Reset the merged FileList to empty
