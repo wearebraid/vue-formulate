@@ -301,7 +301,7 @@ export function useRegistryMethods (without = []) {
     },
     setValues (values) {
       // Collect all keys, existing and incoming
-      const keys = Array.from(new Set(Object.keys(values).concat(Object.keys(this.proxy))))
+      const keys = Array.from(new Set(Object.keys(values || {}).concat(Object.keys(this.proxy))))
       keys.forEach(field => {
         const input = this.registry.has(field) && this.registry.get(field)
         let value = values[field]

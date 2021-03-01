@@ -7,7 +7,7 @@
   >
     <FormulateRepeatableProvider
       v-for="(item, index) in items"
-      :key="item.__id"
+      :key="index"
       :index="index"
       :context="context"
       :uuid="item.__id"
