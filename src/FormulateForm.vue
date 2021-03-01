@@ -69,6 +69,10 @@ export default {
     invalidMessage: {
       type: [Boolean, Function, String],
       default: false
+    },
+    debounce: {
+      type: [Boolean, Number],
+      default: false
     }
   },
   data () {

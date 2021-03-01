@@ -1141,4 +1141,27 @@ describe('FormulateInput', () => {
     expect(listener.mock.calls.length).toBe(1)
     expect(listener.mock.calls[0][0].isValid).toBe(false)
   })
+
+  it('can debounce a standard input', async () => {
+    const isdebounced = jest.fn();
+    const wrapper = mount(FormulateInput, {
+      propsData: {
+        type: 'text',
+        validation: 'isdebounced',
+        errorBehavior: 'live',
+        debounce: 50,
+        validationRules: {
+          isdebounced
+        }
+      }
+    })
+    const input = wrapper.find('input')
+    setTimeout(() => input.setValue('a'), 5)
+    setTimeout(() => input.setValue('ab'), 10)
+    setTimeout(() => input.setValue('abc'), 15)
+    setTimeout(() => input.setValue('abcd'), 20)
+    await new Promise(resolve => setTimeout(resolve, 100))
+    expect(isdebounced.mock.calls.length).toBe(2)
+    expect(isdebounced.mock.calls[1][0].value).toBe('abcd')
+  })
 })

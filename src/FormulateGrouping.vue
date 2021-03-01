@@ -48,14 +48,16 @@ export default {
     items () {
       if (Array.isArray(this.context.model)) {
         if (!this.context.repeatable && this.context.model.length === 0) {
+          // This is the default input.
           return [setId({})]
         }
         if (this.context.model.length < this.context.minimum) {
           return (new Array(this.context.minimum || 1)).fill('')
-            .map((t, index) => setId(has(this.context.model, index) ? this.context.model[index] : {}))
+            .map((t, index) => setId(this.context.model[index] || {}))
         }
-        return this.context.model.map(item => setId(item, item.__id))
+        return this.context.model.map(item => setId(item))
       }
+      // This is an unset group
       return (new Array(this.context.minimum || 1)).fill('').map(() => setId({}))
     },
     formShouldShowErrors () {
@@ -98,11 +100,12 @@ export default {
       this.providers.forEach(p => p && typeof p.showErrors === 'function' && p.showErrors())
     },
     setItem (index, groupProxy) {
+      const id = this.items[index].__id || false
       // Note: value must have an __id to use this function
       if (Array.isArray(this.context.model) && this.context.model.length >= this.context.minimum) {
-        this.context.model.splice(index, 1, setId(groupProxy, this.context.model[index].__id))
+        this.context.model.splice(index, 1, setId(groupProxy, id))
       } else {
-        this.context.model = this.items.map((item, i) => i === index ? setId(groupProxy) : item)
+        this.context.model = this.items.map((item, i) => i === index ? setId(groupProxy, id) : item)
       }
     },
     removeItem (index) {

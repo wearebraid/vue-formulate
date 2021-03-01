@@ -521,7 +521,12 @@ function listeners () {
 function defineModel (context) {
   return Object.defineProperty(context, 'model', {
     get: modelGetter.bind(this),
-    set: modelSetter.bind(this),
+    set: (value) => {
+      if (!this.debounceDelay) {
+        return modelSetter.call(this, value)
+      }
+      this.dSet(modelSetter, [value], this.debounceDelay)
+    },
     enumerable: true
   })
 }
