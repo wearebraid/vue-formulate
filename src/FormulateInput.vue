@@ -294,7 +294,8 @@ export default {
       messageRegistry: {},
       touched: false,
       debounceDelay: this.debounce,
-      dSet: createDebouncer()
+      dSet: createDebouncer(),
+      mntd: false
     }
   },
   computed: {
@@ -393,6 +394,9 @@ export default {
     if (this.hasValue) {
       this.touched = true
     }
+  },
+  mounted () {
+    this.mntd = true
   },
   beforeDestroy () {
     if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
