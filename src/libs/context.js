@@ -15,6 +15,7 @@ export default {
       blurHandler: blurHandler.bind(this),
       classification: this.classification,
       component: this.component,
+      debounceDelay: this.debounceDelay,
       disableErrors: this.disableErrors,
       errors: this.explicitErrors,
       formShouldShowErrors: this.formShouldShowErrors,

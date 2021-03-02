@@ -371,6 +371,9 @@ export default {
       if (this.errorBehavior === 'value' && value) {
         this.behavioralErrorVisibility = value
       }
+    },
+    debounce (value) {
+      this.debounceDelay = value
     }
   },
   created () {

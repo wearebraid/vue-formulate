@@ -124,8 +124,9 @@ class Registry {
     const hasVModelValue = has(component.$options.propsData, 'formulateValue')
     const hasValue = has(component.$options.propsData, 'value')
     // This is not reactive
-    if (this.ctx.debounce && !has(component.$options.propsData, 'debounce')) {
-      component.debounceDelay = this.ctx.debounce
+    const debounceDelay = this.ctx.debounce || this.ctx.debounceDelay || (this.ctx.context && this.ctx.context.debounceDelay)
+    if (debounceDelay && !has(component.$options.propsData, 'debounce')) {
+      component.debounceDelay = debounceDelay
     }
     if (
       !hasVModelValue &&
