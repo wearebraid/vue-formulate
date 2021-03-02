@@ -69,6 +69,10 @@ export default {
     invalidMessage: {
       type: [Boolean, Function, String],
       default: false
+    },
+    debounce: {
+      type: [Boolean, Number],
+      default: false
     }
   },
   data () {
@@ -195,6 +199,7 @@ export default {
   created () {
     this.$formulate.register(this)
     this.applyInitialValues()
+    this.$emit('created', this)
   },
   destroyed () {
     this.$formulate.deregister(this)

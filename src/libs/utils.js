@@ -228,7 +228,7 @@ export function regexForFormat (format) {
     MM: '(0[1-9]|1[012])',
     M: '([1-9]|1[012])',
     DD: '([012][0-9]|3[01])',
-    D: '([012]?[1-9]|3[01])',
+    D: '([012]?[0-9]|3[01])',
     YYYY: '\\d{4}',
     YY: '\\d{2}'
   }
@@ -304,7 +304,7 @@ export function has (ctx, prop) {
  * @param {Symbol} id
  */
 export function setId (o, id) {
-  if (!has(o, '__id')) {
+  if (!has(o, '__id') || id) {
     return Object.defineProperty(o, '__id', Object.assign(Object.create(null), { value: id || nanoid(9) }))
   }
   return o
@@ -366,3 +366,16 @@ export function cyrb43 (str, seed = 0) {
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
   return 4294967296 * (2097151 & h2) + (h1 >>> 0)
 };
+
+/**
+ * Create a new debouncer — will debounce any function calls.
+ */
+export function createDebouncer () {
+  let timeout
+  return function debounceFn (fn, args, delay) {
+    if (timeout) {
+      clearTimeout(timeout)
+    }
+    timeout = setTimeout(() => fn.call(this, ...args), delay)
+  }
+}

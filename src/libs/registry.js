@@ -123,6 +123,11 @@ class Registry {
     this.add(field, component)
     const hasVModelValue = has(component.$options.propsData, 'formulateValue')
     const hasValue = has(component.$options.propsData, 'value')
+    // This is not reactive
+    const debounceDelay = this.ctx.debounce || this.ctx.debounceDelay || (this.ctx.context && this.ctx.context.debounceDelay)
+    if (debounceDelay && !has(component.$options.propsData, 'debounce')) {
+      component.debounceDelay = debounceDelay
+    }
     if (
       !hasVModelValue &&
       this.ctx.hasInitialValue &&
@@ -297,7 +302,7 @@ export function useRegistryMethods (without = []) {
     },
     setValues (values) {
       // Collect all keys, existing and incoming
-      const keys = Array.from(new Set(Object.keys(values).concat(Object.keys(this.proxy))))
+      const keys = Array.from(new Set(Object.keys(values || {}).concat(Object.keys(this.proxy))))
       keys.forEach(field => {
         const input = this.registry.has(field) && this.registry.get(field)
         let value = values[field]

@@ -87,7 +87,7 @@
 
 <script>
 import context from './libs/context'
-import { equals, parseRules, camel, has, arrayify, groupBails, isEmpty } from './libs/utils'
+import { equals, parseRules, camel, has, arrayify, groupBails, isEmpty, createDebouncer } from './libs/utils'
 
 export default {
   name: 'FormulateInput',
@@ -272,6 +272,10 @@ export default {
     ignored: {
       type: [Boolean, String],
       default: false
+    },
+    debounce: {
+      type: [Boolean, Number],
+      default: false
     }
   },
   data () {
@@ -288,7 +292,9 @@ export default {
       // These registries are used for injected messages registrants only (mostly internal).
       ruleRegistry: [],
       messageRegistry: {},
-      touched: false
+      touched: false,
+      debounceDelay: this.debounce,
+      dSet: createDebouncer()
     }
   },
   computed: {
@@ -365,6 +371,9 @@ export default {
       if (this.errorBehavior === 'value' && value) {
         this.behavioralErrorVisibility = value
       }
+    },
+    debounce (value) {
+      this.debounceDelay = value
     }
   },
   created () {
