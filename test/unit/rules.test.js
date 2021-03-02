@@ -192,6 +192,8 @@ describe('date', () => {
 
   it('passes with valid date format', async () => expect(await rules.date({ value: '12/10/1987' }, 'MM/DD/YYYY')).toBe(true))
 
+  it('passes with date ending in zero', async () => expect(await rules.date({ value: '12/10/1987' }, 'MM/D/YYYY')).toBe(true))
+
   it('fails with simple number and date format', async () => expect(await rules.date({ value: '1234' }, 'MM/DD/YYYY')).toBe(false))
 
   it('fails with only day of week', async () => expect(await rules.date({ value: 'saturday' })).toBe(false))
