@@ -48,6 +48,16 @@ describe('FormulateInputSelect', () => {
     expect(wrapper.find('select[name="foo"]').exists()).toBe(true)
   })
 
+  it('Allows disabling options', () => {
+    const wrapper = mount(FormulateInput, { propsData: { type: 'select', options: [
+      { label: 'a', value: 'a'},
+      { label: 'b', value: 'b', disabled: true },
+      { label: 'c', value: 'c'}
+    ],  name: 'foo' } })
+    expect(wrapper.find('option[value="a"]').attributes('disabled')).toBe(undefined)
+    expect(wrapper.find('option[value="b"]').attributes('disabled')).toBe('disabled')
+  })
+
   it('additional context does not bleed through to text select attributes', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'select' } } )
     expect(Object.keys(wrapper.find('select').attributes())).toEqual(["id"])

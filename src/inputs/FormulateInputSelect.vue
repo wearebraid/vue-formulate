@@ -37,7 +37,8 @@
           v-for="option in options"
           :key="option.id"
           :value="option.value"
-          v-bind="option.attributes || {}"
+          :disabled="!!option.disabled"
+          v-bind="option.attributes || option.attrs || {}"
           v-text="option.label"
         />
       </template>
@@ -53,7 +54,8 @@
             v-for="option in subOptions"
             :key="option.id"
             :value="option.value"
-            v-bind="option.attributes || {}"
+            :disabled="!!option.disabled"
+            v-bind="option.attributes || option.attrs || {}"
             v-text="option.label"
           />
         </optgroup>
