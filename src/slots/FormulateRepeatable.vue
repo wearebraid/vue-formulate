@@ -6,6 +6,7 @@
     <FormulateSlot
       name="remove"
       :context="context"
+      :index="index"
       :remove-item="removeItem"
     >
       <component

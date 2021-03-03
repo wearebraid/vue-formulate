@@ -29,6 +29,7 @@
     id="app"
     class="specimen-list"
   >
+    <Test />
     <SpecimenButton />
     <SpecimenBox />
     <SpecimenFile />
@@ -51,10 +52,12 @@ import SpecimenButton from './specimens/SpecimenButton'
 import SpecimenBox from './specimens/SpecimenBox'
 import SpecimenSlider from './specimens/SpecimenSlider'
 import SpecimenSelect from './specimens/SpecimenSelect'
+import Test from './specimens/Test'
 
 export default {
   name: 'App',
   components: {
+    Test,
     SpecimenButton,
     SpecimenBox,
     SpecimenText,

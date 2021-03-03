@@ -967,4 +967,96 @@ describe('FormulateInputGroup', () => {
     expect(wrapper.find('.formulate-input-element > span').text()).toBe('$money')
     expect(wrapper.find('.formulate-input-element > *:last-child').text()).toBe('after money')
   })
+
+  it('is able to set/remove the proper values when using nested repeatable groups', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateInput
+          v-model="users"
+          name="users"
+          type="group"
+          :repeatable="true"
+          >
+          <template #remove="{ removeItem }">
+            <a href="" class="remove-user" @click.prevent="removeItem">Remove</a>
+          </template>
+          <FormulateInput
+            type="text"
+            name="username"
+          />
+          <FormulateInput
+            type="group"
+            name="social"
+            :repeatable="true"
+          >
+            <FormulateInput
+              name="platform"
+              type="select"
+              :options="['Twitter', 'Facebook', 'Instagram']"
+            />
+            <FormulateInput
+              name="handles"
+              type="group"
+              :options="['Twitter', 'Facebook', 'Instagram']"
+            >
+              <FormulateInput
+                type="text"
+                name="handle"
+              />
+            </FormulateInput>
+          </FormulateInput>
+        </FormulateInput>
+      `,
+      data () {
+        return {
+          users: [
+            {
+              username: 'Jon',
+              social: [{ platform: 'Twitter', handles: [{ handle: '@jon' }] }, { platform: 'Facebook', handles: [{ handle: '@fb-jon' }] }]
+            },
+            {
+              username: 'Jane',
+              social: [{ platform: 'Instagram', handles: [{ handle: '@jane' }] }, { platform: 'Facebook', handles: [{ handle: '@fb-jane' }] }]
+            }
+          ]
+        }
+      }
+    })
+    await flushPromises()
+    wrapper.findAll('[name="username"]').wrappers.map(wrapper => wrapper.element.value)
+    // Make sure the top level fields have the right values
+    expect(
+      wrapper.findAll('[name="username"]').wrappers.map(wrapper => wrapper.element.value)
+    ).toEqual(['Jon', 'Jane'])
+
+    // Make sure the secondary depth fields have the right values
+    expect(
+      wrapper.findAll('select').wrappers.map(wrapper => wrapper.element.value)
+    ).toEqual(['Twitter', 'Facebook', 'Instagram', 'Facebook'])
+
+    // Remove the first user
+    wrapper.find('.remove-user').trigger('click')
+    await flushPromises()
+
+    // Expect the first username to now be the second user
+    expect(
+      wrapper.findAll('[name="username"]').wrappers.map(wrapper => wrapper.element.value)
+    ).toEqual(['Jane'])
+
+    expect(
+      wrapper.findAll('select').wrappers.map(wrapper => wrapper.element.value)
+    ).toEqual(['Instagram', 'Facebook'])
+
+    wrapper.find('.formulate-input-group-repeatable-remove').trigger('click')
+    await flushPromises()
+
+    expect(
+      wrapper.findAll('select').wrappers.map(wrapper => wrapper.element.value)
+    ).toEqual(['Facebook'])
+
+    expect(
+      wrapper.findAll('[name="handle"]').wrappers.map(wrapper => wrapper.element.value)
+    ).toEqual(['@fb-jane'])
+  })
+
 })
