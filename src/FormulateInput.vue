@@ -276,6 +276,10 @@ export default {
     debounce: {
       type: [Boolean, Number],
       default: false
+    },
+    preventDeregister: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -405,7 +409,7 @@ export default {
         this.removeErrorObserver(this.setGroupErrors)
       }
     }
-    if (typeof this.formulateDeregister === 'function') {
+    if (typeof this.formulateDeregister === 'function' && !this.preventDeregister) {
       this.formulateDeregister(this.nameOrFallback)
     }
   },

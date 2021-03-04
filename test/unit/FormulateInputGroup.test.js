@@ -1059,4 +1059,39 @@ describe('FormulateInputGroup', () => {
     ).toEqual(['@fb-jane'])
   })
 
+  it.only('does not let checkboxes wipe their own value out', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formData"
+        >
+          <FormulateInput
+            name="pizzas"
+            type="group"
+            :repeatable="true"
+          >
+            <FormulateInput
+              type="checkbox"
+              name="flavors"
+              :options="options"
+            />
+          </FormulateInput>
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          options: ['cheese', 'pepperoni', 'pineapple', 'sausage'],
+          formData: {
+            pizzas: [{ flavors: ['pepperoni', 'pineapple'] }]
+          }
+        }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.vm.formData).toEqual({
+      pizzas: [{
+        flavors: ['pepperoni', 'pineapple']
+      }]
+    })
+  })
 })
