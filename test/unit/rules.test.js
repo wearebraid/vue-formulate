@@ -448,11 +448,17 @@ describe('number', () => {
 describe('required', () => {
   it('fails on empty string', async () => expect(await rules.required({ value: '' })).toBe(false))
 
+  it('fails with only whitespace as value when second argument is "trim"', async () => expect(await rules.required({ value: ' ' }, 'trim')).toBe(false))
+  
   it('fails on empty array', async () => expect(await rules.required({ value: [] })).toBe(false))
 
   it('fails on empty object', async () => expect(await rules.required({ value: {} })).toBe(false))
 
   it('fails on null', async () => expect(await rules.required({ value: null })).toBe(false))
+
+  it('passes with only whitespace as value', async () => expect(await rules.required({ value: ' ' })).toBe(true))
+
+  it('passes with only whitespace as value when second argument is not "trim"', async () => expect(await rules.required({ value: ' ' }, 'pre')).toBe(true))
 
   it('passes with the number zero', async () => expect(await rules.required({ value: 0 })).toBe(true))
 
@@ -461,10 +467,6 @@ describe('required', () => {
   it('passes with a non empty array', async () => expect(await rules.required({ value: ['123'] })).toBe(true))
 
   it('passes with a non empty object', async () => expect(await rules.required({ value: { a: 'b' } })).toBe(true))
-
-  it('passes with empty value if second argument is false', async () => expect(await rules.required({ value: '' }, false)).toBe(true))
-
-  it('passes with empty value if second argument is false string', async () => expect(await rules.required({ value: '' }, 'false')).toBe(true))
 
   it('passes with FileUpload', async () => expect(await rules.required({ value: new FileUpload({ files: [{ name: 'j.png' }] }) })).toBe(true))
 

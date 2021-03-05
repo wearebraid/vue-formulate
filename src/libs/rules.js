@@ -237,13 +237,10 @@ export default {
   },
 
   /**
-   * Rule: must be a value
+   * Rule: must be a value - allows for an optional argument "whitespace" with a possible value 'trim' and default 'pre'.
    */
-  required: function ({ value }, isRequired = true) {
+  required: function ({ value }, whitespace = 'pre') {
     return Promise.resolve((() => {
-      if (!isRequired || ['no', 'false'].includes(isRequired)) {
-        return true
-      }
       if (Array.isArray(value)) {
         return !!value.length
       }
@@ -251,7 +248,7 @@ export default {
         return value.getFiles().length > 0
       }
       if (typeof value === 'string') {
-        return !!value
+        return whitespace === 'trim' ? !!value.trim() : !!value
       }
       if (typeof value === 'object') {
         return (!value) ? false : !!Object.keys(value).length
