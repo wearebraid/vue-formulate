@@ -21,23 +21,18 @@
     </div>
     <div class="specimen">
       <h3>Simple repeatable group</h3>
-      {{ formData }}
-      <FormulateForm
-        v-model="formData"
+      <FormulateInput
+        type="group"
+        name="foobar"
+        :repeatable="true"
       >
-        <FormulateInput
-          type="group"
-          name="foobar"
-          :repeatable="true"
-        >
-          <div class="wrap">
-            <FormulateInput
-              type="text"
-              name="name"
-            />
-          </div>
-        </FormulateInput>
-      </FormulateForm>
+        <div class="wrap">
+          <FormulateInput
+            type="text"
+            name="name"
+          />
+        </div>
+      </FormulateInput>
     </div>
     <div class="specimen">
       <h3>Repeatable group</h3>
@@ -71,13 +66,3 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  data () {
-    return {
-      formData: {}
-    }
-  }
-}
-</script>
