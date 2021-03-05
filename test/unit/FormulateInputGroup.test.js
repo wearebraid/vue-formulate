@@ -713,7 +713,7 @@ describe('FormulateInputGroup', () => {
     })
   })
 
-  // This is basically the same test as found in FormulateForm sicne they share registry logic.
+  // This is basically the same test as found in FormulateForm since they share registry logic.
   it('can swap input types with the same name without loosing registration, but resetting values', async () => {
     const wrapper = mount({
       template: `
@@ -739,7 +739,7 @@ describe('FormulateInputGroup', () => {
       }
     })
     await flushPromises()
-    wrapper.find('input').setValue('Justin')
+    wrapper.find('input[name="test"]').setValue('Justin')
     await flushPromises()
     expect(wrapper.vm.formData).toEqual({ country: 'it', languages: [{ test: 'Justin' }] })
     wrapper.setData({ lang: 'en' })
@@ -1059,7 +1059,7 @@ describe('FormulateInputGroup', () => {
     ).toEqual(['@fb-jane'])
   })
 
-  it.only('does not let checkboxes wipe their own value out', async () => {
+  it('does not let checkboxes wipe their own value out', async () => {
     const wrapper = mount({
       template: `
         <FormulateForm
@@ -1089,9 +1089,7 @@ describe('FormulateInputGroup', () => {
     })
     await flushPromises()
     expect(wrapper.vm.formData).toEqual({
-      pizzas: [{
-        flavors: ['pepperoni', 'pineapple']
-      }]
+      pizzas: [{ flavors: ['pepperoni', 'pineapple'] }]
     })
   })
 })

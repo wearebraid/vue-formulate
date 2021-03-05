@@ -424,6 +424,9 @@ export default {
         return this.value
       } else if (has(this.$options.propsData, 'formulateValue')) {
         return this.formulateValue
+      } else if (classification === 'group') {
+        // Set the value of an empty group
+        return Object.defineProperty(this.type === 'group' ? [{}] : [], '__init', { value: true })
       }
       return ''
     },
