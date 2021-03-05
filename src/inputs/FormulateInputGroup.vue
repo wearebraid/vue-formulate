@@ -24,6 +24,7 @@
         v-model="context.model"
         v-bind="optionContext"
         :disable-errors="true"
+        :prevent-deregister="true"
         class="formulate-input-group-item"
         @blur="context.blurHandler"
       />

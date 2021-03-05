@@ -7,7 +7,7 @@
   >
     <FormulateRepeatableProvider
       v-for="(item, index) in items"
-      :key="index"
+      :key="item.__id"
       :index="index"
       :context="context"
       :uuid="item.__id"
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { setId, has } from './libs/utils'
+import { setId, has, equals } from './libs/utils'
 
 export default {
   name: 'FormulateGrouping',
@@ -40,7 +40,8 @@ export default {
   },
   data () {
     return {
-      providers: []
+      providers: [],
+      keys: []
     }
   },
   inject: ['formulateRegisterRule', 'formulateRemoveRule'],
@@ -49,16 +50,16 @@ export default {
       if (Array.isArray(this.context.model)) {
         if (!this.context.repeatable && this.context.model.length === 0) {
           // This is the default input.
-          return [setId({})]
+          return [this.setId({}, 0)]
         }
         if (this.context.model.length < this.context.minimum) {
           return (new Array(this.context.minimum || 1)).fill('')
-            .map((t, index) => setId(this.context.model[index] || {}))
+            .map((t, index) => this.setId(this.context.model[index] || {}, index))
         }
-        return this.context.model.map(item => setId(item))
+        return this.context.model.map((item, index) => this.setId(item, index))
       }
       // This is an unset group
-      return (new Array(this.context.minimum || 1)).fill('').map(() => setId({}))
+      return (new Array(this.context.minimum || 1)).fill('').map((_i, index) => this.setId({}, index))
     },
     formShouldShowErrors () {
       return this.context.formShouldShowErrors
@@ -78,6 +79,14 @@ export default {
       if (val) {
         this.showErrors()
       }
+    },
+    items: {
+      handler (items, oldItems) {
+        if (!equals(items, oldItems, true)) {
+          this.keys = items.map(item => item.__id)
+        }
+      },
+      immediate: true
     }
   },
   created () {
@@ -100,12 +109,11 @@ export default {
       this.providers.forEach(p => p && typeof p.showErrors === 'function' && p.showErrors())
     },
     setItem (index, groupProxy) {
-      const id = this.items[index].__id || false
       // Note: value must have an __id to use this function
-      if (Array.isArray(this.context.model) && this.context.model.length >= this.context.minimum) {
-        this.context.model.splice(index, 1, setId(groupProxy, id))
+      if (Array.isArray(this.context.model) && this.context.model.length >= this.context.minimum && !this.context.model.__init) {
+        this.context.model.splice(index, 1, this.setId(groupProxy, index))
       } else {
-        this.context.model = this.items.map((item, i) => i === index ? setId(groupProxy, id) : item)
+        this.context.model = this.items.map((item, i) => i === index ? this.setId(groupProxy, index) : item)
       }
     },
     removeItem (index) {
@@ -115,7 +123,7 @@ export default {
         this.context.rootEmit('repeatableRemoved', this.context.model)
       } else if (!Array.isArray(this.context.model) && this.items.length > this.context.minimum) {
         // In this context the fields have never been touched (not "dirty")
-        this.context.model = (new Array(this.items.length - 1)).fill('').map(() => setId({}))
+        this.context.model = (new Array(this.items.length - 1)).fill('').map((_i, idx) => this.setId({}, idx))
         this.context.rootEmit('repeatableRemoved', this.context.model)
       }
       // Otherwise, do nothing, we're at our minimum
@@ -127,6 +135,9 @@ export default {
     },
     deregisterProvider (provider) {
       this.providers = this.providers.filter(p => p !== provider)
+    },
+    setId (item, index) {
+      return item.__id ? item : setId(item, this.keys[index])
     }
   }
 }

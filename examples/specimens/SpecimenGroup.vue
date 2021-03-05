@@ -20,6 +20,21 @@
       </FormulateInput>
     </div>
     <div class="specimen">
+      <h3>Simple repeatable group</h3>
+      <FormulateInput
+        type="group"
+        name="foobar"
+        :repeatable="true"
+      >
+        <div class="wrap">
+          <FormulateInput
+            type="text"
+            name="name"
+          />
+        </div>
+      </FormulateInput>
+    </div>
+    <div class="specimen">
       <h3>Repeatable group</h3>
       <FormulateInput
         name="users"
@@ -51,8 +66,3 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-}
-</script>

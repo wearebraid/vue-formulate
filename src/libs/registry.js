@@ -305,7 +305,7 @@ export function useRegistryMethods (without = []) {
       const keys = Array.from(new Set(Object.keys(values || {}).concat(Object.keys(this.proxy))))
       keys.forEach(field => {
         const input = this.registry.has(field) && this.registry.get(field)
-        let value = values[field]
+        let value = values ? values[field] : undefined
         if (input && !equals(input.proxy, value, true)) {
           input.context.model = value
         }

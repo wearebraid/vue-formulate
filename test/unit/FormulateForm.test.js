@@ -1229,4 +1229,39 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(wrapper.find('[data-output]').text()).toBe('4567')
   })
+
+  it('Can keep-model-data on box type inputs', async () => {
+    const wrapper = mount({
+      template: `
+        <FormulateForm
+          v-model="formValues"
+        >
+          <FormulateInput
+            v-if="showCheckboxes"
+            type="checkbox"
+            name="flavor"
+            :keep-model-data="true"
+            :options="options"
+          />
+        </FormulateForm>
+      `,
+      data () {
+        return {
+          showCheckboxes: true,
+          options: ['Apple', 'Banana'],
+          formValues: {}
+        }
+      }
+    })
+    wrapper.find('input[type="checkbox"]').setChecked(true)
+    await flushPromises()
+    expect(wrapper.vm.formValues).toEqual({ flavor: ['Apple'] })
+    wrapper.vm.options = ['Pizza']
+    await flushPromises()
+    expect(wrapper.vm.formValues).toEqual({ flavor: ['Apple'] })
+    wrapper.vm.showCheckboxes = false
+    await flushPromises()
+    expect(wrapper.vm.formValues).toEqual({ flavor: ['Apple'] })
+
+  })
 })

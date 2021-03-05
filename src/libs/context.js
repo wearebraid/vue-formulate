@@ -523,7 +523,7 @@ function defineModel (context) {
   return Object.defineProperty(context, 'model', {
     get: modelGetter.bind(this),
     set: (value) => {
-      if (!this.debounceDelay) {
+      if (!this.mntd || !this.debounceDelay) {
         return modelSetter.call(this, value)
       }
       this.dSet(modelSetter, [value], this.debounceDelay)

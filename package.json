@@ -1,6 +1,6 @@
 {
   "name": "@braid/vue-formulate",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "The easiest way to build forms in Vue.",
   "main": "dist/formulate.umd.js",
   "module": "dist/formulate.esm.js",
@@ -17,7 +17,7 @@
     "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/formulate.umd.js",
     "build:iife": "rollup --config build/rollup.iife.config.js --format iife --file dist/formulate.min.js",
     "build:css": "node-sass themes/snow/snow.scss dist/snow.css && postcss --use autoprefixer -b '> 2%' < dist/snow.css | postcss --no-map --use cssnano > dist/snow.min.css",
-    "test": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
+    "test": "cross-env NODE_ENV=test jest --config test/jest.conf.js --coverage",
     "test:watch": "NODE_ENV=test jest --config test/jest.conf.js --watch",
     "test:coverage": "NODE_ENV=test jest --config test/jest.conf.js --coverage",
     "cypress": "cypress open",
@@ -59,6 +59,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^25.5.1",
+    "cross-env": "^7.0.3",
     "cssnano": "^4.1.10",
     "cypress": "^6.0.1",
     "cypress-file-upload": "^4.1.1",
@@ -92,7 +93,7 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "@braid/vue-formulate-i18n": "^1.15.0",
+    "@braid/vue-formulate-i18n": "^1.16.0",
     "is-plain-object": "^3.0.1",
     "is-url": "^1.2.4",
     "nanoid": "^2.1.11"

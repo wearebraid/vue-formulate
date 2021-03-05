@@ -276,6 +276,10 @@ export default {
     debounce: {
       type: [Boolean, Number],
       default: false
+    },
+    preventDeregister: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -294,7 +298,8 @@ export default {
       messageRegistry: {},
       touched: false,
       debounceDelay: this.debounce,
-      dSet: createDebouncer()
+      dSet: createDebouncer(),
+      mntd: false
     }
   },
   computed: {
@@ -394,6 +399,9 @@ export default {
       this.touched = true
     }
   },
+  mounted () {
+    this.mntd = true
+  },
   beforeDestroy () {
     if (!this.disableErrors && typeof this.removeErrorObserver === 'function') {
       this.removeErrorObserver(this.setErrors)
@@ -401,7 +409,7 @@ export default {
         this.removeErrorObserver(this.setGroupErrors)
       }
     }
-    if (typeof this.formulateDeregister === 'function') {
+    if (typeof this.formulateDeregister === 'function' && !this.preventDeregister) {
       this.formulateDeregister(this.nameOrFallback)
     }
   },
@@ -416,6 +424,9 @@ export default {
         return this.value
       } else if (has(this.$options.propsData, 'formulateValue')) {
         return this.formulateValue
+      } else if (classification === 'group') {
+        // Set the value of an empty group
+        return Object.defineProperty(this.type === 'group' ? [{}] : [], '__init', { value: true })
       }
       return ''
     },
