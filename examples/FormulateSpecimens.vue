@@ -42,7 +42,7 @@
 
 <script>
 import { has } from '../src/libs/utils'
-import nanoid from 'nanoid/non-secure'
+import { nanoid } from 'nanoid/non-secure'
 import SpecimenText from './specimens/SpecimenText'
 import SpecimenTextarea from './specimens/SpecimenTextarea'
 import SpecimenGroup from './specimens/SpecimenGroup'
