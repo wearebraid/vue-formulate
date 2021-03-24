@@ -225,6 +225,10 @@ export default {
         this.errorComponents.push(component)
       }
     },
+    getFormValues() {
+      //return promise of Form values
+      return new FormSubmission(this).values();
+    },
     formSubmitted () {
       if (this.isLoading) {
         return undefined

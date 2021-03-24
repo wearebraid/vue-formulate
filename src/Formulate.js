@@ -403,7 +403,7 @@ class Formulate {
    */
   submit (formName) {
     const form = this.registry.get(formName)
-    form.formSubmitted()
+    return form.formSubmitted()
   }
 
   /**
