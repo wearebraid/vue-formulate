@@ -3,7 +3,7 @@ import { mount, shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
 import Formulate from '../../src/Formulate.js'
 import FormSubmission from '../../src/FormSubmission.js'
-import FormulateForm from '@/FormulateForm.vue'
+import FormulateForm from '@/FormulateForm.js'
 import FormulateInput from '@/FormulateInput.vue'
 
 Vue.use(Formulate, {
@@ -1064,6 +1064,19 @@ describe('FormulateForm', () => {
     await flushPromises()
     expect(Object.keys(wrapper.find('form').attributes())).toEqual(['data-has-this-attribute', 'name', 'class'])
     expect(wrapper.find('form').attributes('class')).toBe('abc formulate-form formulate-form--search bg-white py-10 def')
+  })
+
+  it('allows dynamic root element tag', async () => {
+    const wrapper = mount({
+      template: `
+      <FormulateForm tag="tr">
+      </FormulateForm>
+      `
+    })
+    await flushPromises()
+    expect(wrapper.find('tr').exists()).toEqual(true)
+    expect(wrapper.find('form').exists()).toEqual(false)
+    expect(Object.keys(wrapper.find('tr').attributes())).toContain('form')
   })
 
   it('tracks it’s validation state with formContext', async () => {

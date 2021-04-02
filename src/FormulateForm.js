@@ -1,23 +1,3 @@
-<template>
-  <form
-    :class="classes.form"
-    v-bind="attributes"
-    @submit.prevent="formSubmitted"
-  >
-    <FormulateSchema
-      v-if="schema"
-      :schema="schema"
-      v-on="schemaListeners"
-    />
-    <FormulateErrors
-      v-if="!hasFormErrorObservers"
-      :context="formContext"
-    />
-    <slot v-bind="formContext" />
-  </form>
-</template>
-
-<script>
 import { arrayify, has, camel, extractAttributes, isEmpty } from './libs/utils'
 import { classProps } from './libs/classes'
 import useRegistry, { useRegistryComputed, useRegistryMethods, useRegistryProviders, useRegistryWatchers } from './libs/registry'
@@ -73,6 +53,10 @@ export default {
     debounce: {
       type: [Boolean, Number],
       default: false
+    },
+    tag: {
+      type: String,
+      default: 'form'
     }
   },
   data () {
@@ -272,6 +256,58 @@ export default {
       this.$emit('failed-validation', { ...this.failingFields })
       return this.$formulate.failedValidation(this)
     }
+  },
+  render (h) {
+    const children = []
+
+    if (this.schema) {
+      children.push(h(
+        'FormulateSchema',
+        {
+          attrs: {
+            schema: this.schema
+          },
+          on: {
+            ...this.schemaListeners
+          }
+        }
+      ))
+    }
+
+    if (!this.hasFormErrorObservers) {
+      children.push(h(
+        'FormulateErrors',
+        {
+          attrs: {
+            context: this.formContext
+          }
+        }
+      ))
+    }
+
+    let defaultSlot = this.$slots.default
+    if (this.$scopedSlots.default) {
+      defaultSlot = this.$scopedSlots.default(this.formContext)
+    }
+
+    return h(
+      this.tag,
+      {
+        class: this.classes.form,
+        attrs: {
+          ...this.attributes
+        },
+        on: {
+          submit: (event) => {
+            event.preventDefault()
+            return this.formSubmitted(event)
+          }
+        }
+      },
+      [
+        ...children,
+        defaultSlot
+      ]
+    )
   }
 }
-</script>
