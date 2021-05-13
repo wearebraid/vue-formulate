@@ -859,7 +859,7 @@ describe('FormulateInputGroup', () => {
         value: [{ username: 'mermaid', email: 'mermaid@wearebraid.com' }, { username: 'blah', email: 'blah@wearebraid.com' }],
       },
       listeners: {
-        'repeatableRemoved': removeListener
+        'repeatable-removed': removeListener
       },
       slots: {
         default: `
@@ -884,7 +884,7 @@ describe('FormulateInputGroup', () => {
         value: [{}],
       },
       listeners: {
-        'repeatableAdded': addListener
+        'repeatable-added': addListener
       },
       slots: {
         default: `

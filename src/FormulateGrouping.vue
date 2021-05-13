@@ -120,11 +120,11 @@ export default {
       if (Array.isArray(this.context.model) && this.context.model.length > this.context.minimum) {
         // In this context we actually have data
         this.context.model = this.context.model.filter((item, i) => i === index ? false : item)
-        this.context.rootEmit('repeatableRemoved', this.context.model)
+        this.context.rootEmit('repeatable-removed', this.context.model)
       } else if (!Array.isArray(this.context.model) && this.items.length > this.context.minimum) {
         // In this context the fields have never been touched (not "dirty")
         this.context.model = (new Array(this.items.length - 1)).fill('').map((_i, idx) => this.setId({}, idx))
-        this.context.rootEmit('repeatableRemoved', this.context.model)
+        this.context.rootEmit('repeatable-removed', this.context.model)
       }
       // Otherwise, do nothing, we're at our minimum
     },
