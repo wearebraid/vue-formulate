@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { mount } from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
 import Formulate from '@/Formulate.js'
 import FileUpload from '@/FileUpload.js'
@@ -45,6 +45,19 @@ describe('FormulateInputFile', () => {
   it('additional context does not bleed through to file input attributes', () => {
     const wrapper = mount(FormulateInput, { propsData: { type: 'image' } } )
     expect(Object.keys(wrapper.find('input[type="file"]').attributes())).toEqual(["type", "id"])
+  })
+
+  it('disabled attr append to add file button in multiple file', async () =>{
+    const localVue = createLocalVue()
+    localVue.use(Formulate)
+    const wrapper = mount(FormulateInput, { localVue, propsData: {
+      type: 'file',
+      disabled: true,
+      multiple: true,
+      value: [{ url: 'apple.pdf' }]
+    } })
+    await flushPromises()
+    expect(Object.keys(wrapper.find('.formulate-file-add input').attributes()).includes('disabled')).toBe(true)
   })
 
   it('can add classes to the element wrapper', () => {

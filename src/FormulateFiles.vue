@@ -37,6 +37,7 @@
       <input
         ref="addFiles"
         type="file"
+        :disabled="isDisabled"
         multiple
         :class="context.classes.fileAddInput"
         @change="appendFiles"
@@ -71,6 +72,9 @@ export default {
     },
     isMultiple () {
       return has(this.context.attributes, 'multiple')
+    },
+    isDisabled () {
+      return has(this.context.attributes, 'disabled')
     }
   },
   watch: {
