@@ -26,6 +26,20 @@
       />
     </div>
     <div class="specimen">
+      <h3>Multiple Files Disabled</h3>
+      <FormulateInput
+        :multiple="true"
+        :disabled="true"
+        label="Upload a file"
+        name="file"
+        type="file"
+        :outer-class="['file-input-2']"
+        :value="[{ url: 'apple.pdf' }]"
+        help="Select any file to upload"
+        validation="mime:application/pdf"
+      />
+    </div>
+    <div class="specimen">
       <h3>Image</h3>
       <FormulateInput
         label="What do you look like?"
