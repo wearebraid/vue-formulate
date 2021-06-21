@@ -83,14 +83,13 @@ export default {
       return !!(this.context.model instanceof FileUpload && this.context.model.files.length)
     }
   },
-  created () {
-    if (Array.isArray(this.context.model)) {
-      if (typeof this.context.model[0][this.$formulate.getFileUrlKey()] === 'string') {
-        this.context.model = this.$formulate.createUpload({
-          files: this.context.model
-        }, this.context)
-      }
+  watch: {
+    'context.model' () {
+      this.initValue()
     }
+  },
+  created () {
+    this.initValue()
   },
   mounted () {
     // Add a listener to the window to prevent drag/drops that miss the dropzone
@@ -107,6 +106,15 @@ export default {
     }
   },
   methods: {
+    initValue () {
+      if (Array.isArray(this.context.model)) {
+        if (typeof this.context.model[0][this.$formulate.getFileUrlKey()] === 'string') {
+          this.context.model = this.$formulate.createUpload({
+            files: this.context.model
+          }, this.context)
+        }
+      }
+    },
     preventDefault (e) {
       if (e.target.tagName !== 'INPUT' && e.target.getAttribute('type') !== 'file') {
         e = e || event
