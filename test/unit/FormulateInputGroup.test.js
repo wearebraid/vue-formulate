@@ -872,7 +872,7 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     wrapper.find('.formulate-input-group-repeatable-remove').trigger('click')
     await flushPromises()
-    expect(removeListener.mock.calls.length).toBe(1)
+    expect(removeListener.mock.calls.length).toBe(2)
   })
 
   it('allows passing errors down into groups', async () => {
@@ -898,7 +898,7 @@ describe('FormulateInputGroup', () => {
     await flushPromises()
     wrapper.find('.formulate-input-group-add-more button').trigger('click')
     await flushPromises()
-    expect(addListener.mock.calls.length).toBe(1)
+    expect(addListener.mock.calls.length).toBe(2)
   })
 
   it('ensures there are always a minimum number of items even if the model has fewer', async () => {
