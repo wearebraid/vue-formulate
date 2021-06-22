@@ -142,6 +142,7 @@ export default {
         this.context.model = (new Array(this.totalItems + 1)).fill('').map(() => setId({}))
       }
       this.context.rootEmit('repeatableAdded', this.context.model)
+      this.context.rootEmit('repeatable-added', this.context.model)
     },
     groupItemContext (context, option, groupAttributes) {
       const optionAttributes = { isGrouped: true }
