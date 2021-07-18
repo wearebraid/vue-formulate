@@ -502,7 +502,9 @@ function slotProps () {
  */
 function blurHandler () {
   if (this.errorBehavior === 'blur' || this.errorBehavior === 'value') {
-    this.behavioralErrorVisibility = true
+    this.pendingValidation.then(() => {
+      this.behavioralErrorVisibility = true
+    })
   }
   this.$nextTick(() => this.$emit('blur-context', this.context))
 }
